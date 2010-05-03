@@ -68,7 +68,7 @@ var QUALIFIER_REGEX = "(" + QUALIFIER_OPERATORS.join("|") + ")";
 
 - initWithType:(id)qualifierType {
     [self init];
-	type = qualifierType;
+    type = qualifierType;
     return self;
 }
 
@@ -99,7 +99,7 @@ var QUALIFIER_REGEX = "(" + QUALIFIER_OPERATORS.join("|") + ")";
 //--- instance methods ----
 
 - (IFSQLStatement)sqlWithBindValuesForExpression:(id)sqlExpression andModel:(id)model {
-	return [self sqlWithBindValuesForExpression:sqlExpression andModel:model andClause:"WHERE"];
+    return [self sqlWithBindValuesForExpression:sqlExpression andModel:model andClause:"WHERE"];
 }
 
 - (IFSQLStatement)sqlWithBindValuesForExpression:(id)sqlExpression andModel:(id)model andClause:(id)clause {
@@ -113,7 +113,7 @@ var QUALIFIER_REGEX = "(" + QUALIFIER_OPERATORS.join("|") + ")";
 
 - translateDerivedRelationshipQualifier:(id)relationship intoSQLExpression:(id)sqlExpression forModel:(id)model {
     // argh parsing
-	var re = new RegExp("^\\\s*([\\\w\\\._-]+)\\\s*" + QUALIFIER_REGEX + "\\\s*(ANY|ALL|SOME)?(.*)$", "i");
+    var re = new RegExp("^\\\s*([\\\w\\\._-]+)\\\s*" + QUALIFIER_REGEX + "\\\s*(ANY|ALL|SOME)?(.*)$", "i");
     var yn = condition.match(re);
     if (!yn) { [IFLog error:"Failed to parse " + condition + " as legitimate derived qualifier"]; return }
     var sourceKeyPath    = yn[1];
@@ -121,55 +121,55 @@ var QUALIFIER_REGEX = "(" + QUALIFIER_OPERATORS.join("|") + ")";
     var subqueryOperator = yn[3];
     var targetKeyPath    = yn[4];
 
-	var recd = [model entityClassDescriptionForEntityNamed:entity];
+    var recd = [model entityClassDescriptionForEntityNamed:entity];
     var sourceGoo = [recd parseKeyPath:sourceKeyPath withSQLExpression:sqlExpression andModel:model];
-	var rhs = targetKeyPath;
+    var rhs = targetKeyPath;
 
     if (expressionIsKeyPath(targetKeyPath)) {
         var targetGoo = [recd parseKeyPath:targetKeyPath withSQLExpression:sqlExpression andModel:model];
         var rtecd;
-		if (rtecd = targetGoo.TARGET_ENTITY_CLASS_DESCRIPTION) {
-			// create SQL for the qualifier on >that< entity
-			var tableName = [rtecd _table];
-			var columnName = [rtecd columnNameForAttributeName:targetGoo.TARGET_ATTRIBUTE];
-			if ([sqlExpression hasSummaryAttribute:targetGoo.TARGET_ATTRIBUTE forTable:tableName]) {
-				columnName = [sqlExpression aliasForSummaryAttribute:targetGoo.TARGET_ATTRIBUTE onTable:tableName];
-			}
-			var tableAlias = [sqlExpression aliasForTable:tableName];
+        if (rtecd = targetGoo.TARGET_ENTITY_CLASS_DESCRIPTION) {
+            // create SQL for the qualifier on >that< entity
+            var tableName = [rtecd _table];
+            var columnName = [rtecd columnNameForAttributeName:targetGoo.TARGET_ATTRIBUTE];
+            if ([sqlExpression hasSummaryAttribute:targetGoo.TARGET_ATTRIBUTE forTable:tableName]) {
+                columnName = [sqlExpression aliasForSummaryAttribute:targetGoo.TARGET_ATTRIBUTE onTable:tableName];
+            }
+            var tableAlias = [sqlExpression aliasForTable:tableName];
 
-			rhs = tableAlias + "." + columnName;
-		}
-	}
+            rhs = tableAlias + "." + columnName;
+        }
+    }
 
-	var secd = sourceGoo.TARGET_ENTITY_CLASS_DESCRIPTION;
+    var secd = sourceGoo.TARGET_ENTITY_CLASS_DESCRIPTION;
 
-	var tableAlias = [sqlExpression aliasForTable:[relationship name]];
-	var itn = [[[relationship fetchSpecification] entityClassDescription] _table];
-	var columnName = [[[relationship fetchSpecification] entityClassDescription] columnNameForAttributeName:sourceGoo.TARGET_ATTRIBUTE];
-	columnName = [[[relationship fetchSpecification] sqlExpression] aliasForColumn:columnName onTable:itn];
-	if (!columnName) {
-		if ([[[relationship fetchSpecification] sqlExpression] hasSummaryAttribute:sourceGoo.TARGET_ATTRIBUTE forTable: [[[relationship fetchSpecification] entityClassDescription] _table]]) {
+    var tableAlias = [sqlExpression aliasForTable:[relationship name]];
+    var itn = [[[relationship fetchSpecification] entityClassDescription] _table];
+    var columnName = [[[relationship fetchSpecification] entityClassDescription] columnNameForAttributeName:sourceGoo.TARGET_ATTRIBUTE];
+    columnName = [[[relationship fetchSpecification] sqlExpression] aliasForColumn:columnName onTable:itn];
+    if (!columnName) {
+        if ([[[relationship fetchSpecification] sqlExpression] hasSummaryAttribute:sourceGoo.TARGET_ATTRIBUTE forTable: [[[relationship fetchSpecification] entityClassDescription] _table]]) {
             columnName = [[[relationship fetchSpecification] sqlExpression] aliasForSummaryAttribute:sourceGoo.TARGET_ATTRIBUTE onTable: [[[relationship fetchSpecification] entityClassDescription] _table]];
-		} else {
-			[IFLog debug:"Couldn't find alias for column " + sourceGoo.TARGET_ATTRIBUTE];
-		}
-	}
-	var lhs = tableAlias + "." + columnName;
-	return [IFSQLStatement newWithSQL:[lhs, operator, subqueryOperator, rhs].join(" ") andBindValues:bindValues];
+        } else {
+            [IFLog debug:"Couldn't find alias for column " + sourceGoo.TARGET_ATTRIBUTE];
+        }
+    }
+    var lhs = tableAlias + "." + columnName;
+    return [IFSQLStatement newWithSQL:[lhs, operator, subqueryOperator, rhs].join(" ") andBindValues:bindValues];
 }
 
 - hasSubQuery {
-	return ([self subQuery] ? true : false);
+    return ([self subQuery] ? true : false);
 }
 
 - subQuery {
     var bven = [bindValues objectEnumerator], bv;
-	while (bv = [bven nextObject]) {
+    while (bv = [bven nextObject]) {
         if (bv.isa && [bv isKindOfClass:IFFetchSpecification]) {
             return bv;
         }
-	}
-	return nil;
+    }
+    return nil;
 }
 
 @end
@@ -267,8 +267,8 @@ var QUALIFIER_REGEX = "(" + QUALIFIER_OPERATORS.join("|") + ")";
 }
 
 - (IFSQLStatement)sqlWithBindValuesForExpression:(id)sqlExpression andModel:(id)model andClause:(id)clause {
-	// short-circuit qualifiers that don't need to be translated.
-	// TODO : rework the SQL in these to use the table aliases
+    // short-circuit qualifiers that don't need to be translated.
+    // TODO : rework the SQL in these to use the table aliases
     return [IFSQLStatement newWithSQL:condition andBindValues:bindValues];
 }
 
@@ -306,8 +306,8 @@ var QUALIFIER_REGEX = "(" + QUALIFIER_OPERATORS.join("|") + ")";
 
 - init {
     [super init]
-	bindValues = [],
-	requiresRepeatedJoin = false;
+    bindValues = [],
+    requiresRepeatedJoin = false;
     condition = null;
     return self;
 }
@@ -323,17 +323,17 @@ var QUALIFIER_REGEX = "(" + QUALIFIER_OPERATORS.join("|") + ")";
 }
 
 - (IFSQLStatement)sqlWithBindValuesForExpression:(id)sqlExpression andModel:(id)model andClause:(id)clause {
-	// short-circuit qualifiers that don't need to be translated.
-	// TODO : rework the SQL in these to use the table aliases
+    // short-circuit qualifiers that don't need to be translated.
+    // TODO : rework the SQL in these to use the table aliases
     //
 
-	// There are three parts to a key-qualifier:
-	// 1. key path
-	// 2. operator
-	// 3. values
+    // There are three parts to a key-qualifier:
+    // 1. key path
+    // 2. operator
+    // 3. values
     //
 
-	var re = new RegExp("^\\\s*([\\\w\\\._-]+)\\\s*" + QUALIFIER_REGEX + "\\\s*(ANY|ALL|SOME)?(.*)$", "i");
+    var re = new RegExp("^\\\s*([\\\w\\\._-]+)\\\s*" + QUALIFIER_REGEX + "\\\s*(ANY|ALL|SOME)?(.*)$", "i");
     var yn = condition.match(re);
     if (!yn) {
         [CPException raise:"CPException" reason:"Qualifier condition is not well-formed: " + condition];
@@ -345,92 +345,92 @@ var QUALIFIER_REGEX = "(" + QUALIFIER_OPERATORS.join("|") + ")";
     var value = yn[4];
     //[IFLog dump:[ keyPath, operator, subqueryOperator, value ]];
 
-	var ecd = [model entityClassDescriptionForEntityNamed:entity];
-	if (![IFLog assert:ecd message:"Entity class description exists for self.entity for self.condition"]) { return nil; }
-	var oecd = ecd;  // original ecd
-	var cecd = ecd;  // current ecd
+    var ecd = [model entityClassDescriptionForEntityNamed:entity];
+    if (![IFLog assert:ecd message:"Entity class description exists for self.entity for self.condition"]) { return nil; }
+    var oecd = ecd;  // original ecd
+    var cecd = ecd;  // current ecd
 
-	// Figure out the target ecd for the qualifier by looping through the keys in the path
+    // Figure out the target ecd for the qualifier by looping through the keys in the path
 
-	var bits = [keyPath componentsSeparatedByString:/\./];
+    var bits = [keyPath componentsSeparatedByString:/\./];
 
-	if ([bits count] == 0) { bits = [keyPath] }
+    if ([bits count] == 0) { bits = [keyPath] }
 
-	var qualifierKey;
+    var qualifierKey;
     var deferredJoins = [IFArray new];
 
-	for (var i=0; i < [bits count]; i++) {
-		qualifierKey = [bits objectAtIndex:i];
+    for (var i=0; i < [bits count]; i++) {
+        qualifierKey = [bits objectAtIndex:i];
 
-		// if it's the last key in the path, bail now
+        // if it's the last key in the path, bail now
         if (i >= ([bits count] - 1)) { break }
 
-		// otherwise, look up the relationship
-		var relationship = [cecd relationshipWithName:qualifierKey];
+        // otherwise, look up the relationship
+        var relationship = [cecd relationshipWithName:qualifierKey];
 
-		// if there's no such relationship, it might be a derived data source
-		// so check for that
+        // if there's no such relationship, it might be a derived data source
+        // so check for that
         //
-		if (!relationship) {
-			relationship = [sqlExpression derivedDataSourceWithName:qualifierKey];
-			// short circuit the rest of the loop if it's a derived
-			// relationship because we don't need to add any
-			// relationship traversal info to the sqlExpression
+        if (!relationship) {
+            relationship = [sqlExpression derivedDataSourceWithName:qualifierKey];
+            // short circuit the rest of the loop if it's a derived
+            // relationship because we don't need to add any
+            // relationship traversal info to the sqlExpression
             //
-			if (relationship) {
-				return [self translateDerivedRelationshipQualifier:relationship intoSQLExpression:sqlExpression forModel:model];
-			}
-		}
-
-		if (!relationship) {
-			relationship = [sqlExpression dynamicRelationshipWithName:qualifierKey];
-			//IF::Log::debug("Using dynamic relationship");
-		}
-
-		if (![IFLog assert:relationship message:"Relationship " + qualifierKey + " exists on entity " + [cecd name]]) {
-			return [IFSQLStatement newWithSQL:"" andBindValues:[]];
-		}
-		var tecd = [relationship targetEntityClassDescription:model];
-
-		if (![IFLog assert:tecd message:"Target entity class " + [relationship targetEntity] + " exists"]) {
-            return [IFSQLStatement newWithSQL:"" andBindValues:[]];
-	    }
-
-        //
-		// ([tecd isAggregateEntity]) {
-		//  // We just bail on it if it's aggregate
-	    //	// TODO see if there's a way to insert an aggregate qualifier into the key path
-        //  //
-		//	return [self _translateQualifierWithGoo:
-		//			bits[i+1],
-		//			relationship,
-		//			tecd,
-		//			model,
-		//			sqlExpression,
-		//			operator,
-		//			value
-		//		];
-		//}
-        //
-
-		// add traversed relationships to the SQL expression
-		if (requiresRepeatedJoin) {
-		    [deferredJoins addObject:{ ecd: cecd, key: qualifierKey }];
-		} else {
-		    [sqlExpression addTraversedRelationship:qualifierKey onEntity:cecd];
+            if (relationship) {
+                return [self translateDerivedRelationshipQualifier:relationship intoSQLExpression:sqlExpression forModel:model];
+            }
         }
 
-		// follow it
-		cecd = tecd;
-	}
+        if (!relationship) {
+            relationship = [sqlExpression dynamicRelationshipWithName:qualifierKey];
+            //IF::Log::debug("Using dynamic relationship");
+        }
 
-	// create SQL for the qualifier on >that< entity
-	var tableName = [cecd _table];
+        if (![IFLog assert:relationship message:"Relationship " + qualifierKey + " exists on entity " + [cecd name]]) {
+            return [IFSQLStatement newWithSQL:"" andBindValues:[]];
+        }
+        var tecd = [relationship targetEntityClassDescription:model];
 
-	var columnName = [cecd columnNameForAttributeName:qualifierKey];
-	if ([sqlExpression hasSummaryAttribute:qualifierKey forTable:tableName]) {
-		columnName = [sqlExpression aliasForSummaryAttribute:qualifierKey onTable:tableName];
-	}
+        if (![IFLog assert:tecd message:"Target entity class " + [relationship targetEntity] + " exists"]) {
+            return [IFSQLStatement newWithSQL:"" andBindValues:[]];
+        }
+
+        //
+        // ([tecd isAggregateEntity]) {
+        //  // We just bail on it if it's aggregate
+        //    // TODO see if there's a way to insert an aggregate qualifier into the key path
+        //  //
+        //    return [self _translateQualifierWithGoo:
+        //            bits[i+1],
+        //            relationship,
+        //            tecd,
+        //            model,
+        //            sqlExpression,
+        //            operator,
+        //            value
+        //        ];
+        //}
+        //
+
+        // add traversed relationships to the SQL expression
+        if (requiresRepeatedJoin) {
+            [deferredJoins addObject:{ ecd: cecd, key: qualifierKey }];
+        } else {
+            [sqlExpression addTraversedRelationship:qualifierKey onEntity:cecd];
+        }
+
+        // follow it
+        cecd = tecd;
+    }
+
+    // create SQL for the qualifier on >that< entity
+    var tableName = [cecd _table];
+
+    var columnName = [cecd columnNameForAttributeName:qualifierKey];
+    if ([sqlExpression hasSummaryAttribute:qualifierKey forTable:tableName]) {
+        columnName = [sqlExpression aliasForSummaryAttribute:qualifierKey onTable:tableName];
+    }
 
     // allow a column name to be specified directly:
     if (!columnName && [cecd hasColumnNamed:qualifierKey]) {
@@ -440,77 +440,77 @@ var QUALIFIER_REGEX = "(" + QUALIFIER_OPERATORS.join("|") + ")";
     var tn = tableName;
 
     // XXX! Kludge! XXX!
-	if (requiresRepeatedJoin) {
-	    tn = [sqlExpression addRepeatedTable:tn];
+    if (requiresRepeatedJoin) {
+        tn = [sqlExpression addRepeatedTable:tn];
     }
-	var tableAlias = [sqlExpression aliasForTable:tn];
-	[IFLog assert:tableAlias message:"Alias for table tn is tableAlias"];
+    var tableAlias = [sqlExpression aliasForTable:tn];
+    [IFLog assert:tableAlias message:"Alias for table tn is tableAlias"];
 
-	var conditionInSQL;
-	var bvs;
+    var conditionInSQL;
+    var bvs;
 
-	if ([self hasSubQuery]) {
-		var sq = value;
-		var sqlWithBindValues = [[self subQuery] toSQLFromExpression];
+    if ([self hasSubQuery]) {
+        var sq = value;
+        var sqlWithBindValues = [[self subQuery] toSQLFromExpression];
         var sqre = new RegExp("\%\@");
-		sq.replace(sqre, "(" + [sqlWithBindValues sql]  + ")");
-		conditionInSQL = tableAlias + "." + columnName + " " + operator + " " +  subqueryOperator + " " +  subquery;
-		bvs = [sqlWithBindValues bindValues];
-	} else {
+        sq.replace(sqre, "(" + [sqlWithBindValues sql]  + ")");
+        conditionInSQL = tableAlias + "." + columnName + " " + operator + " " +  subqueryOperator + " " +  subquery;
+        bvs = [sqlWithBindValues bindValues];
+    } else {
         //
-		//var aggregateColumns = {
-		//	uc([oecd aggregateKeyName]): 1,
-		//	uc([oecd aggregateValueName]): 1,
-		//	"creationDate": 1,
-		//	"modificationDate": 1,
-		//};
-		//if ([oecd isAggregateEntity]
-		//	&& !aggregateColumns[uc(columnName)]
-		//	&& ![oecd _primaryKey]->hasKeyField(uc(columnName))) {
-		//	conditionInSQL = "tableAlias + "[.oecd aggregateKeyName].
-		//					" = %@ AND tableAlias + "[.oecd aggregateValueName].
-		//					" operator value";
-		//	bindValues = [columnName, @{self._bindValues}];
-		//} else {
+        //var aggregateColumns = {
+        //    uc([oecd aggregateKeyName]): 1,
+        //    uc([oecd aggregateValueName]): 1,
+        //    "creationDate": 1,
+        //    "modificationDate": 1,
+        //};
+        //if ([oecd isAggregateEntity]
+        //    && !aggregateColumns[uc(columnName)]
+        //    && ![oecd _primaryKey]->hasKeyField(uc(columnName))) {
+        //    conditionInSQL = "tableAlias + "[.oecd aggregateKeyName].
+        //                    " = %@ AND tableAlias + "[.oecd aggregateValueName].
+        //                    " operator value";
+        //    bindValues = [columnName, @{self._bindValues}];
+        //} else {
         //
-		    //IF::Log::debug("MEOW $value");
-		    // TODO... I am pretty sure this code is redundant now;
-		    // the code above takes care of resolving the key paths now.
+            //IF::Log::debug("MEOW $value");
+            // TODO... I am pretty sure this code is redundant now;
+            // the code above takes care of resolving the key paths now.
             //
-			if (expressionIsKeyPath(value)) {
-				//[IFLog debug:"key path"];
+            if (expressionIsKeyPath(value)) {
+                //[IFLog debug:"key path"];
                 var targetGoo = [ecd parseKeyPath:value withSQLExpression:sqlExpression andModel:model];
-				var tecd = targetGoo.TARGET_ENTITY_CLASS_DESCRIPTION;
-				var ta = targetGoo.TARGET_ATTRIBUTE;
-				if (tecd) {
-				    var tn = [ecd _table];
+                var tecd = targetGoo.TARGET_ENTITY_CLASS_DESCRIPTION;
+                var ta = targetGoo.TARGET_ATTRIBUTE;
+                if (tecd) {
+                    var tn = [ecd _table];
 
-				    // XXX! Kludge! XXX!
-                	if (requiresRepeatedJoin) {
+                    // XXX! Kludge! XXX!
+                    if (requiresRepeatedJoin) {
                         // add that to the fetch representation
                         tn = [sqlExpression addRepeatedTable:tn];
                     }
 
-					var targetTableAlias = [sqlExpression aliasForTable:tn];
-					var targetColumnName = [sqlExpression aliasForColumn:ta onTable:[ecd _table]];
+                    var targetTableAlias = [sqlExpression aliasForTable:tn];
+                    var targetColumnName = [sqlExpression aliasForColumn:ta onTable:[ecd _table]];
 
-					value = targetTableAlias + "." + targetColumnName;
-				}
-			}
-			conditionInSQL = tableAlias + "." + columnName + " " + operator + " " + value;
-			bvs = bindValues;
-		//}
+                    value = targetTableAlias + "." + targetColumnName;
+                }
+            }
+            conditionInSQL = tableAlias + "." + columnName + " " + operator + " " + value;
+            bvs = bindValues;
+        //}
         conditionInSQL = conditionInSQL.split("%@").join('?');
-	}
+    }
 
     // hack to add a join to a repeated qualifier
     var dje = [deferredJoins objectEnumerator], dj;
-	while (dj = [dje nextObject]) {
-	    [IFLog debug:"Adding repeated join on " + [dj.ecd name] + " with key " + dj.key];
-	    [sqlExpression addRepeatedTraversedRelationship:dj.key onEntity:dj.ecd];
-	}
+    while (dj = [dje nextObject]) {
+        [IFLog debug:"Adding repeated join on " + [dj.ecd name] + " with key " + dj.key];
+        [sqlExpression addRepeatedTraversedRelationship:dj.key onEntity:dj.ecd];
+    }
 
-	return [IFSQLStatement newWithSQL:conditionInSQL andBindValues:bindValues];
+    return [IFSQLStatement newWithSQL:conditionInSQL andBindValues:bindValues];
 }
 
 @end
@@ -531,10 +531,10 @@ var QUALIFIER_REGEX = "(" + QUALIFIER_OPERATORS.join("|") + ")";
 }
 
 - (IFSQLStatement)sqlWithBindValuesForExpression:(id)sqlExpression andModel:(id)model andClause:(id)clause {
-	var ecd = [model entityClassDescriptionForEntityNamed:entity];
-	if (![IFLog assert:ecd message:"Entity class description exists for self.entity"]) { return {}; }
-	var oecd = ecd;  // original ecd
-	var cecd = ecd;  // current ecd
+    var ecd = [model entityClassDescriptionForEntityNamed:entity];
+    if (![IFLog assert:ecd message:"Entity class description exists for self.entity"]) { return {}; }
+    var oecd = ecd;  // original ecd
+    var cecd = ecd;  // current ecd
 
     // figure out the attributes
     var attributes = matchAttributes ? [matchAttributes copy] : [IFArray new];
@@ -555,14 +555,14 @@ var QUALIFIER_REGEX = "(" + QUALIFIER_OPERATORS.join("|") + ")";
     while (attributeName = [aten nextObject]) {
         var targetGoo = [oecd parseKeyPath:attributeName withSQLExpression:sqlExpression andModel:model];
 
-    	var tecd = targetGoo.TARGET_ENTITY_CLASS_DESCRIPTION;
-    	if (tecd) {
-			var tableName = [tecd _table];
-			var columnName = [tecd columnNameForAttributeName:targetGoo.TARGET_ATTRIBUTE];
-			var tableAlias = [sqlExpression aliasForTable:tableName];
+        var tecd = targetGoo.TARGET_ENTITY_CLASS_DESCRIPTION;
+        if (tecd) {
+            var tableName = [tecd _table];
+            var columnName = [tecd columnNameForAttributeName:targetGoo.TARGET_ATTRIBUTE];
+            var tableAlias = [sqlExpression aliasForTable:tableName];
 
             [mappedAttributes addObject:tableAlias + "." + columnName];
-		}
+        }
     }
 
     [IFLog dump:"Matching on " + [mappedAttributes componentsJoinedByString:", "]];
@@ -580,6 +580,6 @@ var KP_RE = new RegExp('^[A-Za-z_\(\)]+[A-Za-z0-9_#\@\.\(\)\"]*$');
 var KP_RE_PLUS = new RegExp('^[A-Za-z_\(\)]+[A-Za-z0-9_#\@]*[\(\.]+');
 
 function expressionIsKeyPath(expression) {
-	if ( expression.match(KP_RE) ) { return true }
-	return expression.match(KP_RE_PLUS);
+    if ( expression.match(KP_RE) ) { return true }
+    return expression.match(KP_RE_PLUS);
 }

@@ -21,55 +21,55 @@
 
 @import <strict>;
 use base qw(
-	IFDictionary
+    IFDictionary
 );
 /* use overload '""' => 'stringValue'; */
 
 
 + new {
-	var self = className->SUPER::new();
-	bless self, className;
+    var self = className->SUPER::new();
+    bless self, className;
 }
 
 + newFromString:(id)string {
-	var self = [className new];
-	var (e, p) = split(/\,/, string, 2);
-	[self setEntityName:e];
-	[self setExternalId:p];
-	return self;
+    var self = [className new];
+    var (e, p) = split(/\,/, string, 2);
+    [self setEntityName:e];
+    [self setExternalId:p];
+    return self;
 }
 
 + newFromEntity:(id)entity {
-	var self = [className new];
-	[self setEntityName:entity->entityClassDescription()->name()];
-	[self setExternalId:entity->externalId()];
-	return self;
+    var self = [className new];
+    [self setEntityName:entity->entityClassDescription()->name()];
+    [self setExternalId:entity->externalId()];
+    return self;
 }
 
 - entityName {
-	return self.entityName;
+    return self.entityName;
 }
 
 + setEntityName:(id)value {
-	self.entityName = value;
-	self.entity = null;
+    self.entityName = value;
+    self.entity = null;
 }
 
 - externalId {
-	return self.externalId;
+    return self.externalId;
 }
 
 + setExternalId:(id)value {
-	self.externalId = value;
-	self.entity = null;
+    self.externalId = value;
+    self.entity = null;
 }
 
 - stringValue {
-	return [self entityName] + "," + self->externalId();
+    return [self entityName] + "," + self->externalId();
 }
 
 - entity {
-	return self.entity ||= [IFObjectContext new]->entityWithUniqueIdentifier(self);
+    return self.entity ||= [IFObjectContext new]->entityWithUniqueIdentifier(self);
 }
 
 @end

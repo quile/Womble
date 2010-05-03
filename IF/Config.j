@@ -33,25 +33,25 @@ try {
 }
 
 DEFAULTS = {
-	DEFAULT_ENTITY_CLASS: "IFEntityPersistent",
-	DEFAULT_BATCH_SIZE: 30,
-	DEFAULT_LANGUAGE: "en",
-	DEFAULT_MODEL: "",  // TODO:  maybe come up with a better default for this?
-	SEQUENCE_TABLE: "SEQUENCE",
-	JAVASCRIPT_ROOT: "/javascript",
-	/* these may get re-defined in the site-specific conf
-	   so we want to load that last
+    DEFAULT_ENTITY_CLASS: "IFEntityPersistent",
+    DEFAULT_BATCH_SIZE: 30,
+    DEFAULT_LANGUAGE: "en",
+    DEFAULT_MODEL: "",  // TODO:  maybe come up with a better default for this?
+    SEQUENCE_TABLE: "SEQUENCE",
+    JAVASCRIPT_ROOT: "/javascript",
+    /* these may get re-defined in the site-specific conf
+       so we want to load that last
     */
-	SHOULD_CACHE_TEMPLATE_PATHS: 1,
-	SHOULD_CACHE_TEMPLATES: 0,
-	SHOULD_CACHE_BINDINGS: 0,
-	BUILD_VERSION: BUILD_VERSION,
+    SHOULD_CACHE_TEMPLATE_PATHS: 1,
+    SHOULD_CACHE_TEMPLATES: 0,
+    SHOULD_CACHE_BINDINGS: 0,
+    BUILD_VERSION: BUILD_VERSION,
 };
 
 DEFAULTS = [IFDictionary initWithFoo:DEFAULTS];
 
 try {
-	APP_CONFIGURATION = require("conf/ACTIVE/IF.conf");
+    APP_CONFIGURATION = require("conf/ACTIVE/IF.conf");
 } catch (e) {
     [[IFException initWithString:"Failed to load IF.conf:"] raise];
 }

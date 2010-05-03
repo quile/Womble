@@ -47,14 +47,14 @@ var _defaultModel;
 
 - initWithModelAtPath:(id)modelPath {
     [self init];
-	//[IFLog debug:"Loading in model found at " + modelPath];
-	var m = require(modelPath);
-	if (!m) {
-		[IFLog error:"Cannot load model " + modelPath +
+    //[IFLog debug:"Loading in model found at " + modelPath];
+    var m = require(modelPath);
+    if (!m) {
+        [IFLog error:"Cannot load model " + modelPath +
                      " - This is fatal unless it's the first " +
                      "time you're generating the model"];
-		return nil;
-	} else {
+        return nil;
+    } else {
         //[IFLog debug:"Loaded data: " + m.toString()];
     }
     return [self initWithModelData:m.MODEL];
@@ -64,27 +64,27 @@ var _defaultModel;
     [self init];
     model = modelData;
 
-	/* by this point we have an empty model. */
+    /* by this point we have an empty model. */
 
     [self populateModel];
 
-	/* Instantiate entity class descriptions for every entity type,
-	   which forces the class to cache each one
+    /* Instantiate entity class descriptions for every entity type,
+       which forces the class to cache each one
     */
-	for (entityClass in model.ENTITIES) {
-		[IFLog debug:"Caching entity class description for " + entityClass];
-		var entityClassDescription = [self entityClassDescriptionForEntityNamed:entityClass];
-	}
-	[IFLog debug:"Loaded and populated model"];
-	return self;
+    for (entityClass in model.ENTITIES) {
+        [IFLog debug:"Caching entity class description for " + entityClass];
+        var entityClassDescription = [self entityClassDescriptionForEntityNamed:entityClass];
+    }
+    [IFLog debug:"Loaded and populated model"];
+    return self;
 }
 
 + defaultModel {
-	return _defaultModel;
+    return _defaultModel;
 }
 
 + setDefaultModel:(id)model {
-	_defaultModel = model;
+    _defaultModel = model;
 }
 
 - entityRoot {
@@ -92,7 +92,7 @@ var _defaultModel;
 }
 
 - entityRecordForKey:(id)key {
-	return [self entityClassDescriptionForEntityNamed:key];
+    return [self entityClassDescriptionForEntityNamed:key];
 }
 
 - entityClassDescriptionForEntityNamed:(id)entityName {
@@ -124,15 +124,15 @@ var _defaultModel;
 }
 
 - relationshipWithName:(id)relationshipName onEntity:(id)entityName {
-	var entity = [self entityRecordForKey:entityName];
+    var entity = [self entityRecordForKey:entityName];
     if (!entity) { return nil; }
-	var relationships = [entity relationships];
+    var relationships = [entity relationships];
     if (!relationships) { return nil; }
-	return relationships[relationshipName];
+    return relationships[relationshipName];
 }
 
 - allEntityClassKeys {
-	return UTIL.keys(_entityClassDescriptionCache);
+    return UTIL.keys(_entityClassDescriptionCache);
 }
 
 - populateModel {

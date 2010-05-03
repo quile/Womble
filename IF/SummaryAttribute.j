@@ -42,11 +42,11 @@
     [sa setN:n];
     [sa setSummary:summary];
     [sa setAttributes:atts];
-	return sa;
+    return sa;
 }
 
 - setAttributes:(id)atts {
-	attributes = [IFArray arrayFromObject:atts];
+    attributes = [IFArray arrayFromObject:atts];
 }
 
 /* yikes, need to parse this the same way as
@@ -54,56 +54,56 @@
 */
 
 - translateSummaryIntoSQLExpression:(id)sqlExpression {
-	// FIXME: don't use default model
-	var model = [IFModel defaultModel];
-	var summaryInSQL = [self summary];
+    // FIXME: don't use default model
+    var model = [IFModel defaultModel];
+    var summaryInSQL = [self summary];
     for (var i=0; i<[attributes count]; i++) {
         var attribute = [attributes objectAtIndex:i];
-		[IFLog debug:"Attribute: " + attribute];
+        [IFLog debug:"Attribute: " + attribute];
 
-		/* check key for compound construct */
-		var keyPathElements = [attribute componentsSeparatedByString:/\./];
+        /* check key for compound construct */
+        var keyPathElements = [attribute componentsSeparatedByString:/\./];
 
-		var entityClassDescription = [model entityClassDescriptionForEntityNamed:entity];
-		var tableAlias;
-		var columnName;
-		// FIXME use the keypath parsing goo from Qualifier
+        var entityClassDescription = [model entityClassDescriptionForEntityNamed:entity];
+        var tableAlias;
+        var columnName;
+        // FIXME use the keypath parsing goo from Qualifier
         // instead of having this hardcoded shite everywhere
-		if ([keyPathElements count] > 1) {
-			/* traversing a relationship */
-			var relationshipName = keyPathElements[0];
-			var relationshipKey = keyPathElements[1];
-			[IFLog debug:"Relationship is named " + relationshipName + ", entity is " + [self entity]];
-			var relationship = [model relationshipWithName:relationshipName onEntity:[self entity]];
+        if ([keyPathElements count] > 1) {
+            /* traversing a relationship */
+            var relationshipName = keyPathElements[0];
+            var relationshipKey = keyPathElements[1];
+            [IFLog debug:"Relationship is named " + relationshipName + ", entity is " + [self entity]];
+            var relationship = [model relationshipWithName:relationshipName onEntity:[self entity]];
 
-			if (relationship) {
-				var targetEntity = [model entityClassDescriptionForEntityNamed:[relationship targetEntity]];
-				if (!targetEntity) {
-					[IFLog error:"No target entity found for qualifier self.condition on " + [self entity]];
-					break;
-				}
+            if (relationship) {
+                var targetEntity = [model entityClassDescriptionForEntityNamed:[relationship targetEntity]];
+                if (!targetEntity) {
+                    [IFLog error:"No target entity found for qualifier self.condition on " + [self entity]];
+                    break;
+                }
                 [sqlExpression addTraversedRelationship:relationshipName onEntity:entityClassDescription];
                 var tableName = [targetEntity _table];
                 columnName = [targetEntity columnNameForAttributeName:relationshipKey];
                 tableAlias = [sqlExpression aliasForTable:tableName];
-			} else {
-				if (relationshipName =~ /^[DT][0-9]+$/) {
-					/* it's a table alias so use it: */
-					tableAlias = relationshipName;
-					columnName = relationshipKey;
-				} else {
-					/* maybe it's a table name? */
-					tableAlias = [sqlExpression aliasForTable:relationshipName] || relationshipName;
-					columnName = [sqlExpression aliasForColumn:relationshipName onTable:relationshipKey] || relationshipKey;
-				}
-			}
-		} else {
-			columnName = [entityClassDescription columnNameForAttributeName:attribute];
-			var tableName = [entityClassDescription _table];
-			tableAlias = [sqlExpression aliasForTable:tableName];
-		}
+            } else {
+                if (relationshipName =~ /^[DT][0-9]+$/) {
+                    /* it's a table alias so use it: */
+                    tableAlias = relationshipName;
+                    columnName = relationshipKey;
+                } else {
+                    /* maybe it's a table name? */
+                    tableAlias = [sqlExpression aliasForTable:relationshipName] || relationshipName;
+                    columnName = [sqlExpression aliasForColumn:relationshipName onTable:relationshipKey] || relationshipKey;
+                }
+            }
+        } else {
+            columnName = [entityClassDescription columnNameForAttributeName:attribute];
+            var tableName = [entityClassDescription _table];
+            tableAlias = [sqlExpression aliasForTable:tableName];
+        }
 
-		var columnDefinition = tableAlias + "." + columnName;
+        var columnDefinition = tableAlias + "." + columnName;
         // I can't believe I have to do this.
         var bits = summaryInSQL.split("%@");
         if (bits.length == 2) {
@@ -111,8 +111,8 @@
         } else if (bits.length > 2) {
             // ARGH!
         }
-	}
-	return summaryInSQL;
+    }
+    return summaryInSQL;
 }
 
 @end

@@ -57,41 +57,41 @@ var JSON = require('json');
     namespace = ns;
     _modules = [IFDictionary new];
 
-	if (typeof self != "IFApplication") {
-	    /* load config */
-	    var config = [self configuration];
+    if (typeof self != "IFApplication") {
+        /* load config */
+        var config = [self configuration];
         [self init];
-	    [self start];
-	}
-	return self;
+        [self start];
+    }
+    return self;
 }
 
 - start {
-	[self initialiseI18N];
+    [self initialiseI18N];
 }
 
 + contextClassName {
-	return "IFContext";
+    return "IFContext";
 }
 
 + sessionClassName {
-	[IFLog error:"You MUST subclass IF::Session and override 'sessionClassName' in your application"];
-	return null;
+    [IFLog error:"You MUST subclass IF::Session and override 'sessionClassName' in your application"];
+    return null;
 }
 
 + requestContextClassName {
-	[IFLog error:"You MUST subclass IF::RequestContext and override 'requestContextClassName' in your application"];
-	return null;
+    [IFLog error:"You MUST subclass IF::RequestContext and override 'requestContextClassName' in your application"];
+    return null;
 }
 
 + siteClassifierClassName {
-	[IFLog error:"You MUST subclass IF::SiteClassifier and override 'siteClassifierClassName' in your application"];
-	return null;
+    [IFLog error:"You MUST subclass IF::SiteClassifier and override 'siteClassifierClassName' in your application"];
+    return null;
 }
 
 + siteClassifierNamespace {
-	[IFLog error:"You MUST subclass IF::SiteClassifier and override 'siteClassifierNamespace' in your application"];
-	return null;
+    [IFLog error:"You MUST subclass IF::SiteClassifier and override 'siteClassifierNamespace' in your application"];
+    return null;
 }
 
 /* This is kind of arbitrary; override it in your app to determine whether or not the app
@@ -102,31 +102,31 @@ var JSON = require('json');
 }
 
 + applicationInstanceWithName:(id)applicationNameForPath {
-	if (![_applications objectForKey:applicationNameForPath]) {
-		/* this faults in the framework configuration if it hasn't
-		   been loaded yet
-		*/
+    if (![_applications objectForKey:applicationNameForPath]) {
+        /* this faults in the framework configuration if it hasn't
+           been loaded yet
+        */
         //[IFLog debug:"... application " + applicationNameForPath + " has not been loaded yet."];
-		if (applicationNameForPath != "IF") {
-			[IFApplication applicationInstanceWithName:"IF"];
-			if (!_defaultApplicationName) {
-				_defaultApplicationName = applicationNameForPath;
-			}
-		}
-		var application;
-		try {
-			var applicationClassName = applicationNameForPath + "Application";
+        if (applicationNameForPath != "IF") {
+            [IFApplication applicationInstanceWithName:"IF"];
+            if (!_defaultApplicationName) {
+                _defaultApplicationName = applicationNameForPath;
+            }
+        }
+        var application;
+        try {
+            var applicationClassName = applicationNameForPath + "Application";
             var c = objj_getClass(applicationClassName);
-			application = [c _new:applicationNameForPath];
-		} catch (e) {
+            application = [c _new:applicationNameForPath];
+        } catch (e) {
             [IFLog error:e];
         }
         if (!application) { return; }
-		[_applications setObject:application forKey:applicationNameForPath];
-		//[IFLog debug:"Loaded application configuration for " + applicationNameForPath];
-		//[IFLog dump:[application configuration]];
-	}
-	return [_applications objectForKey:applicationNameForPath];
+        [_applications setObject:application forKey:applicationNameForPath];
+        //[IFLog debug:"Loaded application configuration for " + applicationNameForPath];
+        //[IFLog dump:[application configuration]];
+    }
+    return [_applications objectForKey:applicationNameForPath];
 }
 
 /* This doesn't apply any ordering to what's returned. */
@@ -136,31 +136,31 @@ var JSON = require('json');
 
 /* some shortcuts */
 + systemConfiguration {
-	return [[IFApplication applicationInstanceWithName:"IF"] configuration];
+    return [[IFApplication applicationInstanceWithName:"IF"] configuration];
 }
 
 + systemConfigurationValueForKey:(id)key {
-	return [[IFApplication systemConfiguration] objectForKey:key];
+    return [[IFApplication systemConfiguration] objectForKey:key];
 }
 
 + configurationValueForKey:(id)key inApplication:(id)applicationNameForPath {
-	var application = [IFApplication applicationInstanceWithName:applicationNameForPath];
-	if (!application) {
-		[IFLog error:"Couldn't locate application instance named " + applicationNameForPath];
-		return;
-	}
-	return [application configurationValueForKey:key];
+    var application = [IFApplication applicationInstanceWithName:applicationNameForPath];
+    if (!application) {
+        [IFLog error:"Couldn't locate application instance named " + applicationNameForPath];
+        return;
+    }
+    return [application configurationValueForKey:key];
 }
 
 /* These are primarily designed to support offline apps that
    load the framework outside of apache, and some legacy code
 */
 + defaultApplication {
-	return [self applicationInstanceWithName:_defaultApplicationName];
+    return [self applicationInstanceWithName:_defaultApplicationName];
 }
 
 + defaultApplicationName {
-	return _defaultApplicationName;
+    return _defaultApplicationName;
 }
 
 /*instance methods */
@@ -171,43 +171,43 @@ var JSON = require('json');
 }
 
 - configurationValueForKey:(id)key {
-	/* configuration will definitely return at least an empty dictionary */
-	if ([self hasConfigurationValueForKey:key]) {
-		return [[self configuration] objectForKey:key];
-	}
-	return [IFApplication systemConfigurationValueForKey:key];
+    /* configuration will definitely return at least an empty dictionary */
+    if ([self hasConfigurationValueForKey:key]) {
+        return [[self configuration] objectForKey:key];
+    }
+    return [IFApplication systemConfigurationValueForKey:key];
 }
 
 - hasConfigurationValueForKey:(id)key {
     var keys = [[self configuration] allKeys];
-	return [keys containsObject:key];
+    return [keys containsObject:key];
 }
 
 - configuration {
-	if (!configuration) {
+    if (!configuration) {
         //[IFLog debug:"Loading config for namespace " + namespace];
-		var configurationClassName = FILE.path("./conf/" + [IFApplication configurationClassForNamespace:namespace]);
+        var configurationClassName = FILE.path("./conf/" + [IFApplication configurationClassForNamespace:namespace]);
         var conf = require(configurationClassName.canonical());
-		if (!conf) {
-			configuration = [IFDictionary new];
-		} else {
-			configuration = [IFDictionary dictionaryWithJSObject:conf.CONFIGURATION];
+        if (!conf) {
+            configuration = [IFDictionary new];
+        } else {
+            configuration = [IFDictionary dictionaryWithJSObject:conf.CONFIGURATION];
             //[IFLog info:JSON.stringify(conf.CONFIGURATION)];
-		}
-	}
-	return configuration;
+        }
+    }
+    return configuration;
 }
 
 + configurationClassForNamespace:(id)namespace {
-	return namespace + ".conf";
+    return namespace + ".conf";
 }
 
 - errorPageForError:(id)error inContext:(id)context {
-	return "<b>" + error + "</b>";
+    return "<b>" + error + "</b>";
 }
 
 - redirectPageForUrl:(id)url inContext:(id)context {
-	return "<b>" + url + "</b>";
+    return "<b>" + url + "</b>";
 }
 
 /* This is used in error reporting and redirection.  The reason
@@ -217,35 +217,35 @@ var JSON = require('json');
    could have caused the yacking in the first place.
 */
 + _returnTemplateContent:(id)fullPathToTemplate {
-	[IFLog debug:"Trying to load " + fullPathToTemplate];
+    [IFLog debug:"Trying to load " + fullPathToTemplate];
     var template = FILE.open(fullPathToTemplate, "r");
-	if (template) {
-		var templateFile = template.read();
-		return templateFile;
-	}
-	return;
+    if (template) {
+        var templateFile = template.read();
+        return templateFile;
+    }
+    return;
 }
 
 + safelyLoadTemplateWithNameInContext:(id)context {
-	if (!template) { return };
-	var templateRoot = [self configurationValueForKey:"TEMPLATE_ROOT"];
-	var language = context ? [context language] : [self configurationValueForKey:"DEFAULT_LANGUAGE"];
+    if (!template) { return };
+    var templateRoot = [self configurationValueForKey:"TEMPLATE_ROOT"];
+    var language = context ? [context language] : [self configurationValueForKey:"DEFAULT_LANGUAGE"];
 
-	var siteClassifier = "";
-	if (context && [context siteClassifier]) {
-		var sc = [context siteClassifier];
-		while (sc) {
-			siteClassifier = "/" + [sc path];
-			var fullPathToTemplate = join("/", templateRoot + siteClassifier, language, template);
-			var content = _returnTemplateContent(fullPathToTemplate);
-			if (content) { return content };
-			sc = [sc parent];
-		}
-	} else {
-		var fullPathToTemplate = join("/", templateRoot, language, template);
-		return _returnTemplateContent(fullPathToTemplate);
-	}
-	return "";
+    var siteClassifier = "";
+    if (context && [context siteClassifier]) {
+        var sc = [context siteClassifier];
+        while (sc) {
+            siteClassifier = "/" + [sc path];
+            var fullPathToTemplate = join("/", templateRoot + siteClassifier, language, template);
+            var content = _returnTemplateContent(fullPathToTemplate);
+            if (content) { return content };
+            sc = [sc parent];
+        }
+    } else {
+        var fullPathToTemplate = join("/", templateRoot, language, template);
+        return _returnTemplateContent(fullPathToTemplate);
+    }
+    return "";
 }
 
 - cleanUpTransactionInContext:(id)context {
@@ -258,15 +258,15 @@ var JSON = require('json');
 
 + pathIsSafe:(id)path {
     var re = /\.\./;
-	if (re.test(path)) {
+    if (re.test(path)) {
         return false;
     }
-	var projectRoot = [self configurationValueForKey:"APP_ROOT"];
+    var projectRoot = [self configurationValueForKey:"APP_ROOT"];
     re = new RegExp("^" + projectRoot);
     if (re.test(path)) {
         return true;
     }
-	return false;
+    return false;
 }
 
 /* site classifier goo... disentangling SiteClassifiers
@@ -321,10 +321,10 @@ var JSON = require('json');
 }
 
 - defaultSiteClassifier {
-	if (!_defaultSite) {
+    if (!_defaultSite) {
         // blah blah _defaultSite = return [self siteClassifierClassName:[IFApplication defaultSiteClassifierForApplication:[self->application());
-	}
-	return _defaultSite;
+    }
+    return _defaultSite;
 }
 */
 
@@ -332,35 +332,35 @@ var JSON = require('json');
 
 /* You need to override this in your application */
 - defaultModule {
-	[IFLog error:"defaultModule method has not been overridden"];
-	return null;
+    [IFLog error:"defaultModule method has not been overridden"];
+    return null;
 }
 
 - modules {
-	return [_modules allValues];
+    return [_modules allValues];
 }
 
 - moduleWithName:(id)name {
-	return [_modules objectForKey:name];
+    return [_modules objectForKey:name];
 }
 
 - registerModule:(id)module {
-	[IFLog debug:" `--> registering module " + [module name]];
+    [IFLog debug:" `--> registering module " + [module name]];
     [_modules setObject:module forKey:[module name]];
 }
 
 - moduleInContext:(id)context forComponentNamed:(id)componentName {
     //for (module in _modules) {
-	//	if ([module isOwnerInContext:context ofComponentNamed:componentName]) {
+    //    if ([module isOwnerInContext:context ofComponentNamed:componentName]) {
      //       return module;
       //  }
-//	}
-	[IFLog debug:"Returning default module for componentName"];
-	return [self defaultModule];
+//    }
+    [IFLog debug:"Returning default module for componentName"];
+    return [self defaultModule];
 }
 
 - serverName {
-	return [self configurationValueForKey:'SERVER_NAME'];
+    return [self configurationValueForKey:'SERVER_NAME'];
 }
 
 - initialiseI18N {
@@ -402,8 +402,8 @@ var JSON = require('json');
 */
 /*
 + emailAddress:(id)address isSafe {
-	return 1 if (address == [self configurationValueForKey:"SITE_ADMINISTRATOR"]);
-	return 0;
+    return 1 if (address == [self configurationValueForKey:"SITE_ADMINISTRATOR"]);
+    return 0;
 }
 */
 
@@ -413,10 +413,10 @@ var JSON = require('json');
 */
 /*
 - createBounceAddressto :(id)from :(id)type {
-	var bounceaddr;
+    var bounceaddr;
 
-	type = 'if' unless type;
-	to =~ s/\@/\=/;
+    type = 'if' unless type;
+    to =~ s/\@/\=/;
     // $bounceaddr = $type.'+'.$to.'@returnedmail.idealist.org';
     bounceaddr = type + '+' + to;
 

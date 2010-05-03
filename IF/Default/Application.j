@@ -30,18 +30,18 @@ var FILE = require("file");
 
 - init {
     [super init]
-	/* TODO:  This is a stop-gap solution until we make
-	   the whole DB interface OO.
+    /* TODO:  This is a stop-gap solution until we make
+       the whole DB interface OO.
     */
-	//[IFLog debug:"Setting DB information"];
-	[IFDB setDatabaseInformation:[self configurationValueForKey:"DB_LIST"]
-								:[self configurationValueForKey:"DB_CONFIG"]
+    //[IFLog debug:"Setting DB information"];
+    [IFDB setDatabaseInformation:[self configurationValueForKey:"DB_LIST"]
+                                :[self configurationValueForKey:"DB_CONFIG"]
                             ];
     var modelPath = [self configurationValueForKey:"DEFAULT_MODEL"];
-	[IFLog debug:"Attempting to load default model " + modelPath];
+    [IFLog debug:"Attempting to load default model " + modelPath];
     var mcp = FILE.path(modelPath);
 
-	var modelClassName = [self defaultModelClassName];
+    var modelClassName = [self defaultModelClassName];
     try {
         var modelClass = objj_getClass(modelClassName);
         var m = [[modelClass alloc] initWithModelAtPath:mcp.canonical()];
@@ -51,49 +51,49 @@ var FILE = require("file");
         OS.exit(1);
     }
 
-	/* Load up the application's modules and initialise them */
-	[self loadModules];
-	return self;
+    /* Load up the application's modules and initialise them */
+    [self loadModules];
+    return self;
 }
 
 - defaultLanguage {
-	if (!defaultLanguage) {
-		defaultLanguage = [self configurationValueForKey:"DEFAULT_LANGUAGE"];
-	}
-	return defaultLanguage;
+    if (!defaultLanguage) {
+        defaultLanguage = [self configurationValueForKey:"DEFAULT_LANGUAGE"];
+    }
+    return defaultLanguage;
 }
 
 - defaultModule {
-	return [[self configurationValueForKey:"DEFAULT_APPLICATION_MODULE"] instance];
+    return [[self configurationValueForKey:"DEFAULT_APPLICATION_MODULE"] instance];
 }
 
 
 + cleanUpTransactionInContext:(id)context {
-	/* perform your transaction cleanup here */
-	[super cleanUpTransactionInContext:context];
+    /* perform your transaction cleanup here */
+    [super cleanUpTransactionInContext:context];
 }
 
 - environmentIsProduction {
-	var environment = [self configurationValueForKey:"ENVIRONMENT"];
-	if (environment.match(/^PROD/)) { return true; }
-	return false;
+    var environment = [self configurationValueForKey:"ENVIRONMENT"];
+    if (environment.match(/^PROD/)) { return true; }
+    return false;
 }
 
 - loadModules {
-	var modules = [self configurationValueForKey:"APPLICATION_MODULES"];
-	if (![IFLog assert:[modules count] message:"Found at least one application module to initialise"]) {
+    var modules = [self configurationValueForKey:"APPLICATION_MODULES"];
+    if (![IFLog assert:[modules count] message:"Found at least one application module to initialise"]) {
         return
     }
 
-//	foreach var module (@modules) {
-//		eval "use module";
-//		if ($@) {
-//			/*IF::Log::error("Module failed to load: $@"); */
-//			die "DIED Loading application module module: $@";
-//		}
-//		var m = [module new];
-//		[self registerModule:m];
-//	}
+//    foreach var module (@modules) {
+//        eval "use module";
+//        if ($@) {
+//            /*IF::Log::error("Module failed to load: $@"); */
+//            die "DIED Loading application module module: $@";
+//        }
+//        var m = [module new];
+//        [self registerModule:m];
+//    }
 }
 
 @end

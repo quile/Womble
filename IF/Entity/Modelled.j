@@ -32,12 +32,12 @@
     modelClass =~ /( + *)::( + *)$/;
     modelClass = 1 + "::Model::_" + 2;
     no strict 'refs';
-	var i = \@{c + "::ISA"};
-	if (i && scalar @i > 0 && i.0 == modelClass) {
-	    IFLog.debug("Not pushing model class onto ISA because it's already there");
-	    return;
-	}
-	// add model class to the mix
+    var i = \@{c + "::ISA"};
+    if (i && scalar @i > 0 && i.0 == modelClass) {
+        IFLog.debug("Not pushing model class onto ISA because it's already there");
+        return;
+    }
+    // add model class to the mix
     eval "use modelClass;";
 
     unless ($@) {

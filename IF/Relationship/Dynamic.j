@@ -49,7 +49,7 @@
 }
 
 - setSourceAttribute:(id)value {
-	sourceAttribute = value;
+    sourceAttribute = value;
 }
 
 - targetAttribute {
@@ -57,12 +57,12 @@
 }
 
 - setTargetAttribute:(id)value {
-	targetAttribute = value;
+    targetAttribute = value;
 }
 
 /* this is here for compatibility only */
 - targetEntity {
-	return [self targetAssetTypeName];
+    return [self targetAssetTypeName];
 }
 
 /*---------------------------------- */
@@ -70,47 +70,47 @@
 - targetEntityColumnValue {
     if (_targetEntityColumnValue) { return _targetEntityColumnValue }
 
-	var ta = [self targetAssetTypeAttribute];
+    var ta = [self targetAssetTypeAttribute];
     if (!ta) { return '' }
-	/* how do we get the attribute information?  hmmmm */
-	var ecd = [self entityClassDescription];
-	var attr = [ecd attributeWithName:ta];
+    /* how do we get the attribute information?  hmmmm */
+    var ecd = [self entityClassDescription];
+    var attr = [ecd attributeWithName:ta];
     if (![IFLog assert:attr message:"Attribute " + ta + " found on " + [ecd name]]) { return '' };
-	if (![IFLog assert:attr['TYPE'] == "int" message:"Target asset type attribute is a string"]) {
-		/* the attribute is an asset name (we hope!) */
-		_targetEntityColumnValue = [self targetAssetTypeName];
+    if (![IFLog assert:attr['TYPE'] == "int" message:"Target asset type attribute is a string"]) {
+        /* the attribute is an asset name (we hope!) */
+        _targetEntityColumnValue = [self targetAssetTypeName];
         return _targetEntityColumnValue;
-	}
-	return '';
+    }
+    return '';
 }
 
 - targetEntityClassDescription:(id)model {
     if (!_tecd) {
-		var model = model || [IFModel defaultModel];
-		_tecd = [model entityClassDescriptionForEntityNamed:[self targetAssetTypeName]];
-	}
-	return _tecd;
+        var model = model || [IFModel defaultModel];
+        _tecd = [model entityClassDescriptionForEntityNamed:[self targetAssetTypeName]];
+    }
+    return _tecd;
 }
 
 /* what should this be? */
 - type {
-	return "TO_MANY";
+    return "TO_MANY";
 }
 
 - qualifier {
-	if ([self targetAssetTypeAttribute]) {
-		/* we need to qualify the source table on this, because it
-		   stores the name or asset-type-id of the target asset type
-		   (and therefore the target table) in the source table
+    if ([self targetAssetTypeAttribute]) {
+        /* we need to qualify the source table on this, because it
+           stores the name or asset-type-id of the target asset type
+           (and therefore the target table) in the source table
         */
-		var columnValue = [self targetEntityColumnValue];
-		if ([IFLog assert:columnValue message:"Target asset type column value exists"]) {
-			var q = [IFQualifier key:[self targetAssetTypeAttribute] + " = %@", columnValue];
-			[q setEntity:[[self entityClassDescription] name]];
-			return q;
-		}
-	}
-	return [self _entry]['QUALIFIER'];
+        var columnValue = [self targetEntityColumnValue];
+        if ([IFLog assert:columnValue message:"Target asset type column value exists"]) {
+            var q = [IFQualifier key:[self targetAssetTypeAttribute] + " = %@", columnValue];
+            [q setEntity:[[self entityClassDescription] name]];
+            return q;
+        }
+    }
+    return [self _entry]['QUALIFIER'];
 }
 
 @end

@@ -22,8 +22,8 @@
 //@import "Qualifier.j"
 
 // what do we do with these?
-//			 'ne': "ne",
-//			 'eq': "eq";
+//             'ne': "ne",
+//             'eq': "eq";
 
 @implementation IFPrimaryKey : IFObject
 {
@@ -42,88 +42,88 @@
 
 - initWithKeyDefinition:(id)kd {
     [self init];
-	[self _setKeyDefinition:kd];
-	return self;
+    [self _setKeyDefinition:kd];
+    return self;
 }
 
 - _keyDefinition {
-	return _keyDefinition;
+    return _keyDefinition;
 }
 
 - _setKeyDefinition:(id)value {
-	_keyDefinition = value;
-	[self setKeyFieldsFromKeyDefinition:_keyDefinition];
+    _keyDefinition = value;
+    [self setKeyFieldsFromKeyDefinition:_keyDefinition];
 }
 
 - setKeyFieldsFromKeyDefinition:(id)kd {
-	var keys = kd.split(":");
-	_keyFieldNames = keys;
+    var keys = kd.split(":");
+    _keyFieldNames = keys;
     var order = 0;
-	for (i=0; i<keys.length; i++) {
+    for (i=0; i<keys.length; i++) {
         var key = keys[i]
-		_keyFields[key] = {
-			key: key,
-			order: order
-		};
-		order++;
-	}
+        _keyFields[key] = {
+            key: key,
+            order: order
+        };
+        order++;
+    }
 }
 
 - hasKey:(id)key {
-	return (_keyFields[key] != null);
+    return (_keyFields[key] != null);
 }
 
 - keyFields {
-	return _keyFieldNames;
+    return _keyFieldNames;
 }
 
 - qualifierForValue:(id)value {
-	if ([self isCompound]) {
-		// expect a number of values
-		return [self qualifierForValues:value.split(":")];
-	}
-	return [self qualifierForValues:[value]];
+    if ([self isCompound]) {
+        // expect a number of values
+        return [self qualifierForValues:value.split(":")];
+    }
+    return [self qualifierForValues:[value]];
 }
 
 - qualifierForValues:(id)values {
-	var qualifiers = [];
-	for (var key in _keyFields) {
-		qualifiers[qualifiers.length] = [IFKeyValueQualifier key:key + " = %@", values[_keyFields[key]['order']]];
-	}
-	if (qualifiers.length == 1) {
-		return qualifiers[0];
-	}
+    var qualifiers = [];
+    for (var key in _keyFields) {
+        qualifiers[qualifiers.length] = [IFKeyValueQualifier key:key + " = %@", values[_keyFields[key]['order']]];
+    }
+    if (qualifiers.length == 1) {
+        return qualifiers[0];
+    }
     return [IFQualifier and:qualifiers];
 }
 
 - valueForEntity:(id)entity {
     var values = [self valuesForEntity:entity];
-	return values.join(":");
+    return values.join(":");
 }
 
 - valuesForEntity:(id)entity {
-	var values = [];
+    var values = [];
     [IFLog dump:_keyFields];
-	for (var key in _keyFields) {
+    for (var key in _keyFields) {
         values[values.length] = [entity storedValueForRawKey:key];
         //[IFLog debug:"PK value " + values[values.length - 1] + " for key " + key];
-	}
-	return values;
+    }
+    return values;
 }
 
 - setValue:(id)value forEntity:(id)entity {
-	var values = value.split(":");
-	for (var i=0; i<values.length; i++) {
-		[entity setStoredValue:values[i] forRawKey:key];
-	}
+    var values = value.split(":");
+    for (var i=0; i<values.length; i++) {
+        [entity setStoredValue:values[i] forRawKey:key];
+    }
 }
 
 - asString {
-	return _keyDefinition;
+    return _keyDefinition;
 }
 
 - isCompound {
-	return _p_keys(_keyFields).length > 1;
+    return _p_keys(_keyFields).length > 1;
 }
 
 - description {
@@ -132,11 +132,11 @@
 
 /*
 + ne:(id)other {
-	return ([self stringValue] != other);
+    return ([self stringValue] != other);
 }
 
 + eq:(id)other {
-	return ([self stringValue] == other);
+    return ([self stringValue] == other);
 }
 */
 

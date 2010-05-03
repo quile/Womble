@@ -51,13 +51,13 @@
 }
 
 - initWithType:(id)aType message:(id)aMessage depth:(id)aDepth {
-	[self initWithType:aType andMessage:aMessage];
+    [self initWithType:aType andMessage:aMessage];
     [self setDepth:depth];
-	return self;
+    return self;
 }
 
 - (CPString) content {
-	return [self stringWithEvaluatedKeyPaths:[self message] inLanguage:"en"]
+    return [self stringWithEvaluatedKeyPaths:[self message] inLanguage:"en"]
 }
 
 - (CPString) description {
@@ -68,18 +68,18 @@
 - (CPString) formattedMessage {
     return message;
 /* TODO
-	var width = shift || 50;
-	var message = [self content];
-	var formattedMessage = "";
-	while (length(message) > width) {
-		formattedMessage .= substr(message, 0, width);
-		if (substr(message, 0, width) !~ /\w/) {
-			formattedMessage .= " ";
-		}
-		message = substr(message, width);
-	}
-	formattedMessage = formattedMessage + message;
-	return formattedMessage;
+    var width = shift || 50;
+    var message = [self content];
+    var formattedMessage = "";
+    while (length(message) > width) {
+        formattedMessage .= substr(message, 0, width);
+        if (substr(message, 0, width) !~ /\w/) {
+            formattedMessage .= " ";
+        }
+        message = substr(message, width);
+    }
+    formattedMessage = formattedMessage + message;
+    return formattedMessage;
     */
 }
 

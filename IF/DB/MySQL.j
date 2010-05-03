@@ -49,14 +49,14 @@
 }
 
 - nextNumberForSequence:(id)sequenceName {
-	var nextId;
+    var nextId;
     if (!wrappedHandle) { return null; }
 
-	var sequenceTable = [IFApplication systemConfigurationValueForKey:"SEQUENCE_TABLE"];
+    var sequenceTable = [IFApplication systemConfigurationValueForKey:"SEQUENCE_TABLE"];
     var sth = [wrappedHandle prepare:"LOCK TABLES " + sequenceTable + " WRITE"];
     if ([sth execute]) {
         var fsth = [wrappedHandle prepare:"SELECT NEXT_ID FROM " + sequenceTable + " WHERE NAME = ?"];
-		if ([fsth executeWithBindValues:[sequenceName]]) {
+        if ([fsth executeWithBindValues:[sequenceName]]) {
             var nextId = [[sth nextResultAsArray] objectAtIndex:0];
             [fsth finish];
             if (!nextId) {
@@ -67,9 +67,9 @@
             [wrappedHandle do:[IFSQLStatement newWithSQL:"UPDATE " + sequenceTable + " SET NEXT_ID=NEXT_ID+1 WHERE NAME=?" andBindValues:[[IFArray alloc] initWithObjects:sequenceName]]];
             [wrappedHandle do:"UNLOCK TABLES"];
         }
-		[sth finish];
-	}
-	return nextId;
+        [sth finish];
+    }
+    return nextId;
 }
 
 @end

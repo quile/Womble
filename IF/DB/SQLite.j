@@ -112,22 +112,22 @@
 }
 
 - nextNumberForSequence:(id)sequenceName {
-	var nextId;
+    var nextId;
     if (!wrappedHandle) { return null; }
 
-	var sequenceTable = [IFApplication systemConfigurationValueForKey:"SEQUENCE_TABLE"];
+    var sequenceTable = [IFApplication systemConfigurationValueForKey:"SEQUENCE_TABLE"];
 
     var sth = [wrappedHandle prepare:"SELECT NEXT_ID FROM " + sequenceTable + " WHERE NAME = ?"];
-	if ([sth executeWithBindValues:[[IFArray alloc] initWithObjects:sequenceName]]) {
-		var nextId = [[sth nextResultAsArray] objectAtIndex:0];
-		[sth finish];
-		if (!nextId) {
-			[wrappedHandle do:[IFSQLStatement newWithSQL:"INSERT INTO " + sequenceTable + " (NAME, NEXT_ID) VALUES (?, ?)" andBindValues:[[IFArray alloc] initWithObjects:sequenceName, 1]]];
-			nextId = 1;
-		}
-		[wrappedHandle do:[IFSQLStatement newWithSQL:"UPDATE " + sequenceTable + " SET NEXT_ID=NEXT_ID+1 WHERE NAME=?" andBindValues:[[IFArray alloc] initWithObjects:sequenceName]]];
-	}
-	return nextId;
+    if ([sth executeWithBindValues:[[IFArray alloc] initWithObjects:sequenceName]]) {
+        var nextId = [[sth nextResultAsArray] objectAtIndex:0];
+        [sth finish];
+        if (!nextId) {
+            [wrappedHandle do:[IFSQLStatement newWithSQL:"INSERT INTO " + sequenceTable + " (NAME, NEXT_ID) VALUES (?, ?)" andBindValues:[[IFArray alloc] initWithObjects:sequenceName, 1]]];
+            nextId = 1;
+        }
+        [wrappedHandle do:[IFSQLStatement newWithSQL:"UPDATE " + sequenceTable + " SET NEXT_ID=NEXT_ID+1 WHERE NAME=?" andBindValues:[[IFArray alloc] initWithObjects:sequenceName]]];
+    }
+    return nextId;
 }
 
 // ?

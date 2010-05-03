@@ -70,23 +70,23 @@
 
 /*
 - summaryAttributes {
-	return ['title', 'name'];
+    return ['title', 'name'];
 }
 */
 
 /*
 - asString:(id)separator {
-	separator ||= ', ';
-	if (var summaryAttributes = [self summaryAttributes]) {
-		var rawAttrs = map {[self valueForKey:_]} @summaryAttributes;
-		var attrs = [];
-		foreach var a (rawAttrs) {
-			push @attrs, a if a;
-		}
-		var str = join(', ', @attrs);
-		return str if str;
-	}
-	return scalar self;
+    separator ||= ', ';
+    if (var summaryAttributes = [self summaryAttributes]) {
+        var rawAttrs = map {[self valueForKey:_]} @summaryAttributes;
+        var attrs = [];
+        foreach var a (rawAttrs) {
+            push @attrs, a if a;
+        }
+        var str = join(', ', @attrs);
+        return str if str;
+    }
+    return scalar self;
 }
 */
 

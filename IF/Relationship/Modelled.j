@@ -31,69 +31,69 @@
 */
 
 var TYPES = {
-	TO_ONE: 1,
-	TO_MANY: 2,
-	FLATTENED_TO_MANY: 3,
+    TO_ONE: 1,
+    TO_MANY: 2,
+    FLATTENED_TO_MANY: 3,
 };
 
 + newFromModelEntry:(id)entry withName:(id)n {
     if (!entry) { return nil }
-	var r = [[self alloc] init];
-	r._name = n;
+    var r = [[self alloc] init];
+    r._name = n;
     [r _setEntry:entry];
-	return r;
+    return r;
 }
 
 - targetEntity {
-	return [self _entry]['TARGET_ENTITY'];
+    return [self _entry]['TARGET_ENTITY'];
 }
 
 - targetEntityClassDescription:(id)model {
-	if (!_tecd) {
-		model = model || [IFModel defaultModel];
-		_tecd = [model entityClassDescriptionForEntityNamed:[self targetEntity]];
-	}
-	return _tecd;
+    if (!_tecd) {
+        model = model || [IFModel defaultModel];
+        _tecd = [model entityClassDescriptionForEntityNamed:[self targetEntity]];
+    }
+    return _tecd;
 }
 
 - sourceAttribute {
-	return [self _entry]['SOURCE_ATTRIBUTE'];
+    return [self _entry]['SOURCE_ATTRIBUTE'];
 }
 
 - targetAttribute {
-	return [self _entry]['TARGET_ATTRIBUTE'];
+    return [self _entry]['TARGET_ATTRIBUTE'];
 }
 
 - joinTable {
-	return [self _entry]['JOIN_TABLE'];
+    return [self _entry]['JOIN_TABLE'];
 }
 
 - joinTargetAttribute {
-	return [self _entry]['JOIN_TARGET_ATTRIBUTE'];
+    return [self _entry]['JOIN_TARGET_ATTRIBUTE'];
 }
 
 - joinSourceAttribute {
-	return [self _entry]['JOIN_SOURCE_ATTRIBUTE'];
+    return [self _entry]['JOIN_SOURCE_ATTRIBUTE'];
 }
 
 - type {
-	return [self _entry]['TYPE'];
+    return [self _entry]['TYPE'];
 }
 
 - qualifier {
-	return [self _entry]['QUALIFIER'];
+    return [self _entry]['QUALIFIER'];
 }
 
 - joinQualifiers {
-	return [self _entry]['JOIN_QUALIFIERS'];
+    return [self _entry]['JOIN_QUALIFIERS'];
 }
 
 - defaultSortOrderings {
-	return [self _entry]['DEFAULT_SORT_ORDERINGS'];
+    return [self _entry]['DEFAULT_SORT_ORDERINGS'];
 }
 
 - isToOne {
-	return [self type] == 'TO_ONE';
+    return [self type] == 'TO_ONE';
 }
 
 - isReadOnly {

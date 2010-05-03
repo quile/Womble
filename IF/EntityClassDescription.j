@@ -36,94 +36,94 @@ var UTIL = require("util");
     [self init];
     modelData = md;
     attributeToColumnMappings = {};
-	for (attributeName in modelData['ATTRIBUTES']) {
+    for (attributeName in modelData['ATTRIBUTES']) {
         var attribute = modelData['ATTRIBUTES'][attributeName];
         attributeToColumnMappings[attribute.ATTRIBUTE_NAME] = attribute.COLUMN_NAME;
-	}
+    }
     return self;
 }
 
 - init {
-	/* initialise instance */
+    /* initialise instance */
     return [super init]
 }
 
 - relationships {
-	var relationships = modelData.RELATIONSHIPS || {}
-	if ([self parentEntityClassName]) {
-		relationships = UTIL.update(relationships, [[self parentEntityClassDescription] relationships]);
-	}
-	return relationships;
+    var relationships = modelData.RELATIONSHIPS || {}
+    if ([self parentEntityClassName]) {
+        relationships = UTIL.update(relationships, [[self parentEntityClassDescription] relationships]);
+    }
+    return relationships;
 }
 
 - mandatoryRelationships {
-	var mandatoryRelationships = [];
-	for (relationshipName in [self relationships]) {
-		var relationship = [self relationshipWithName:relationshipName];
-		if (!relationship.IS_MANDATORY) {
+    var mandatoryRelationships = [];
+    for (relationshipName in [self relationships]) {
+        var relationship = [self relationshipWithName:relationshipName];
+        if (!relationship.IS_MANDATORY) {
             mandatoryRelationships[mandatoryRelationships.length] = relationship;
         }
-	}
-	return mandatoryRelationships;
+    }
+    return mandatoryRelationships;
 }
 
 - relationshipWithName:(id)relationshipName {
-	var relationship = [self relationships][relationshipName];
-	if (!relationship && [self parentEntityClassName]) {
-		relationship = [[self parentEntityClassDescription] relationshipWithName:relationshipName];
-	}
-	var r = [IFRelationshipModelled newFromModelEntry:relationship withName:relationshipName];
-	return r;
+    var relationship = [self relationships][relationshipName];
+    if (!relationship && [self parentEntityClassName]) {
+        relationship = [[self parentEntityClassDescription] relationshipWithName:relationshipName];
+    }
+    var r = [IFRelationshipModelled newFromModelEntry:relationship withName:relationshipName];
+    return r;
 }
 
 - watchedAttributes {
-	return modelData['WATCHED_ATTRIBUTES'] || [IFArray new];
+    return modelData['WATCHED_ATTRIBUTES'] || [IFArray new];
 }
 
 - attributes {
-	return modelData['ATTRIBUTES'] || [IFDictionary new];
+    return modelData['ATTRIBUTES'] || [IFDictionary new];
 }
 
 - allAttributeNames {
-	return UTIL.keys(attributeToColumnMappings);
+    return UTIL.keys(attributeToColumnMappings);
 }
 
 - allAttributes {
-	return UTIL.values([self attributes]);
+    return UTIL.values([self attributes]);
 }
 
 - defaultValueForAttribute:(id)attributeName {
-	var attribute = [self attributeWithName:attributeName];
-	return attribute.DEFAULT;
+    var attribute = [self attributeWithName:attributeName];
+    return attribute.DEFAULT;
 }
 
 - attributeWithName:(id)attributeName {
     // TODO - make this a bit more tolerant of DB weirdness, like
     // upper/lower case column names, etc.
-	return [self attributes][attributeName];
+    return [self attributes][attributeName];
 }
 
 - hasAttributeWithName:(id)attributeName {
-	if ([self attributeWithName:attributeName]) { return 1; }
-	for (attributeKey in [self attributes]) {
-		var attribute = [self attributes][attributeKey];
-		if (attribute.ATTRIBUTE_NAME == attributeName) { return true; }
-	}
-	return false;
+    if ([self attributeWithName:attributeName]) { return 1; }
+    for (attributeKey in [self attributes]) {
+        var attribute = [self attributes][attributeKey];
+        if (attribute.ATTRIBUTE_NAME == attributeName) { return true; }
+    }
+    return false;
 }
 
 - columnNameForAttributeName:(id)attributeName {
-	return attributeToColumnMappings[attributeName];
+    return attributeToColumnMappings[attributeName];
 }
 
 - attributeNameForColumnName:(id)columnName {
-	var attribute = [self attributeForColumnName:columnName];
-	if (!attribute) { return nil; }
-	return attribute.ATTRIBUTE_NAME;
+    var attribute = [self attributeForColumnName:columnName];
+    if (!attribute) { return nil; }
+    return attribute.ATTRIBUTE_NAME;
 }
 
 - (id)attributeForColumnName:(id)columnName {
-	return [self attributeWithName:columnName];
+    return [self attributeWithName:columnName];
 }
 
 - (id)hasColumnNamed:(id)columnName {
@@ -133,92 +133,92 @@ var UTIL = require("util");
 }
 
 - parentEntityClassName {
-	return modelData.PARENT_ENTITY;
+    return modelData.PARENT_ENTITY;
 }
 
 - parentEntityClassDescription {
-	return [IFModel entityClassDescriptionForEntityNamed:[self parentEntityClassName]];
+    return [IFModel entityClassDescriptionForEntityNamed:[self parentEntityClassName]];
 }
 
 - _table {
     if (modelData.TABLE) { return modelData.TABLE; }
-	return [[self aggregateEntityClassDescription] table];
+    return [[self aggregateEntityClassDescription] table];
 }
 
 - _primaryKey {
-	if (!_primaryKeyDefinition) {
-		_primaryKeyDefinition = [[IFPrimaryKey alloc] initWithKeyDefinition:modelData.PRIMARY_KEY]
-	}
-	return _primaryKeyDefinition;
+    if (!_primaryKeyDefinition) {
+        _primaryKeyDefinition = [[IFPrimaryKey alloc] initWithKeyDefinition:modelData.PRIMARY_KEY]
+    }
+    return _primaryKeyDefinition;
 }
 
 /*
 - aggregateKeyName {
-	return self.AGGREGATE_KEY_NAME;
+    return self.AGGREGATE_KEY_NAME;
 }
 
 - aggregateValueName {
-	return self.AGGREGATE_VALUE_NAME;
+    return self.AGGREGATE_VALUE_NAME;
 }
 
 - aggregateEntity {
-	return self.AGGREGATE_ENTITY;
+    return self.AGGREGATE_ENTITY;
 }
 
 - aggregateTable {
-	return self.AGGREGATE_TABLE;
+    return self.AGGREGATE_TABLE;
 }
 
 - aggregateQualifier {
-	return self.AGGREGATE_QUALIFIER;
+    return self.AGGREGATE_QUALIFIER;
 }
 */
 
 - isReadOnly {
-	return modelData.IS_READ_ONLY;
+    return modelData.IS_READ_ONLY;
 }
 
 /*
 - isAggregateEntity {
-	return (self.AGGREGATE_TABLE || self.AGGREGATE_ENTITY || self._isGenerated );
+    return (self.AGGREGATE_TABLE || self.AGGREGATE_ENTITY || self._isGenerated );
 }
 
 - aggregateEntityClassDescription {
-	if ([self aggregateEntity]) {
-		return [IFModel defaultModel]->entityClassDescriptionForEntityNamed(self->aggregateEntity());
-	}
-	if (self._aggregateEntityClassDescription) {
-		return self._aggregateEntityClassDescription;
-	}
+    if ([self aggregateEntity]) {
+        return [IFModel defaultModel]->entityClassDescriptionForEntityNamed(self->aggregateEntity());
+    }
+    if (self._aggregateEntityClassDescription) {
+        return self._aggregateEntityClassDescription;
+    }
 
-	// otherwise, create and cache an entity class description:
-	var attributes = {
-		ID: _attributeWithNameAndColumnNameAndSizeAndType("id", "ID", 11, "int"),
-		CREATION_DATE: _attributeWithNameAndColumnNameAndSizeAndType("creationDate", "CREATION_DATE", 11, "int"),
-		MODIFICATION_DATE: _attributeWithNameAndColumnNameAndSizeAndType("modificationDate", "MODIFICATION_DATE", 11, "int"),
-		[self aggregateKeyName]: _attributeWithNameAndColumnNameAndSizeAndType(
-											[self aggregateKeyName], self->aggregateKeyName(), 32, "varchar"),
-		[self aggregateValueName]: _attributeWithNameAndColumnNameAndSizeAndType(
-											[self aggregateValueName], self->aggregateValueName(), null, "text"),
-	};
+    // otherwise, create and cache an entity class description:
+    var attributes = {
+        ID: _attributeWithNameAndColumnNameAndSizeAndType("id", "ID", 11, "int"),
+        CREATION_DATE: _attributeWithNameAndColumnNameAndSizeAndType("creationDate", "CREATION_DATE", 11, "int"),
+        MODIFICATION_DATE: _attributeWithNameAndColumnNameAndSizeAndType("modificationDate", "MODIFICATION_DATE", 11, "int"),
+        [self aggregateKeyName]: _attributeWithNameAndColumnNameAndSizeAndType(
+                                            [self aggregateKeyName], self->aggregateKeyName(), 32, "varchar"),
+        [self aggregateValueName]: _attributeWithNameAndColumnNameAndSizeAndType(
+                                            [self aggregateValueName], self->aggregateValueName(), null, "text"),
+    };
 
-	var primaryKeyObject = [self _primaryKey];
-	foreach var field (@{[primaryKeyObject keyFields]}) {
-		 attributes[field] = [self attributeWithName:field];
-	}
+    var primaryKeyObject = [self _primaryKey];
+    foreach var field (@{[primaryKeyObject keyFields]}) {
+         attributes[field] = [self attributeWithName:field];
+    }
 
-	if ([self aggregateQualifier]) {
-		attributes.QUALIFIER = [self attributeWithName:"QUALIFIER"];
-	}
+    if ([self aggregateQualifier]) {
+        attributes.QUALIFIER = [self attributeWithName:"QUALIFIER"];
+    }
 
-	var aecd = {
-		TABLE: [self aggregateTable],
-		PRIMARY_KEY: "ID",
-		ATTRIBUTES: attributes,
-		_isGenerated: 1,
-	};
-	self._aggregateEntityClassDescription = [IFEntityClassDescription new:aecd](aecd);
-	return aecd;
+    var aecd = {
+        TABLE: [self aggregateTable],
+        PRIMARY_KEY: "ID",
+        ATTRIBUTES: attributes,
+        _isGenerated: 1,
+    };
+    self._aggregateEntityClassDescription = [IFEntityClassDescription new:aecd](aecd);
+    return aecd;
 }
 
 + formattedCreationDate:(id)time {
@@ -248,15 +248,15 @@ var UTIL = require("util");
 
 /*
 - orderedAttributes {
-	// we decide on order like this:
-	// 1. If there are indexed fields, we use those in order
-	// 2. Check for important names like TYPE and geographic names
-	// 3. All other attributes, grouped by type
+    // we decide on order like this:
+    // 1. If there are indexed fields, we use those in order
+    // 2. Check for important names like TYPE and geographic names
+    // 3. All other attributes, grouped by type
 
-	var attributes = [];
-	var attributesLeftToOrder = [keys %{[self attributes]}];
-	var attributeHasNotBeenOrdered = {map {_: 1} @attributesLeftToOrder};
-    	my $fullyIndexedFields = $self->{FULLY_INDEXED_FIELDS};
+    var attributes = [];
+    var attributesLeftToOrder = [keys %{[self attributes]}];
+    var attributeHasNotBeenOrdered = {map {_: 1} @attributesLeftToOrder};
+        my $fullyIndexedFields = $self->{FULLY_INDEXED_FIELDS};
         if ($fullyIndexedFields) {
             foreach my $attribute (sort {$fullyIndexedFields->{$a} <=> $fullyIndexedFields->{$b}} keys %$fullyIndexedFields) {
                 next if ($attribute =~ /\./); // skip if it's a key-path
@@ -268,41 +268,41 @@ var UTIL = require("util");
             }
         }
 
-	var IMPORTANT_FIELDS = [qw(NAME TITLE FIRST_NAME LAST_NAME DESCRIPTION MISSION ADD1 ADD2 CITY STATE COUNTRY ZIP
-							   URL PHONE EMAIL FAX TYPE CATEGORY CONTACT_NAME CONTACT_EMAIL
-							   ID CREATION_DATE MODIFICATION_DATE )];
+    var IMPORTANT_FIELDS = [qw(NAME TITLE FIRST_NAME LAST_NAME DESCRIPTION MISSION ADD1 ADD2 CITY STATE COUNTRY ZIP
+                               URL PHONE EMAIL FAX TYPE CATEGORY CONTACT_NAME CONTACT_EMAIL
+                               ID CREATION_DATE MODIFICATION_DATE )];
 
-	foreach var attribute (@IMPORTANT_FIELDS) {
-		next unless (attributeHasNotBeenOrdered[attribute] ||
-					 attributeHasNotBeenOrdered[lc(attribute)]); // TODO: Fix all this nasty hackage
-		var niceName = IFInterfaceKeyValueCoding.niceName(attribute);
-		IFLog.debug(niceName);
-		next unless ([self hasAttributeWithName:niceName]);
-		push (@attributes, [self attributeWithName:attribute]);
-		delete attributeHasNotBeenOrdered[attribute];
-		delete attributeHasNotBeenOrdered[lc(attribute)];
-	}
+    foreach var attribute (@IMPORTANT_FIELDS) {
+        next unless (attributeHasNotBeenOrdered[attribute] ||
+                     attributeHasNotBeenOrdered[lc(attribute)]); // TODO: Fix all this nasty hackage
+        var niceName = IFInterfaceKeyValueCoding.niceName(attribute);
+        IFLog.debug(niceName);
+        next unless ([self hasAttributeWithName:niceName]);
+        push (@attributes, [self attributeWithName:attribute]);
+        delete attributeHasNotBeenOrdered[attribute];
+        delete attributeHasNotBeenOrdered[lc(attribute)];
+    }
 
-	var dateAttributes = [];
-	var textAttributes = [];
-	var enumAttributes = [];
-	var otherAttributes = [];
-	foreach var attributeLeftToBeOrdered (keys %attributeHasNotBeenOrdered) {
-		var attribute = [self attributeWithName:attributeLeftToBeOrdered];
-		next unless attribute;
-		IFLog.debug("Couldn't find attribute for attributeLeftToBeOrdered") unless attribute;
-		if (attributeLeftToBeOrdered =~ /DATE$/i) {
-			push (@dateAttributes, attribute);
-		} elsif (attribute.TYPE =~ /(CHAR|TEXT|BLOB)/i) {
-			push (@textAttributes, attribute);
-		} elsif (attribute.TYPE =~ /^ENUM$/i) {
-			push (@enumAttributes, attribute);
-		} else {
-			push (@otherAttributes, attribute);
-		}
-	}
-	push (@attributes, @dateAttributes, @textAttributes, @enumAttributes, @otherAttributes);
-	return attributes;
+    var dateAttributes = [];
+    var textAttributes = [];
+    var enumAttributes = [];
+    var otherAttributes = [];
+    foreach var attributeLeftToBeOrdered (keys %attributeHasNotBeenOrdered) {
+        var attribute = [self attributeWithName:attributeLeftToBeOrdered];
+        next unless attribute;
+        IFLog.debug("Couldn't find attribute for attributeLeftToBeOrdered") unless attribute;
+        if (attributeLeftToBeOrdered =~ /DATE$/i) {
+            push (@dateAttributes, attribute);
+        } elsif (attribute.TYPE =~ /(CHAR|TEXT|BLOB)/i) {
+            push (@textAttributes, attribute);
+        } elsif (attribute.TYPE =~ /^ENUM$/i) {
+            push (@enumAttributes, attribute);
+        } else {
+            push (@otherAttributes, attribute);
+        }
+    }
+    push (@attributes, @dateAttributes, @textAttributes, @enumAttributes, @otherAttributes);
+    return attributes;
 }
 */
 
@@ -312,31 +312,31 @@ var UTIL = require("util");
 
 /*
 - _geographicAttributeKeys {
-	return self.GEOGRAPHIC_ATTRIBUTE_KEYS;
+    return self.GEOGRAPHIC_ATTRIBUTE_KEYS;
 }
 
 - hasGeographicData {
-	return defined([self _geographicAttributeKeys]);
+    return defined([self _geographicAttributeKeys]);
 }
 
 - geographicCountryNameKey {
-	return [self _geographicAttributeKeys]->{COUNTRY_NAME};
+    return [self _geographicAttributeKeys]->{COUNTRY_NAME};
 }
 
 - geographicStateNameKey {
-	return [self _geographicAttributeKeys]->{STATE_NAME};
+    return [self _geographicAttributeKeys]->{STATE_NAME};
 }
 
 - geographicCityNameKey {
-	return [self _geographicAttributeKeys]->{CITY_NAME};
+    return [self _geographicAttributeKeys]->{CITY_NAME};
 }
 
 - geographicAddress1NameKey {
-	return [self _geographicAttributeKeys]->{ADDRESS1_NAME};
+    return [self _geographicAttributeKeys]->{ADDRESS1_NAME};
 }
 
 - geographicAddress2NameKey {
-	return [self _geographicAttributeKeys]->{ADDRESS2_NAME};
+    return [self _geographicAttributeKeys]->{ADDRESS2_NAME};
 }
 
 */
@@ -347,18 +347,18 @@ var UTIL = require("util");
 /*=============================================== */
 
 + _attributeWithName:(id)name andColumnName:(id)columnName andSize:(id)size andType:(id)type {
-	/* AndElvesAndOrcsesAndMen...Gollum!Gollum! */
-	return {
-		'DEFAULT': '',
-		'EXTRA': '',
-		'SIZE': size,
-		'NULL': '',
-		'ATTRIBUTE_NAME': name,
-		'VALUES': [],
-		'COLUMN_NAME': columnName,
-		'KEY': '',
-		'TYPE': type,
-	};
+    /* AndElvesAndOrcsesAndMen...Gollum!Gollum! */
+    return {
+        'DEFAULT': '',
+        'EXTRA': '',
+        'SIZE': size,
+        'NULL': '',
+        'ATTRIBUTE_NAME': name,
+        'VALUES': [],
+        'COLUMN_NAME': columnName,
+        'KEY': '',
+        'TYPE': type,
+    };
 }
 
 /* this breaks down the keypath by traversing it from relationship
@@ -369,67 +369,67 @@ var UTIL = require("util");
 */
 
 - parseKeyPath:(id)keyPath withSQLExpression:(id)sqlExpression andModel:(id)model {
-	var oecd = self;  // original ecd
-	var cecd = self;  // current ecd
+    var oecd = self;  // original ecd
+    var cecd = self;  // current ecd
 
     model = model || [IFModel defaultModel];
 
-	// Figure out the target ecd for the qualifier by looping through the keys in the path
+    // Figure out the target ecd for the qualifier by looping through the keys in the path
 
-	var bits = [keyPath componentsSeparatedByString:/\./];
+    var bits = [keyPath componentsSeparatedByString:/\./];
 
-	if ([bits count] == 0) {
-		bits = [[IFArray alloc] initWithObjects:keyPath];
-	}
-	var qualifierKey;
+    if ([bits count] == 0) {
+        bits = [[IFArray alloc] initWithObjects:keyPath];
+    }
+    var qualifierKey;
 
     for (var i=0; i<[bits count]; i++) {
-		qualifierKey = [bits objectAtIndex:i];
+        qualifierKey = [bits objectAtIndex:i];
 
         // wtf is this?
-		if (i >= ([bits count] - 1)) { break; }
+        if (i >= ([bits count] - 1)) { break; }
 
-		// otherwise, look up the relationship
-		var relationship = [cecd relationshipWithName:qualifierKey];
+        // otherwise, look up the relationship
+        var relationship = [cecd relationshipWithName:qualifierKey];
 
-		// if there's no such relationship, it might be a derived data source
-		// so check for that
+        // if there's no such relationship, it might be a derived data source
+        // so check for that
 
-		if (!relationship) {
-			//IF::Log::debug("Grabbing derived source with name $qualifierKey");
-			relationship = [sqlExpression derivedDataSourceWithName:qualifierKey];
-		}
+        if (!relationship) {
+            //IF::Log::debug("Grabbing derived source with name $qualifierKey");
+            relationship = [sqlExpression derivedDataSourceWithName:qualifierKey];
+        }
 
-		if (!relationship) {
-			relationship = [sqlExpression dynamicRelationshipWithName:qualifierKey];
-			//IF::Log::error("Using dynamic relationship");
-		}
+        if (!relationship) {
+            relationship = [sqlExpression dynamicRelationshipWithName:qualifierKey];
+            //IF::Log::error("Using dynamic relationship");
+        }
 
-		if (!relationship) {
+        if (!relationship) {
             [IFLog error:"Relationship " + qualifierKey + " not found on entity " + [cecd name]];
-			return {};
-		}
+            return {};
+        }
 
-		var tecd = [relationship targetEntityClassDescription:model];
+        var tecd = [relationship targetEntityClassDescription:model];
 
         if (![IFLog assert:tecd message:"Target entity class " + [relationship targetEntity] + " exists"]) {
             return {};
         }
 
-		//if ([tecd isAggregateEntity]) {
-			// We just bail on it if it's aggregate
-			// TODO see if there's a way to insert an aggregate qualifier into the key path
+        //if ([tecd isAggregateEntity]) {
+            // We just bail on it if it's aggregate
+            // TODO see if there's a way to insert an aggregate qualifier into the key path
             //
-	//		return {};
-	//	}
-		// follow it
+    //        return {};
+    //    }
+        // follow it
         [sqlExpression addTraversedRelationship:qualifierKey onEntity:cecd];
-		cecd = tecd;
-	}
-	return {
-		TARGET_ENTITY_CLASS_DESCRIPTION: cecd,
-		TARGET_ATTRIBUTE: qualifierKey,
-	};
+        cecd = tecd;
+    }
+    return {
+        TARGET_ENTITY_CLASS_DESCRIPTION: cecd,
+        TARGET_ATTRIBUTE: qualifierKey,
+    };
 }
 
 - (CPString) description {

@@ -65,84 +65,84 @@ var UTIL = require("util");
 
 - initWithEntityType:(id)t qualifier:(id)q sortOrderings:(id)sortOrderings {
     [self init];
-	var model = [IFModel defaultModel];
-	if (![IFLog assert:model message:"Found a model to work with"]) { return }
-	var ecd = [model entityClassDescriptionForEntityNamed:t];
-	if (![IFLog assert:ecd message:"Has entity class description for " + t]) { return null }
+    var model = [IFModel defaultModel];
+    if (![IFLog assert:model message:"Found a model to work with"]) { return }
+    var ecd = [model entityClassDescriptionForEntityNamed:t];
+    if (![IFLog assert:ecd message:"Has entity class description for " + t]) { return null }
 
-	/* for the purposes of fetching entities, we need to check if the
-	   entity is an aggregate entity or a regular one, and if it's aggregate,
-	   use the aggregate entityClassDescription instead
+    /* for the purposes of fetching entities, we need to check if the
+       entity is an aggregate entity or a regular one, and if it's aggregate,
+       use the aggregate entityClassDescription instead
     */
 
-	/* TODO:  Clean this mess up: */
-	var template = {
-		entity: t,
-		entityClassDescription: ecd,
-		tables: {},
-		prefetchingRelationships: [IFArray new],
-		traversedRelationshipAttributes: [IFArray new],
-		distinct: 0,
-		attributes: [IFArray new],
-		sortOrderings: sortOrderings,
-		fetchLimit: [[IFApplication defaultApplication] configurationValueForKey:"DEFAULT_BATCH_SIZE"],
-		startIndex: 0,
-		sqlExpression: [IFSQLExpression new],
+    /* TODO:  Clean this mess up: */
+    var template = {
+        entity: t,
+        entityClassDescription: ecd,
+        tables: {},
+        prefetchingRelationships: [IFArray new],
+        traversedRelationshipAttributes: [IFArray new],
+        distinct: 0,
+        attributes: [IFArray new],
+        sortOrderings: sortOrderings,
+        fetchLimit: [[IFApplication defaultApplication] configurationValueForKey:"DEFAULT_BATCH_SIZE"],
+        startIndex: 0,
+        sqlExpression: [IFSQLExpression new],
         inflateAsInstancesOfEntityNamed: nil,
         shouldFetchRandomly: false
-	};
+    };
 
     for (var k in template) {
         [self setValue:template[k] forKey:k];
     }
 
     /*
-	if ([entityClassDescription isAggregateEntity]) {
-		// This is what we're fetching, so tell it to fetch the aggregate one
-		self._entityClassDescription = [entityClassDescription aggregateEntityClassDescription];
-		// This is ultimately what we'll end up with:
-		self._rootEntityClassDescription = entityClassDescription;
-		self._isAggregateEntity = 1; # not sure if we need this?
-	}
+    if ([entityClassDescription isAggregateEntity]) {
+        // This is what we're fetching, so tell it to fetch the aggregate one
+        self._entityClassDescription = [entityClassDescription aggregateEntityClassDescription];
+        // This is ultimately what we'll end up with:
+        self._rootEntityClassDescription = entityClassDescription;
+        self._isAggregateEntity = 1; # not sure if we need this?
+    }
     */
 
-	[self setQualifier:q];
-	return self;
+    [self setQualifier:q];
+    return self;
 }
 
 - subqueryForAttributes:(id)attributes {
-	[self restrictFetchToAttributes:attributes];
-	[self setFetchLimit:0]; // have to zero the fetch limit for subqueries
-	return self;
+    [self restrictFetchToAttributes:attributes];
+    [self setFetchLimit:0]; // have to zero the fetch limit for subqueries
+    return self;
 }
 
 - restrictFetchToAttributes:(id)atts {
-	atts = [IFArray arrayFromObject:atts];
-	var columnNames = [];
+    atts = [IFArray arrayFromObject:atts];
+    var columnNames = [];
     // FIXME don't rely on default model
-	var model = [IFModel defaultModel];
-	for (var i=0; i < [atts count]; i++) {
+    var model = [IFModel defaultModel];
+    for (var i=0; i < [atts count]; i++) {
         var attribute = [atts objectAtIndex:i];
         // FIXME generalise this
-		if (attribute.match(/\./)) {
-			var bits = attribute.split(/\./);
+        if (attribute.match(/\./)) {
+            var bits = attribute.split(/\./);
             rn = bits[0];
             a  = bits[1];
-			var r = [entityClassDescription relationshipWithName:rn];
-			if (r) {
-				var recd = [r targetEntityClassDescription];
-				if (recd) {
-					var ra = [recd columnNameForAttributeName:a];
-					if (ra) {
-						[self addAttribute:ra forTraversedRelationship:rn];
-					}
-				}
-			}
-		} else {
-			columnNames[columnNames.length] = [entityClassDescription columnNameForAttributeName:attribute];
-		}
-	}
-	[self setAttributes:columnNames]; // TODO fix this bent attribute vs. column naming
+            var r = [entityClassDescription relationshipWithName:rn];
+            if (r) {
+                var recd = [r targetEntityClassDescription];
+                if (recd) {
+                    var ra = [recd columnNameForAttributeName:a];
+                    if (ra) {
+                        [self addAttribute:ra forTraversedRelationship:rn];
+                    }
+                }
+            }
+        } else {
+            columnNames[columnNames.length] = [entityClassDescription columnNameForAttributeName:attribute];
+        }
+    }
+    [self setAttributes:columnNames]; // TODO fix this bent attribute vs. column naming
 }
 
 - (id)qualifier {
@@ -151,28 +151,28 @@ var UTIL = require("util");
 
 // FIXME this is bent; mutating the object when it's set... FIX!
 - setQualifier:(id)q {
-	qualifier = q;
-	if (q) {
+    qualifier = q;
+    if (q) {
         [q setEntity:entity];
     }
 }
 
 /* TODO: right now fetch limit and batch size are the same */
 - batchSize {
-	return fetchLimit;
+    return fetchLimit;
 }
 
 - setBatchSize:(id)value {
-	fetchLimit = value;
+    fetchLimit = value;
 }
 
 - setStartIndexForNextBatch {
     if (!fetchLimit) { return }
-	startIndex += fetchLimit;
+    startIndex += fetchLimit;
 }
 
 - setSortOrderings:(id)value {
-	sortOrderings = [IFArray arrayFromObject:value];
+    sortOrderings = [IFArray arrayFromObject:value];
 }
 
 /* Damn, this can only be done once this way.
@@ -180,11 +180,11 @@ var UTIL = require("util");
 */
 - setPrefetchingRelationships:(id)relationships {
     prefetchingRelationships = [IFArray arrayFromObject:relationships];
-	for (var i=0; i < [prefetchingRelationships count]; i++) {
+    for (var i=0; i < [prefetchingRelationships count]; i++) {
         var relationship = [prefetchingRelationships objectAtIndex:i];
-		[IFLog debug:"Setting prefetch on relationship '" + relationship + "'"];
-		[[self sqlExpression] addPrefetchedRelationship:relationship onEntity:entityClassDescription];
-	}
+        [IFLog debug:"Setting prefetch on relationship '" + relationship + "'"];
+        [[self sqlExpression] addPrefetchedRelationship:relationship onEntity:entityClassDescription];
+    }
 }
 
 - attributes {
@@ -194,153 +194,153 @@ var UTIL = require("util");
 
 
 - attributesForTraversedRelationship:(id)r {
-	return traversedRelationshipAttributes[r];
+    return traversedRelationshipAttributes[r];
 }
 
 - setAttributes:(id)value forTraversedRelationship:(id)r {
-	traversedRelationshipAttributes[r] = [IFArray arrayFromObject:value];
+    traversedRelationshipAttributes[r] = [IFArray arrayFromObject:value];
 }
 
 - addAttribute:(id)a forTraversedRelationship:(id)r {
-	var as = [self attributesForTraversedRelationship:r];
+    var as = [self attributesForTraversedRelationship:r];
     [as addObject:a];
-	[self setAttributes:as forTraversedRelationship:r];
+    [self setAttributes:as forTraversedRelationship:r];
 }
 
 - addDynamicRelationship:(id)dr withName:(id)name {
     if (![IFLog assert:(dr && name) message:"Adding dynamic relationship with name " + name]) { return };
-	/* This is bogus because it has a side-effect of altering the
-	   dynamic relationship, but that's OK because these are
-	   supposed to be discarded once used
+    /* This is bogus because it has a side-effect of altering the
+       dynamic relationship, but that's OK because these are
+       supposed to be discarded once used
     */
-	[dr setEntityClassDescription:entityClassDescription];
-	[dr setName:name];
-	[[self sqlExpression] addDynamicRelationship:dr];
+    [dr setEntityClassDescription:entityClassDescription];
+    [dr setName:name];
+    [[self sqlExpression] addDynamicRelationship:dr];
 }
 
 - buildSQLExpression {
     // FIXME don't use default model
-	var model = [IFModel defaultModel];
+    var model = [IFModel defaultModel];
 
-	var sq = [self sqlExpression];
+    var sq = [self sqlExpression];
 
-	[sq setDistinct:distinct];
-	[sq setShouldFetchRandomly:shouldFetchRandomly];
-	[sq setInflateAsInstancesOfEntityNamed:inflateAsInstancesOfEntityNamed];
+    [sq setDistinct:distinct];
+    [sq setShouldFetchRandomly:shouldFetchRandomly];
+    [sq setInflateAsInstancesOfEntityNamed:inflateAsInstancesOfEntityNamed];
 
-	/* populate sql expression:
-	   1. set the basic root entity class for the fetch.  This also
-	      populates the table and column lists for this entity
+    /* populate sql expression:
+       1. set the basic root entity class for the fetch.  This also
+          populates the table and column lists for this entity
     */
-	[sq addEntityClassDescription:entityClassDescription];
+    [sq addEntityClassDescription:entityClassDescription];
 
-	/* 1a. Automatically traverse any dynamic relationships that have been added */
+    /* 1a. Automatically traverse any dynamic relationships that have been added */
     var dns = [sq dynamicRelationshipNames];
     for (var i=0; i < [dns count]; i++) {
         var rn = [dns objectAtIndex:i];
-		[IFLog debug:"Forcing traversal of dynamic relationship " + rn];
-		[sq addTraversedRelationship:rn onEntity:entityClassDescription];
-	}
+        [IFLog debug:"Forcing traversal of dynamic relationship " + rn];
+        [sq addTraversedRelationship:rn onEntity:entityClassDescription];
+    }
 
-	if ([attributes count] > 0) {
-		for (var i=0; i < [attributes count] ; i++) {
+    if ([attributes count] > 0) {
+        for (var i=0; i < [attributes count] ; i++) {
             var attribute = [attributes objectAtIndex:i];
-			[sq onlyFetchColumn:attribute forTable:[entityClassDescription _table]];
-		}
-	}
+            [sq onlyFetchColumn:attribute forTable:[entityClassDescription _table]];
+        }
+    }
 
-	/* aieeee, TODO optimise this so we don't keep doing this everywhere. */
+    /* aieeee, TODO optimise this so we don't keep doing this everywhere. */
     for (var i=0; i < [traversedRelationshipAttributes count]; i++) {
         var rn = [traversedRelationshipAttributes objectAtIndex:i];
-		var r = [entityClassDescription relationshipWithName:rn];
-		if (r) {
-			var recd = [model entityClassDescriptionForEntityNamed:[r targetEntity]];
-			if (recd) {
-				var rt = [recd _table];
+        var r = [entityClassDescription relationshipWithName:rn];
+        if (r) {
+            var recd = [model entityClassDescriptionForEntityNamed:[r targetEntity]];
+            if (recd) {
+                var rt = [recd _table];
                 for (var j=0; j < [[self attributesForTraversedRelationship:rn] count]; j++) {
                     var a = [[self attributesForTraversedRelationship:rn] objectAtIndex:j];
-					[sq onlyFetchColumn:a forTable:rt];
-				}
-			}
-		}
-	}
+                    [sq onlyFetchColumn:a forTable:rt];
+                }
+            }
+        }
+    }
 
-	[sq addTableToFetch:[entityClassDescription _table]];
+    [sq addTableToFetch:[entityClassDescription _table]];
 
-	// 1b. Check for mandatory relationships and add them to the prefetch
+    // 1b. Check for mandatory relationships and add them to the prefetch
     var mrs = [entityClassDescription mandatoryRelationships];
     for (var i=0; i < [mrs count]; i++) {
         var mr = [mrs objectAtIndex:i];
-		[sq addPrefetchedRelationship:mr onEntity:entityClassDescription];
-	}
+        [sq addPrefetchedRelationship:mr onEntity:entityClassDescription];
+    }
 
-	/* 2. tell the Qualifier Tree to generate SQL.  This will also
-	      fill in any traversed relationships that are found
+    /* 2. tell the Qualifier Tree to generate SQL.  This will also
+          fill in any traversed relationships that are found
     */
-	if ([self qualifier]) {
-		var sqlQualifier = [[self qualifier] sqlWithBindValuesForExpression:sq andModel:model];
-		[sq setQualifier:[sqlQualifier sql]];
-		[sq setQualifierBindValues:[sqlQualifier bindValues]];
+    if ([self qualifier]) {
+        var sqlQualifier = [[self qualifier] sqlWithBindValuesForExpression:sq andModel:model];
+        [sq setQualifier:[sqlQualifier sql]];
+        [sq setQualifierBindValues:[sqlQualifier bindValues]];
         [IFLog debug:"buildSQLExpression - " + [self qualifier]];
-	}
+    }
 
-	/* 3. Fill in what's left */
-	[sq setSortOrderings:sortOrderings];
+    /* 3. Fill in what's left */
+    [sq setSortOrderings:sortOrderings];
 
-	/* TODO implement batched fetching for aggregates too.  For now, turn off
-	   the fetch limit and index
+    /* TODO implement batched fetching for aggregates too.  For now, turn off
+       the fetch limit and index
     */
-	//unless (self._isAggregateEntity) {
-		[sq setFetchLimit:fetchLimit];
-		[sq setStartIndex:startIndex];
-	//}
+    //unless (self._isAggregateEntity) {
+        [sq setFetchLimit:fetchLimit];
+        [sq setStartIndex:startIndex];
+    //}
 }
 
 
 - toSQLFromExpression {
-	[self buildSQLExpression];
+    [self buildSQLExpression];
 
-	/* Generate the SQL for the whole statement, and return it and
-	   the bind values ready to be passed to the DB
+    /* Generate the SQL for the whole statement, and return it and
+       the bind values ready to be passed to the DB
     */
-	return [IFSQLStatement newWithSQL:[[self sqlExpression] selectStatement] andBindValues:[[self sqlExpression] bindValues]];
+    return [IFSQLStatement newWithSQL:[[self sqlExpression] selectStatement] andBindValues:[[self sqlExpression] bindValues]];
 }
 
 - toCountSQLFromExpression {
-	[self buildSQLExpression];
+    [self buildSQLExpression];
 
-	/* Generate the SQL for the whole statement, and return it and
-	   the bind values ready to be passed to the DB
+    /* Generate the SQL for the whole statement, and return it and
+       the bind values ready to be passed to the DB
     */
-	return [IFSQLStatement newWithSQL:[[self sqlExpression] selectCountStatement] andBindValues:[[self sqlExpression] bindValues]];
+    return [IFSQLStatement newWithSQL:[[self sqlExpression] selectCountStatement] andBindValues:[[self sqlExpression] bindValues]];
 }
 
 
 // TODO hmpf, use low-level JS hashes for this?
 - resolveEntityHash:(id)hash :(id)primaryEntity {
     if (!primaryEntity) { return }
-	delete hash[entity];
-	for (var entityType in hash) {
-		if (entityType == '_RELATIONSHIP_HINTS') {
-			[primaryEntity _deprecated_setRelationshipHints:hash[entityType]];
-		} else {
-			var prefetchedRelationshipName = [[self sqlExpression] relationshipNameForEntityType:entityType];
+    delete hash[entity];
+    for (var entityType in hash) {
+        if (entityType == '_RELATIONSHIP_HINTS') {
+            [primaryEntity _deprecated_setRelationshipHints:hash[entityType]];
+        } else {
+            var prefetchedRelationshipName = [[self sqlExpression] relationshipNameForEntityType:entityType];
             if (!prefetchedRelationshipName) { continue };
-			var relationship = [entityClassDescription relationshipWithName:prefetchedRelationshipName];
-			if (!relationship) {
-				relationship = [[self sqlExpression] dynamicRelationshipWithName:prefetchedRelationshipName];
-			}
-			if (!relationship) { continue };
+            var relationship = [entityClassDescription relationshipWithName:prefetchedRelationshipName];
+            if (!relationship) {
+                relationship = [[self sqlExpression] dynamicRelationshipWithName:prefetchedRelationshipName];
+            }
+            if (!relationship) { continue };
             // FIXME rewrite these comparisons using [relationship isToOne] etc
-			if ([relationship type] == "TO_ONE" || [relationship type] == "TO_MANY") {
-				[primaryEntity addEntity:hash[entityType] toRelationship:prefetchedRelationshipName];
-				if ([[self attributesForTraversedRelationship:prefetchedRelationshipName] count]) {
-					[hash[entityType] setIsPartiallyInflated:true];
-				}
-			}
-		}
-	}
-	return primaryEntity;
+            if ([relationship type] == "TO_ONE" || [relationship type] == "TO_MANY") {
+                [primaryEntity addEntity:hash[entityType] toRelationship:prefetchedRelationshipName];
+                if ([[self attributesForTraversedRelationship:prefetchedRelationshipName] count]) {
+                    [hash[entityType] setIsPartiallyInflated:true];
+                }
+            }
+        }
+    }
+    return primaryEntity;
 }
 
 
@@ -348,50 +348,50 @@ var UTIL = require("util");
    and computation, especially for big lists
 */
 - unpackResultsIntoEntities:(id)results {
-	var unpackedResults = {};
+    var unpackedResults = {};
 
-	var primaryKey = [[entityClassDescription _primaryKey] description].toUpperCase();
-	var objectContext = [IFObjectContext new];
-	var order = 0;
-	var rootEntityClassName = [self inflateAsInstancesOfEntityNamed] || entity;
+    var primaryKey = [[entityClassDescription _primaryKey] description].toUpperCase();
+    var objectContext = [IFObjectContext new];
+    var order = 0;
+    var rootEntityClassName = [self inflateAsInstancesOfEntityNamed] || entity;
 
     if (!entityClassDescription) {
         [CPException raise:"CPException" message:"No entity class description found to unpack"];
     }
 
-	var isFetchingPartialEntity;
+    var isFetchingPartialEntity;
     if ([attributes count] < _p_length(_p_keys([entityClassDescription attributes]))) {
-		isFetchingPartialEntity = 1;
-	}
-	for (var i=0; i < [results count]; i++) {
+        isFetchingPartialEntity = 1;
+    }
+    for (var i=0; i < [results count]; i++) {
         var result = [results objectAtIndex:i];
-		var entityHash = [[self sqlExpression] dictionaryOfEntitiesFromRawRow:result];
-		var primaryEntity = entityHash[rootEntityClassName];
-		if (isFetchingPartialEntity) {
-			[primaryEntity setIsPartiallyInflated:true];
-		}
-		var primaryKeyValue = [primaryEntity storedValueForRawKey:primaryKey];
-		[IFLog debug:"::: hashing entity with primary key " + primaryKeyValue];
-		var existingPrimaryEntityRecord = unpackedResults[primaryKeyValue];
-		if (!existingPrimaryEntityRecord) {
-			unpackedResults[primaryKeyValue] = {
-				ENTITY: primaryEntity,
-				ORDER: order,
-			};
-		} else {
-			primaryEntity = existingPrimaryEntityRecord.ENTITY;
-		}
-		[self resolveEntityHash:entityHash :primaryEntity];
-		order++;
-	}
-	var sortedResults = [IFArray new];
+        var entityHash = [[self sqlExpression] dictionaryOfEntitiesFromRawRow:result];
+        var primaryEntity = entityHash[rootEntityClassName];
+        if (isFetchingPartialEntity) {
+            [primaryEntity setIsPartiallyInflated:true];
+        }
+        var primaryKeyValue = [primaryEntity storedValueForRawKey:primaryKey];
+        [IFLog debug:"::: hashing entity with primary key " + primaryKeyValue];
+        var existingPrimaryEntityRecord = unpackedResults[primaryKeyValue];
+        if (!existingPrimaryEntityRecord) {
+            unpackedResults[primaryKeyValue] = {
+                ENTITY: primaryEntity,
+                ORDER: order,
+            };
+        } else {
+            primaryEntity = existingPrimaryEntityRecord.ENTITY;
+        }
+        [self resolveEntityHash:entityHash :primaryEntity];
+        order++;
+    }
+    var sortedResults = [IFArray new];
     var sortedUnpacked = UTIL.values(unpackedResults).sort(function(a, b) { a.ORDER - b.ORDER });
 
-	for (var i=0; i < sortedUnpacked.length; i++) {
+    for (var i=0; i < sortedUnpacked.length; i++) {
         var result = sortedUnpacked[i];
         [sortedResults addObject:result.ENTITY];
-	}
-	return sortedResults;
+    }
+    return sortedResults;
 }
 
 - addDerivedDataSource:(id)fs withName:(id)name {

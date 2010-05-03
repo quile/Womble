@@ -124,35 +124,35 @@
 - _execute {
     var fs = [self fetchSpecification];
     if (!fs) { return }
-	_fs = fs;
-	_sth = [self _statementHandleForSqlExpression:[fs toSQLFromExpression]];
+    _fs = fs;
+    _sth = [self _statementHandleForSqlExpression:[fs toSQLFromExpression]];
 }
 
 /* This is mostly duplicated from IF::DB; it should
    get folded back in there ultimately.
 */
 - _statementHandleForSqlExpression:(id)sqlExpression {
-	var sql = [sqlExpression sql];
+    var sql = [sqlExpression sql];
 
-	var bindValues = [sqlExpression bindValues] || [];
-	/* In-place filter them to change undefs into empty strings. */
-	//foreach var bv (@bindValues) {
-	//    if (!defined(bv)) {
-	//        bv = '';
-	//    }
-    //	}
-	[IFLog database:"[" + sql + "] with bindings [" + bindValues.join(", ") + "]"];
-	var sth = [_dbh prepare:sql];
-	if (!sth) {
-		[IFLog error:self + " failed to prepare query: " + sql];
-		return nil;
-	}
+    var bindValues = [sqlExpression bindValues] || [];
+    /* In-place filter them to change undefs into empty strings. */
+    //foreach var bv (@bindValues) {
+    //    if (!defined(bv)) {
+    //        bv = '';
+    //    }
+    //    }
+    [IFLog database:"[" + sql + "] with bindings [" + bindValues.join(", ") + "]"];
+    var sth = [_dbh prepare:sql];
+    if (!sth) {
+        [IFLog error:self + " failed to prepare query: " + sql];
+        return nil;
+    }
     var rv;
-	if (rv = [sth executeWithBindValues:bindValues]) {
-		return sth;
-	}
-	[IFLog warning:"Failed to execute query " + sql];
-	return nil;
+    if (rv = [sth executeWithBindValues:bindValues]) {
+        return sth;
+    }
+    [IFLog warning:"Failed to execute query " + sql];
+    return nil;
 }
 
 - _close {
@@ -294,16 +294,16 @@
        /* we're at the end of the fetch so close it out */
        [self _close];
        return nil;
-	}
+    }
     var allKeys = [row allKeys];
     for (var i=0; i<[allKeys count]; i++) {
         var uk = k.toUpperCase();
         [row setObject:[row objectForKey:k] forKey:uk];
-		if (!k.match(/^[A-Z0-9_]+$/)) {
-			[row removeObjectForKey:k];
-		}
-	}
-	return row;
+        if (!k.match(/^[A-Z0-9_]+$/)) {
+            [row removeObjectForKey:k];
+        }
+    }
+    return row;
 }
 
 - (void) setEntity:(id)ecn {

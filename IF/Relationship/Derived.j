@@ -26,21 +26,21 @@
 
 + newFromFetchSpecification:(id)fs withName:(id)n {
     var d = [[self alloc] init];
-	d._name = n;
+    d._name = n;
     [d setFetchSpecification:fs];
-	return d;
+    return d;
 }
 
 - targetEntity {
-	return [[self fetchSpecification] entity];
+    return [[self fetchSpecification] entity];
 }
 
 - targetEntityClassDescription {
-	return [[self fetchSpecification] entityClassDescription];
+    return [[self fetchSpecification] entityClassDescription];
 }
 
 - type {
-	return "TO_MANY";
+    return "TO_MANY";
 }
 
 /* These aren't defined because there's no actual
@@ -49,11 +49,11 @@
 */
 
 - sourceAttribute {
-	return null;
+    return null;
 }
 
 - targetAttribute {
-	return null;
+    return null;
 }
 
 @end
