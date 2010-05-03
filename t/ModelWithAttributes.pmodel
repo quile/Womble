@@ -1,0 +1,535 @@
+exports.MODEL = {
+	       'NAMESPACE': {
+			    'ENTITY': 'TestIFEntity'
+			  },
+	       'ENTITIES': {
+			   'IFTestRoot': {
+					  'PRIMARY_KEY': 'ID',
+					  'TABLE': 'ROOT',
+					  'ATTRIBUTES': {
+							'GROUND_ID': {
+								       'KEY': null,
+								       'SIZE': '11',
+								       'NULL': null,
+								       'DEFAULT': '0',
+								       'TYPE': 'INT',
+								       'COLUMN_NAME': 'GROUND_ID',
+								       'ATTRIBUTE_NAME': 'groundId',
+								       'EXTRA': '0',
+								       'VALUES': []
+								     },
+							'ID': {
+								'KEY': null,
+								'SIZE': '11',
+								'NULL': null,
+								'DEFAULT': null,
+								'TYPE': 'INT',
+								'COLUMN_NAME': 'ID',
+								'ATTRIBUTE_NAME': 'id',
+								'EXTRA': null,
+								'VALUES': []
+							        },
+							'TITLE': {
+								   'KEY': null,
+								   'SIZE': '255',
+								   'NULL': null,
+								   'DEFAULT': '\'\'',
+								   'TYPE': 'CHAR',
+								   'COLUMN_NAME': 'TITLE',
+								   'ATTRIBUTE_NAME': 'title',
+								   'EXTRA': '\'\'',
+								   'VALUES': []
+								 },
+							'CREATION_DATE': {
+									 'KEY': null,
+									 'SIZE': null,
+									 'NULL': null,
+									 'DEFAULT': '\'0000-00-00 00:00:00\'',
+									 'TYPE': 'DATETIME',
+									 'COLUMN_NAME': 'CREATION_DATE',
+									 'ATTRIBUTE_NAME': 'creationDate',
+									 'EXTRA': '\'0000-00-00 00:00:00\'',
+									 'VALUES': []
+								         },
+							'MODIFICATION_DATE': {
+									     'KEY': null,
+									     'SIZE': null,
+									     'NULL': null,
+									     'DEFAULT': '\'0000-00-00 00:00:00\'',
+									     'TYPE': 'DATETIME',
+									     'COLUMN_NAME': 'MODIFICATION_DATE',
+									     'ATTRIBUTE_NAME': 'modificationDate',
+									     'EXTRA': '\'0000-00-00 00:00:00\'',
+									     'VALUES': []
+									   }
+						        },
+					  'RELATIONSHIPS': {
+							   'ground': {
+								       'TARGET_ATTRIBUTE': 'ID',
+								       'TARGET_ENTITY': 'IFTestGround',
+								       'TYPE': 'TO_ONE',
+								       'SOURCE_ATTRIBUTE': 'GROUND_ID'
+								     },
+							   'trunk': {
+								      'TARGET_ATTRIBUTE': 'ROOT_ID',
+								      'TARGET_ENTITY': 'IFTestTrunk',
+								      'TYPE': 'TO_ONE',
+								      'SOURCE_ATTRIBUTE': 'ID'
+								    }
+							 }
+					},
+			   'IFTestGround': {
+					    'PRIMARY_KEY': 'ID',
+					    'TABLE': 'GROUND',
+					    'ATTRIBUTES': {
+							  'ID': {
+								  'KEY': null,
+								  'SIZE': '11',
+								  'NULL': null,
+								  'DEFAULT': null,
+								  'TYPE': 'INT',
+								  'COLUMN_NAME': 'ID',
+								  'ATTRIBUTE_NAME': 'id',
+								  'EXTRA': null,
+								  'VALUES': []
+								},
+							  'CREATION_DATE': {
+									   'KEY': null,
+									   'SIZE': null,
+									   'NULL': null,
+									   'DEFAULT': '\'0000-00-00 00:00:00\'',
+									   'TYPE': 'DATETIME',
+									   'COLUMN_NAME': 'CREATION_DATE',
+									   'ATTRIBUTE_NAME': 'creationDate',
+									   'EXTRA': '\'0000-00-00 00:00:00\'',
+									   'VALUES': []
+									 },
+							  'COLOUR': {
+								      'KEY': null,
+								      'SIZE': '255',
+								      'NULL': null,
+								      'DEFAULT': '\'\'',
+								      'TYPE': 'CHAR',
+								      'COLUMN_NAME': 'COLOUR',
+								      'ATTRIBUTE_NAME': 'colour',
+								      'EXTRA': '\'\'',
+								      'VALUES': []
+								    },
+							  'MODIFICATION_DATE': {
+									       'KEY': null,
+									       'SIZE': null,
+									       'NULL': null,
+									       'DEFAULT': '\'0000-00-00 00:00:00\'',
+									       'TYPE': 'DATETIME',
+									       'COLUMN_NAME': 'MODIFICATION_DATE',
+									       'ATTRIBUTE_NAME': 'modificationDate',
+									       'EXTRA': '\'0000-00-00 00:00:00\'',
+									       'VALUES': []
+									     }
+							},
+					    'RELATIONSHIPS': {
+							     'roots': {
+								        'TARGET_ATTRIBUTE': 'GROUND_ID',
+								        'TARGET_ENTITY': 'IFTestRoot',
+								        'TYPE': 'TO_MANY',
+								        'SOURCE_ATTRIBUTE': 'ID'
+								      }
+							   }
+					  },
+			   'IFTestBranch': {
+					    'PRIMARY_KEY': 'ID',
+					    'TABLE': 'BRANCH',
+					    'ATTRIBUTES': {
+							  'TRUNK_ID': {
+								        'KEY': null,
+								        'SIZE': '11',
+								        'NULL': null,
+								        'DEFAULT': '0',
+								        'TYPE': 'INT',
+								        'COLUMN_NAME': 'TRUNK_ID',
+								        'ATTRIBUTE_NAME': 'trunkId',
+								        'EXTRA': '0',
+								        'VALUES': []
+								      },
+							  'ID': {
+								  'KEY': null,
+								  'SIZE': '11',
+								  'NULL': null,
+								  'DEFAULT': null,
+								  'TYPE': 'INT',
+								  'COLUMN_NAME': 'ID',
+								  'ATTRIBUTE_NAME': 'id',
+								  'EXTRA': null,
+								  'VALUES': []
+								},
+							  'LENGTH': {
+								      'KEY': null,
+								      'SIZE': '11',
+								      'NULL': null,
+								      'DEFAULT': '0',
+								      'TYPE': 'INT',
+								      'COLUMN_NAME': 'LENGTH',
+								      'ATTRIBUTE_NAME': 'length',
+								      'EXTRA': '0',
+								      'VALUES': []
+								    },
+							  'CREATION_DATE': {
+									   'KEY': null,
+									   'SIZE': null,
+									   'NULL': null,
+									   'DEFAULT': '\'0000-00-00 00:00:00\'',
+									   'TYPE': 'DATETIME',
+									   'COLUMN_NAME': 'CREATION_DATE',
+									   'ATTRIBUTE_NAME': 'creationDate',
+									   'EXTRA': '\'0000-00-00 00:00:00\'',
+									   'VALUES': []
+									 },
+							  'ZAB_ID': {
+								      'KEY': null,
+								      'SIZE': '11',
+								      'NULL': null,
+								      'DEFAULT': '0',
+								      'TYPE': 'INT',
+								      'COLUMN_NAME': 'ZAB_ID',
+								      'ATTRIBUTE_NAME': 'zabId',
+								      'EXTRA': '0',
+								      'VALUES': []
+								    },
+							  'MODIFICATION_DATE': {
+									       'KEY': null,
+									       'SIZE': null,
+									       'NULL': null,
+									       'DEFAULT': '\'0000-00-00 00:00:00\'',
+									       'TYPE': 'DATETIME',
+									       'COLUMN_NAME': 'MODIFICATION_DATE',
+									       'ATTRIBUTE_NAME': 'modificationDate',
+									       'EXTRA': '\'0000-00-00 00:00:00\'',
+									       'VALUES': []
+									     },
+							  'ZAB_TYPE': {
+								        'KEY': null,
+								        'SIZE': '16',
+								        'NULL': null,
+								        'DEFAULT': null,
+								        'TYPE': 'VARCHAR',
+								        'COLUMN_NAME': 'ZAB_TYPE',
+								        'ATTRIBUTE_NAME': 'zabType',
+								        'EXTRA': null,
+								        'VALUES': []
+								      },
+							  'LEAF_COUNT': {
+									'KEY': null,
+									'SIZE': '11',
+									'NULL': null,
+									'DEFAULT': '0',
+									'TYPE': 'INT',
+									'COLUMN_NAME': 'LEAF_COUNT',
+									'ATTRIBUTE_NAME': 'leafCount',
+									'EXTRA': '0',
+									'VALUES': []
+								        }
+							},
+					    'RELATIONSHIPS': {
+							     'trunk': {
+								        'TARGET_ATTRIBUTE': 'ID',
+								        'TARGET_ENTITY': 'IFTestTrunk',
+								        'TYPE': 'TO_ONE',
+								        'SOURCE_ATTRIBUTE': 'TRUNK_ID'
+								      },
+							     'globules': {
+									 'RECIPROCAL_RELATIONSHIP_NAME': 'branches',
+									 'JOIN_SOURCE_ATTRIBUTE': 'GLOBULE_ID',
+									 'TARGET_ENTITY': 'IFTestGlobule',
+									 'TYPE': 'FLATTENED_TO_MANY',
+									 'SOURCE_ATTRIBUTE': 'ID',
+									 'TARGET_ATTRIBUTE': 'ID',
+									 'JOIN_TARGET_ATTRIBUTE': 'BRANCH_ID',
+									 'DELETION_RULE': 'NULLIFY',
+									 'JOIN_TABLE': 'BRANCH_X_GLOBULE'
+								         }
+							   }
+					  },
+			   'IFTestTrunk': {
+					   'PRIMARY_KEY': 'ID',
+					   'TABLE': 'TRUNK',
+					   'ATTRIBUTES': {
+							 'ROOT_ID': {
+								      'KEY': null,
+								      'SIZE': '11',
+								      'NULL': null,
+								      'DEFAULT': '0',
+								      'TYPE': 'INT',
+								      'COLUMN_NAME': 'ROOT_ID',
+								      'ATTRIBUTE_NAME': 'rootId',
+								      'EXTRA': '0',
+								      'VALUES': []
+								    },
+							 'ID': {
+								 'KEY': null,
+								 'SIZE': '11',
+								 'NULL': null,
+								 'DEFAULT': null,
+								 'TYPE': 'INT',
+								 'COLUMN_NAME': 'ID',
+								 'ATTRIBUTE_NAME': 'id',
+								 'EXTRA': null,
+								 'VALUES': []
+							         },
+							 'THICKNESS': {
+								        'KEY': null,
+								        'SIZE': '11',
+								        'NULL': null,
+								        'DEFAULT': '0',
+								        'TYPE': 'INT',
+								        'COLUMN_NAME': 'THICKNESS',
+								        'ATTRIBUTE_NAME': 'thickness',
+								        'EXTRA': '0',
+								        'VALUES': []
+								      },
+							 'CREATION_DATE': {
+									  'KEY': null,
+									  'SIZE': null,
+									  'NULL': null,
+									  'DEFAULT': '\'0000-00-00 00:00:00\'',
+									  'TYPE': 'DATETIME',
+									  'COLUMN_NAME': 'CREATION_DATE',
+									  'ATTRIBUTE_NAME': 'creationDate',
+									  'EXTRA': '\'0000-00-00 00:00:00\'',
+									  'VALUES': []
+									},
+							 'MODIFICATION_DATE': {
+									      'KEY': null,
+									      'SIZE': null,
+									      'NULL': null,
+									      'DEFAULT': '\'0000-00-00 00:00:00\'',
+									      'TYPE': 'DATETIME',
+									      'COLUMN_NAME': 'MODIFICATION_DATE',
+									      'ATTRIBUTE_NAME': 'modificationDate',
+									      'EXTRA': '\'0000-00-00 00:00:00\'',
+									      'VALUES': []
+									    }
+						         },
+					   'RELATIONSHIPS': {
+							    'branches': {
+									'TARGET_ATTRIBUTE': 'TRUNK_ID',
+									'TARGET_ENTITY': 'IFTestBranch',
+									'TYPE': 'TO_MANY',
+									'SOURCE_ATTRIBUTE': 'ID'
+								        },
+							    'root': {
+								      'TARGET_ATTRIBUTE': 'ID',
+								      'TARGET_ENTITY': 'IFTestRoot',
+								      'TYPE': 'TO_ONE',
+								      'SOURCE_ATTRIBUTE': 'ROOT_ID'
+								    }
+							  }
+					 },
+			   'IFTestZab': {
+					 'PRIMARY_KEY': 'ID',
+					 'TABLE': 'ZAB',
+					 'ATTRIBUTES': {
+						         'ID': {
+							         'KEY': null,
+							         'SIZE': '11',
+							         'NULL': null,
+							         'DEFAULT': null,
+							         'TYPE': 'INT',
+							         'COLUMN_NAME': 'ID',
+							         'ATTRIBUTE_NAME': 'id',
+							         'EXTRA': null,
+							         'VALUES': []
+							       },
+						         'TITLE': {
+								  'KEY': null,
+								  'SIZE': '32',
+								  'NULL': null,
+								  'DEFAULT': '\'\'',
+								  'TYPE': 'CHAR',
+								  'COLUMN_NAME': 'TITLE',
+								  'ATTRIBUTE_NAME': 'title',
+								  'EXTRA': '\'\'',
+								  'VALUES': []
+								},
+						         'CREATION_DATE': {
+									'KEY': null,
+									'SIZE': null,
+									'NULL': null,
+									'DEFAULT': '\'0000-00-00 00:00:00\'',
+									'TYPE': 'DATETIME',
+									'COLUMN_NAME': 'CREATION_DATE',
+									'ATTRIBUTE_NAME': 'creationDate',
+									'EXTRA': '\'0000-00-00 00:00:00\'',
+									'VALUES': []
+								        },
+						         'MODIFICATION_DATE': {
+									    'KEY': null,
+									    'SIZE': null,
+									    'NULL': null,
+									    'DEFAULT': '\'0000-00-00 00:00:00\'',
+									    'TYPE': 'DATETIME',
+									    'COLUMN_NAME': 'MODIFICATION_DATE',
+									    'ATTRIBUTE_NAME': 'modificationDate',
+									    'EXTRA': '\'0000-00-00 00:00:00\'',
+									    'VALUES': []
+									  }
+						       }
+				         },
+			   'IFTestGlobule': {
+					     'PRIMARY_KEY': 'ID',
+					     'TABLE': 'GLOBULE',
+					     'ATTRIBUTES': {
+							   'ID': {
+								   'KEY': null,
+								   'SIZE': '11',
+								   'NULL': null,
+								   'DEFAULT': null,
+								   'TYPE': 'INT',
+								   'COLUMN_NAME': 'ID',
+								   'ATTRIBUTE_NAME': 'id',
+								   'EXTRA': null,
+								   'VALUES': []
+								 },
+							   'NAME': {
+								     'KEY': null,
+								     'SIZE': '64',
+								     'NULL': null,
+								     'DEFAULT': '\'\'',
+								     'TYPE': 'VARCHAR',
+								     'COLUMN_NAME': 'NAME',
+								     'ATTRIBUTE_NAME': 'name',
+								     'EXTRA': '\'\'',
+								     'VALUES': []
+								   },
+							   'CREATION_DATE': {
+									    'KEY': null,
+									    'SIZE': null,
+									    'NULL': null,
+									    'DEFAULT': '\'0000-00-00 00:00:00\'',
+									    'TYPE': 'DATETIME',
+									    'COLUMN_NAME': 'CREATION_DATE',
+									    'ATTRIBUTE_NAME': 'creationDate',
+									    'EXTRA': '\'0000-00-00 00:00:00\'',
+									    'VALUES': []
+									  },
+							   'MODIFICATION_DATE': {
+									        'KEY': null,
+									        'SIZE': null,
+									        'NULL': null,
+									        'DEFAULT': '\'0000-00-00 00:00:00\'',
+									        'TYPE': 'DATETIME',
+									        'COLUMN_NAME': 'MODIFICATION_DATE',
+									        'ATTRIBUTE_NAME': 'modificationDate',
+									        'EXTRA': '\'0000-00-00 00:00:00\'',
+									        'VALUES': []
+									      }
+							 },
+					     'RELATIONSHIPS': {
+							      'branches': {
+									  'RECIPROCAL_RELATIONSHIP_NAME': 'globules',
+									  'JOIN_SOURCE_ATTRIBUTE': 'BRANCH_ID',
+									  'TARGET_ENTITY': 'IFTestBranch',
+									  'TYPE': 'FLATTENED_TO_MANY',
+									  'SOURCE_ATTRIBUTE': 'ID',
+									  'TARGET_ATTRIBUTE': 'ID',
+									  'JOIN_TARGET_ATTRIBUTE': 'GLOBULE_ID',
+									  'DELETION_RULE': 'NULLIFY',
+									  'JOIN_TABLE': 'BRANCH_X_GLOBULE'
+									}
+							    }
+					   },
+			   'IFTestElastic': {
+					     'PRIMARY_KEY': 'ID',
+					     'TABLE': 'ELASTIC',
+					     'ATTRIBUTES': {
+							   'ID': {
+								   'KEY': null,
+								   'SIZE': '11',
+								   'NULL': null,
+								   'DEFAULT': null,
+								   'TYPE': 'INT',
+								   'COLUMN_NAME': 'ID',
+								   'ATTRIBUTE_NAME': 'id',
+								   'EXTRA': null,
+								   'VALUES': []
+								 },
+							   'PLING': {
+								      'KEY': null,
+								      'SIZE': '32',
+								      'NULL': null,
+								      'DEFAULT': null,
+								      'TYPE': 'VARCHAR',
+								      'COLUMN_NAME': 'PLING',
+								      'ATTRIBUTE_NAME': 'pling',
+								      'EXTRA': null,
+								      'VALUES': []
+								    },
+							   'CREATION_DATE': {
+									    'KEY': null,
+									    'SIZE': null,
+									    'NULL': null,
+									    'DEFAULT': '\'0000-00-00 00:00:00\'',
+									    'TYPE': 'DATETIME',
+									    'COLUMN_NAME': 'CREATION_DATE',
+									    'ATTRIBUTE_NAME': 'creationDate',
+									    'EXTRA': '\'0000-00-00 00:00:00\'',
+									    'VALUES': []
+									  },
+							   'SOURCE_ID': {
+									'KEY': null,
+									'SIZE': '11',
+									'NULL': null,
+									'DEFAULT': '0',
+									'TYPE': 'INT',
+									'COLUMN_NAME': 'SOURCE_ID',
+									'ATTRIBUTE_NAME': 'sourceId',
+									'EXTRA': '0',
+									'VALUES': []
+								        },
+							   'MODIFICATION_DATE': {
+									        'KEY': null,
+									        'SIZE': null,
+									        'NULL': null,
+									        'DEFAULT': '\'0000-00-00 00:00:00\'',
+									        'TYPE': 'DATETIME',
+									        'COLUMN_NAME': 'MODIFICATION_DATE',
+									        'ATTRIBUTE_NAME': 'modificationDate',
+									        'EXTRA': '\'0000-00-00 00:00:00\'',
+									        'VALUES': []
+									      },
+							   'SOURCE_TYPE': {
+									  'KEY': null,
+									  'SIZE': null,
+									  'NULL': null,
+									  'DEFAULT': '\'\'',
+									  'TYPE': 'STRING',
+									  'COLUMN_NAME': 'SOURCE_TYPE',
+									  'ATTRIBUTE_NAME': 'sourceType',
+									  'EXTRA': '\'\'',
+									  'VALUES': []
+									},
+							   'TARGET_ID': {
+									'KEY': null,
+									'SIZE': '11',
+									'NULL': null,
+									'DEFAULT': '0',
+									'TYPE': 'INT',
+									'COLUMN_NAME': 'TARGET_ID',
+									'ATTRIBUTE_NAME': 'targetId',
+									'EXTRA': '0',
+									'VALUES': []
+								        },
+							   'TARGET_TYPE': {
+									  'KEY': null,
+									  'SIZE': null,
+									  'NULL': null,
+									  'DEFAULT': '\'\'',
+									  'TYPE': 'STRING',
+									  'COLUMN_NAME': 'TARGET_TYPE',
+									  'ATTRIBUTE_NAME': 'targetType',
+									  'EXTRA': '\'\'',
+									  'VALUES': []
+									}
+							 }
+					   },
+			 }
+	     };

@@ -1,0 +1,32 @@
+IF
+--
+
+This is a very very very early commit of a very very very
+nasty port from Perl of some very very very old code.
+
+Don't use this unless you're very brave.
+
+This code is under heavy development as of right now,
+May 2, 2010.  It is being ported at a fairly rapid rate
+from a Perl framework that is stable.  This port can
+not be considered stable in any way at all.  However,
+hopefully this will change soon.
+
+What is IF?
+-----------
+
+IF is based on the web framework and ORM previously
+in use at Idealist.org.  The original framework was
+developed in-house but heavily influenced by WebObjects
+and EOF.  Porting it to Objective-J seemed fitting
+and convenient; it also fills a gap in providing
+an ORM and web framework written in Objective-J;
+something which is currently lacking.
+
+Status
+------
+
+The name "IF" will change.  The API is in a state
+of flux.  The code itself was partially machine-
+ported, so it's pretty crazy-looking (on top of
+being based on old, crazy-looking Perl).
