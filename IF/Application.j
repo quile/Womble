@@ -1,4 +1,5 @@
 /* --------------------------------------------------------------------
+ * IF - Web Framework and ORM heavily influenced by WebObjects & EOF
  * (C) kd 2010
  *
  * This library is free software; you can redistribute it and/or
