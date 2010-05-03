@@ -44,8 +44,6 @@ of it to make the web development cycle more productive
 and fun.
 
 
-
-
 Background
 ==========
 In 2000, WebObjects and EOF were state-of-the-art tools
@@ -91,5 +89,23 @@ system.  This obj-j port of the framework is entirely my work;
 none of this code is in production, or has been used in any
 way whatsoever by my employer. However, I am very thankful
 to them for their generous support.
+
+
+
+DISCLAIMER
+==========
+
+This is rough.  A lot of it is half-arsed.  It's currently
+a half-arsed port of a half-arsed implementation of some
+cool tools.  I'd love to clean it up and make it less-half-arsed
+but I am doing this on my own time and I can't make any promises!
+Any/all help would be greatly appreciated; I realise it's
+a pretty big ask.  But if anyone out there is brave enough
+to give it a go, it would be very cool.   However, I'll say this
+once here: I am not interested in listening to any criticism that
+is not constructive.  I know this is shitty and messy; I don't
+need anyone else to tell me that.  I would love constructive
+criticism and welcome it.  Thanks!
+
 
 -kd may 2010
