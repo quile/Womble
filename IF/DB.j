@@ -392,4 +392,16 @@ var _dbh;
     record['ID'] = value;
 }
 
++ (void) startTransaction {
+    [[IFDB _driver] startTransaction];
+}
+
++ (void) endTransaction {
+    [[IFDB _driver] endTransaction];
+}
+
++ (void) rollbackTransaction {
+    [[IFDB _driver] rollbackTransaction];
+}
+
 @end

@@ -134,4 +134,20 @@
 - error {
     return "";
 }
+
+- (void) startTransaction {
+    var st = [IFSQLStatement newWithSQL:"BEGIN;" andBindValues:[]];
+    [wrappedHandle do:st];
+}
+
+- (void) endTransaction {
+    var st = [IFSQLStatement newWithSQL:"COMMIT;" andBindValues:[]];
+    [wrappedHandle do:st];
+}
+
+- (void) rollbackTransaction {
+    var st = [IFSQLStatement newWithSQL:"ROLLBACK;" andBindValues:[]];
+    [wrappedHandle do:st];
+}
+
 @end
