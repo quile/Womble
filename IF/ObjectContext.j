@@ -24,6 +24,7 @@
 @import "Model.j"
 @import "FetchSpecification.j"
 @import "Qualifier.j"
+@import "Entity/UniqueIdentifier.j"
 //@import "Cache.j"
 
 var JSON = require("json");
@@ -33,33 +34,35 @@ var _objectContext;
 {
     id shouldUseCache @accessors;
     id model @accessors;
-}
 
+    //---------------------------------------------
+    // Experimental!  Adding and tracking entities
+    // so that we can add real transactions.
+    //---------------------------------------------
+    // Entities that have been committed are here
+    id _trackedEntities;
+    // New entities are here
+    id _addedEntities;
+}
 
 + new {
     if (_objectContext) { return _objectContext }
-
-/*    var self = { _cachedEntitiesByEntityClass: {},
-                 _fileCache => IF::Cache::cacheOfTypeWithName("MemCached", "Entities"),
-                   _shouldUseCache => 1,
-             };
-    bless self, className;
-    unless (self._model) {
-        IFLog.error("Error loading default model into ObjectContext, application is not initialized");
-        return null;
-    }
-    _objectContext = self;
-    return self;
-   */
     _objectContext = [[self alloc] init];
     [_objectContext loadModel];
     return _objectContext;
 }
 
-- loadModel {
+- init {
+    [super init];
+    _trackedEntities = {};
+    _addedEntities = [];
+    return self;
+}
+
+- (void) loadModel {
     model = [IFModel defaultModel];
     if (!model) {
-        return [CPException raise:"CPException" message:"Couldn't load default model into object context"];
+        throw [CPException raise:"CPException" message:"Couldn't load default model into object context"];
     }
 }
 
@@ -83,9 +86,7 @@ var _objectContext;
     if (!entityClassDescription) { return nil };
 
     var keyQualifier = [[entityClassDescription _primaryKey] qualifierForValue:idt];
-    //[IFLog debug:keyQualifier];
     var fetchSpecification = [IFFetchSpecification new:entityName :keyQualifier];
-    //[IFLog debug:fetchSpecification];
     var entities = [self entitiesMatchingFetchSpecification:fetchSpecification];
     if ([entities count]> 1) {
         [IFLog warning:"Found more than one " + entityName + " matching id " + idt];
@@ -95,10 +96,13 @@ var _objectContext;
         [IFLog warning:"No " + entityName + " matching id " + idt + " found"];
         return;
     }
-    return [entities objectAtIndex:0];
+    var e = [entities objectAtIndex:0];
+    return e;
 }
 
-- entity:(id)entityName withExternalId:(id)externalId {
+- (id) entity:(id)entityName withExternalId:(id)externalId {
+    // TODO implement configurable external primary keys
+    return [self entity:entityName withPrimaryKey:externalId];
     /*
     if (!externalId) { return nil }
     if (![IFLog assert:
@@ -110,6 +114,7 @@ var _objectContext;
     */
 }
 
+// By default new instances aren't tracked.
 - newInstanceOfEntity:(id)entityName {
     return [self entity:entityName fromHash:{}];
 }
@@ -117,7 +122,6 @@ var _objectContext;
 - entity:(id)entityName fromHash:(id)hash {
     if (!entityName) { return nil }
     if (!hash) { return nil }
-    //var entityClass = [[self model] entityNamespace] + "::entityName";
     var entityClass = objj_getClass(entityName);
     return [entityClass newFromDictionary:hash];
 }
@@ -125,22 +129,20 @@ var _objectContext;
 - entity:(id)entityName fromRawHash:(id)hash {
     if (!entityName) { return nil }
     if (!hash) { return nil }
-    //var entityClass = [[self model] entityNamespace] + "::entityName";
     var entityClass = objj_getClass(entityName);
     return [entityClass newFromRawDictionary:hash];
 }
-/*
-- entityArrayFromHashArray:(id)hashArray {
-    return null unless entityName;
-    return null unless hashArray;
-    var entityClass = [self model]->entityNamespace() + "::entityName";
-    var entityArray =[];
-    for var e (@hashArray) {
-        push (@entityArray, [entityClass new:%{e}](%{e}));
+
+- (id)entityArrayFromHashArray:(id)entityName :(id)hashArray {
+    if (!entityName) { return [] }
+    if (!hashArray) { return [] }
+    var entities = [];
+    for (var i=0; i < [hashArray count]; i++) {
+        entities[entities.length] = [self entity:entityName fromRawHash:[hashArray objectAtIndex:i]];
     }
-    return entityArray;
+    return entities;
 }
-*/
+
 - allEntities:(id)entityName {
     if (!entityName) { return [IFArray new] }
     var fetchSpecification = [IFFetchSpecification new:entityName :nil];
@@ -168,7 +170,6 @@ var _objectContext;
         var entities = [self entities:entityName matchingQualifier:qualifier];
         [results addObjectsFromArray:entities];
     }
-    //[self addEntities:results toCache] if self->shouldUseCache();
     return results;
 }
 
@@ -201,9 +202,10 @@ var _objectContext;
     //[IFLog debug:st];
     var results = [IFDB rawRowsForSQLStatement:st];
     results = results || [IFArray new];
-    var unpackedResults = [fetchSpecification unpackResultsIntoEntities:results]; //[self addEntities:unpackedResults toCache] if self->shouldUseCache();
+    var unpackedResults = [fetchSpecification unpackResultsIntoEntities:results];
     [IFLog database:"Matched " + [results count] + " row(s), " + [unpackedResults count] + " result(s)"];
     //[IFLog debug:[unpackedResults objectAtIndex:0]];
+    [self trackEntities:unpackedResults];
     return unpackedResults;
 }
 
@@ -227,35 +229,45 @@ var _objectContext;
     [entity _deleteSelf];
 }
 
-/*
-- clearCachedEntities {
-    self._cachedEntitiesByEntityClass = {};
-    IFLog.debug("Cached entities cleared");
-}
-
-- hasCachedEntityWithId:(id)id forEntityClass:(id)entityClass {
-    return 1 if self._cachedEntitiesByEntityClass->{entityClass}->{id};
-    return 0;
-}
-
-- cachedEntityWithId:(id)id forEntityClass:(id)entityClass {
-    return self._cachedEntitiesByEntityClass->{entityClass}->{id};
-}
-
-- cachedEntitiesOfClass:(id)entityClass {
-    return self._cachedEntitiesByEntityClass->{entityClass};
-}
-
-- addEntity:(id)entity toCache {
-    self._cachedEntitiesByEntityClass->{[entity _entityClassName]}->{entity->id()} = entity;
-    IFLog.debug("Added entity entity to cache");
-}
-
-- addEntities:(id)entities toCache {
-    foreach var entity (@entities) {
-        [self addEntity:entity toCache];
+- (void) trackEntities:(id)entities {
+    for (var i=0; i<[entities count]; i++) {
+        [self trackEntity:[entities objectAtIndex:i]];
     }
 }
-*/
+
+- (void) trackEntity:(id)entity {
+    if ([entity isTrackedByObjectContext]) { return }
+    if ([entity hasNeverBeenCommitted]) {
+        _addedEntities[_addedEntities.length] = entity; 
+    } else {
+        var pkv = [[entity uniqueIdentifier] description]; 
+        if (_trackedEntities[pkv]) {
+            if (_trackedEntities[pkv] === entity) {
+                // this instance is already being tracked
+            } else {
+                var trackedEntity = _trackedEntities[pkv];
+                if ([trackedEntity hasChanged]) {
+                    // TODO what to do here?
+                    //[IFLog error:"Entity " + pkv + " is already tracked by the ObjectContext but instances do not match"];
+                }
+            } 
+        } else {
+            _trackedEntities[pkv] = entity;
+        }
+    }
+    [entity setIsTrackedByObjectContext:true];
+}
+
+- (void) entityIsTracked:(id)entity {
+    if ([entity hasNeverBeenCommitted]) {
+        var pkv = [[entity uniqueIdentifier] description];
+        return Boolean(_trackedEntities[pkv]);
+    } else {
+        for (var i=0; i<_addedEntities.length; i++) {
+            if (_addedEntities[i] === entity) { return true }
+        }
+        return false;
+    }
+}
 
 @end

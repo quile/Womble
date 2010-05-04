@@ -33,6 +33,7 @@ var UTIL = require("util");
     id __joinRecordForRelationship;
     id __uniqueIdentifier;
     id __isMarkedForSave;
+    id __isTrackedByObjectContext;
 
     // TODO - clean up this naming!
     id _wasDeletedFromDataStore;
@@ -51,6 +52,7 @@ var UTIL = require("util");
 
 + instanceWithExternalId:(id)externalId {
     if (!externalId) { return nil }
+    return [[IFObjectContext new] entity:e withExternalId:id];
     /*
     if (![IFLog assert:[IFUtility.externalIdIsValid(externalId)] message:"instanceWithExternalId(): externalId='externalId' .. is valid for className",
     )  { return nil }
@@ -74,6 +76,7 @@ var UTIL = require("util");
     __storedValues = {};
     __joinRecordForRelationship = {};
     __uniqueIdentifier = nil;
+    __isTrackedByObjectContext = false;
     _wasDeletedFromDataStore = false;
     _columnKeyMap = {};
     _relatedEntities = {};
@@ -1091,6 +1094,11 @@ var UTIL = require("util");
     return [self storedValueForKey:"id"];
 }
 
+// you subclass this to provide your own scheme
+- (id) externalId {
+    return [self id];
+}
+
 - initValuesWithDictionary:(id)d {
     var sten = [d keyEnumerator], key = nil;
     while (key = [sten nextObject]) {
@@ -1412,6 +1420,14 @@ var UTIL = require("util");
     }
     d = d + " } >";
     return d;
+}
+
+- (id) isTrackedByObjectContext {
+    return __isTrackedByObjectContext;
+}
+
+- (void) setIsTrackedByObjectContext:(id)value {
+    __isTrackedByObjectContext = value;
 }
 
 @end

@@ -17,59 +17,57 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-@implementation IFEntityUniqueIdentifier : IFDictionary {
+@import "../Object.j"
 
-@import <strict>;
-use base qw(
-    IFDictionary
-);
-/* use overload '""' => 'stringValue'; */
-
-
-+ new {
-    var self = className->SUPER::new();
-    bless self, className;
+@implementation IFEntityUniqueIdentifier : IFObject
+{
+    id entityName;
+    id externalId;
+    id entity;
 }
 
-+ newFromString:(id)string {
-    var self = [className new];
-    var (e, p) = split(/\,/, string, 2);
-    [self setEntityName:e];
-    [self setExternalId:p];
-    return self;
++ (id) newFromString:(id)str {
+    var e = [self new];
+    var bits = [str componentsSeparatedByString:","];
+    [e setEntityName:bits[0]];
+    [e setExternalId:bits[1]];
+    return e;
 }
 
-+ newFromEntity:(id)entity {
-    var self = [className new];
-    [self setEntityName:entity->entityClassDescription()->name()];
-    [self setExternalId:entity->externalId()];
-    return self;
++ (id) newFromEntity:(id)entity {
+    var e = [self new];
+    [e setEntityName:[[entity entityClassDescription] name]];
+    [e setExternalId:[entity externalId]];
+    return e;
 }
 
-- entityName {
-    return self.entityName;
+- (id) entityName {
+    return entityName;
 }
 
-+ setEntityName:(id)value {
-    self.entityName = value;
-    self.entity = null;
+- (void) setEntityName:(id)value {
+    entityName = value;
+    entity = nil;
 }
 
 - externalId {
-    return self.externalId;
+    return externalId;
 }
 
-+ setExternalId:(id)value {
-    self.externalId = value;
-    self.entity = null;
+- (void) setExternalId:(id)value {
+    externalId = value;
+    entity = nil;
 }
 
-- stringValue {
-    return [self entityName] + "," + self->externalId();
+- (CPString) description {
+    return entityName + "," + externalId;
 }
 
 - entity {
-    return self.entity ||= [IFObjectContext new]->entityWithUniqueIdentifier(self);
+    if (!entity) {
+        entity = [[IFObjectContext new] entityWithUniqueIdentifier:self];
+    }
+    return entity;
 }
 
 @end
