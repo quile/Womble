@@ -138,8 +138,14 @@
 
 - prepare:(id)sql {
     if (!dbh) { throw [CPException raise:IFDBException reason:"No database handle"]; }
-    var st = dbh.prepareStatement(sql);
-    return [[IFDBStatement alloc] initWithJDBCStatement:st SQL:sql handle:self];
+    try {
+        var st = dbh.prepareStatement(sql);
+        return [[IFDBStatement alloc] initWithJDBCStatement:st SQL:sql handle:self];
+    } catch (e) {
+        [IFLog error:"Failed to prepare SQL: " + sql];
+        throw e;
+    }
+    return nil;
 }
 
 - do:(id)sqst {

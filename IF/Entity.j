@@ -34,7 +34,6 @@
 }
 
 + newFromDictionary:(id)d {
-    [IFLog dump:d];
     var e = [self new];
     [e initWithDictionary:d];
     return e;
@@ -49,17 +48,13 @@
 - initWithDictionary:(id)d {
     [self init];
     var keys = _p_keys(d);
-    [IFLog dump:keys];
     for (var i=0; i < _p_length(keys); i++) {
         var key = _p_objectAtIndex(keys, i);
-        [self setValue:_p_valueForKey(d, key) forKey:key];
+        var value = _p_objectForKey(d, key);
+        [self setValue:value forKey:key];
     }
     return self;
 }
-
-- awakeFromInflation {
-}
-
 
 /*----- */
 

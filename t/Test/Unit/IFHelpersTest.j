@@ -56,12 +56,16 @@
 
     [self assert:_p_length(_p_keys(jd)) equals:2 message:"correct number of keys"];
     [self assert:_p_length(_p_keys(ojd)) equals:2 message:"correct number of keys"];
+    [self assert:_p_length(_p_values(jd)) equals:2 message:"correct number of values"];
+    [self assert:_p_length(_p_values(ojd)) equals:2 message:"correct number of values"];
 
     _p_setValueForKey(jd, "fudge", "f");
     _p_setValueForKey(ojd, "fudge", "f");
 
     [self assert:_p_length(_p_keys(jd)) equals:3 message:"correct number of keys"];
     [self assert:_p_length(_p_keys(ojd)) equals:3 message:"correct number of keys"];
+    [self assert:_p_length(_p_values(jd)) equals:3 message:"correct number of values"];
+    [self assert:_p_length(_p_values(ojd)) equals:3 message:"correct number of values"];
     [self assert:_p_valueForKey(jd, "f") equals:"fudge" message:"value for key is correct"];
     [self assert:_p_valueForKey(ojd, "f") equals:"fudge" message:"value for key is correct"];
 }

@@ -33,7 +33,7 @@ var UTIL = require("util");
     id __joinRecordForRelationship;
     id __uniqueIdentifier;
     id __isMarkedForSave;
-    id __isTrackedByObjectContext;
+    id __trackingObjectContext;
 
     // TODO - clean up this naming!
     id _wasDeletedFromDataStore;
@@ -66,9 +66,7 @@ var UTIL = require("util");
 }
 
 + newFromRawDictionary:(id)d {
-    var e = [[super alloc] initWithRawDictionary:d];
-    [e awakeFromInflation];
-    return e;
+    return [[super alloc] initWithRawDictionary:d];
 }
 
 - init {
@@ -83,14 +81,6 @@ var UTIL = require("util");
     _RELATIONSHIP_HINTS = {};
     _currentStoredRepresentation = nil;
     _isPartiallyInflated = false;
-    return self;
-}
-
-// This is used to perform basic inflation of an entity
-// using the high-level KVC machinery.
-- (void) initWithDictionary:(id)d {
-    [self init];
-    [self initValuesWithDictionary:d];
     return self;
 }
 
@@ -196,62 +186,10 @@ var UTIL = require("util");
     return fetchSpecification;
 }
 
-
-/* These older methods have been deprecated in favour of
-   newer ones that actually do it correctly; these methods
-   had the nasty side-effect of committing un-committed
-   objects.
-*/
-/*
-- _deprecated_addObject:(id)object toBothSidesOfRelationshipWithKeyAndHints:(id)hints andCommitIfNeeded:(id)relationshipName {
-    var relationship = [self relationshipNamed:relationshipName];
-    unless (relationship) {
-        [IFLog error:"No such relationship: " + relationshipName];
-        return;
-    }
-
-    var objectPrimaryKey = [object entityClassDescription]->_primaryKey();
-    var primaryKey = [self entityClassDescription]->_primaryKey();
-    // make sure we have something to associate:
-    unless ([object valueForKey:objectPrimaryKey]) {
-        [object save];
-    }
-    unless ([self valueForKey:primaryKey]) {
-        [self save];
-    }
-
-    if ([relationship type] == "FLATTENED_TO_MANY") {
-        // build a join record for the join table
-        var record = {
-            [relationship joinTargetAttribute]: [self valueForKey:[relationship sourceAttribute]],
-            [relationship joinSourceAttribute]: [object valueForKey:[relationship targetAttribute]],
-            %hints,
-        };
-        IFDB.updateRecordInDatabase(null, record, [relationship joinTable]);
-    } else {
-        var targetAttribute = [relationship targetAttribute];
-        var sourceAttribute = [relationship sourceAttribute];
-        if (uc(sourceAttribute) == uc(primaryKey)) {
-            [object setValue:self->valueForKey(primaryKey) forKey:targetAttribute];
-            [object _clearCachedEntitiesForRelationshipNamed:relationshipName];
-            [object save];
-        } else {
-            [self setValue:object->valueForKey(objectPrimaryKey) forKey:sourceAttribute];
-            [self _clearCachedEntitiesForRelationshipNamed:relationshipName];
-            [self save];
-        }
-    }
-}
-*/
-
-/*
-- _deprecated_addObject:(id)object toBothSidesOfRelationshipWithKeyAndCommitIfNeeded:(id)relationshipName {
-    return [self _deprecated_addObject:object toBothSidesOfRelationshipWithKeyAndHints:relationshipName andCommitIfNeeded:{}];
-}
-*/
-
-
-/* These are the newer versions of the methods: */
+// TODO: These methods are actually not named right; they don't add the
+// entity to both sides.  The methods were named this way because
+// the EOF methods were named this way, but I've never actually
+// gotten around to implementing the whole cycle.
 - addObject:(id)object toBothSidesOfRelationshipWithKey:(id)relationshipName {
     /* I >think< this should blank out any previous relationship hints
        if it has any:
@@ -647,14 +585,20 @@ var UTIL = require("util");
     var dataRecord = {};
     dataRecord[ primaryKey ] = [self storedValueForRawKey:primaryKey];
 
-    for (var i=0; i < [[entityClassDescription allAttributeNames] count]; i++) {
-        var k = [[entityClassDescription allAttributeNames] objectAtIndex:i];
-        if (![self storedValueForKeyHasChanged:k]) { continue } else { [IFLog debug:k + " has changed "] }
+    var allAttributeNames = [entityClassDescription allAttributeNames];
+    for (var i=0; i < [allAttributeNames count]; i++) {
+        var k = [allAttributeNames objectAtIndex:i];
+        if ([self storedValueForKeyHasChanged:k]) {
+            [IFLog debug:k + " has changed to " + [self storedValueForKey:k]];
+        } else {
+            continue;
+        }
         var columnName = [entityClassDescription columnNameForAttributeName:k];
-        dataRecord[columnName] = [self storedValueForRawKey:columnName];
+        dataRecord[columnName] = [self storedValueForKey:k];
     }
 
     if (UTIL.keys(dataRecord).length > 1) {
+        [IFLog debug:UTIL.object.repr(dataRecord)];
         // This lets the DB layer fish around the ecd for info.  It's a
         // major kludge.
         dataRecord._ecd = entityClassDescription;
@@ -1099,15 +1043,6 @@ var UTIL = require("util");
     return [self id];
 }
 
-- initValuesWithDictionary:(id)d {
-    var sten = [d keyEnumerator], key = nil;
-    while (key = [sten nextObject]) {
-        var value = [d objectForKey:key];
-        [self setValue:value forKey:key];
-    }
-    return self;
-}
-
 - initStoredValuesWithDictionary:(id)storedValueDictionary {
     /* TODO : This is kinda a hack to get around inflation from
        an existing entity.  When the entity is passed into the
@@ -1160,15 +1095,9 @@ var UTIL = require("util");
 
 - setStoredValue:(id)value forKey:(id)key {
     key = key + ""; // coerce to a string
-    //var c;
-    //if (c = _columnKeyMap[key]) {
-    //    [self setStoredValue:value forRawKey:c];
-    //    return;
-    //}
-    //var ecd = [self entityClassDescription];
     var newKey = [self __rawKeyForKey:key];
-    //var columnName = [ecd columnNameForAttributeName:key]; // TODO why isn't this uc()?
     _columnKeyMap[key] = newKey;
+    [IFLog debug:"Setting " + newKey + " to " + value];
     [self setStoredValue:value forRawKey:newKey];
 }
 
@@ -1260,6 +1189,10 @@ var UTIL = require("util");
         if (svg['d']) { return true }
     }
     return false;
+}
+
+- (id) __storedValues {
+    return __storedValues;
 }
 
 /*
@@ -1422,12 +1355,36 @@ var UTIL = require("util");
     return d;
 }
 
-- (id) isTrackedByObjectContext {
-    return __isTrackedByObjectContext;
+- (IFObjectContext) trackingObjectContext {
+    return __trackingObjectContext;
 }
 
-- (void) setIsTrackedByObjectContext:(id)value {
-    __isTrackedByObjectContext = value;
+- (void) setTrackingObjectContext:value {
+    __trackingObjectContext = value;
+}
+
+- (id) isTrackedByObjectContext {
+    return [self isTrackedByObjectContext:nil];
+}
+
+- (id) isTrackedByObjectContext:(id)foo {
+    if (!foo) {
+        return Boolean(__trackingObjectContext);
+    }
+    return Boolean(__trackingObjectContext === foo);
+}
+
+// This is called the first time an
+// **un-committed** entity is added to
+// the ObjectContext.
+- (void) awakeFromInsertionInObjectContext:(IFObjectContext)oc {
+
+}
+
+// This is called when an already-committed
+// object is tracked by the ObjectContext.
+- (void) awakeFromFetchInObjectContext:(IFObjectContext)oc {
+
 }
 
 @end

@@ -28,6 +28,7 @@
 //@import "Cache.j"
 
 var JSON = require("json");
+var UTIL = require("util");
 var _objectContext;
 
 @implementation IFObjectContext : IFObject {
@@ -43,6 +44,16 @@ var _objectContext;
     id _trackedEntities;
     // New entities are here
     id _addedEntities;
+    // Entities that have been explicitly 'forgotten'
+    // are tracked here; this is to make sure they're
+    // not mutated by mistake during cascades
+    id _forgottenEntities;
+    // Track deleted entities here.  This is pretty
+    // simplistic because it doesn't represent the order
+    // of operations that are submitted to the ObjectContext;
+    // sometimes the order of adds/updates/delete is going
+    // to be important :(
+    id _deletedEntities;
 }
 
 + new {
@@ -55,7 +66,9 @@ var _objectContext;
 - init {
     [super init];
     _trackedEntities = {};
+    _deletedEntities = {};
     _addedEntities = [];
+    _forgottenEntities = [];
     return self;
 }
 
@@ -223,12 +236,6 @@ var _objectContext;
     return unpackedResults;
 }
 
-// TODO move all this stuff into the object context instead
-// of being on the entity
-- deleteEntity:(id)entity {
-    [entity _deleteSelf];
-}
-
 - (void) trackEntities:(id)entities {
     for (var i=0; i<[entities count]; i++) {
         [self trackEntity:[entities objectAtIndex:i]];
@@ -239,6 +246,7 @@ var _objectContext;
     if ([entity isTrackedByObjectContext]) { return }
     if ([entity hasNeverBeenCommitted]) {
         _addedEntities[_addedEntities.length] = entity; 
+        [entity awakeFromInsertionInObjectContext:self];
     } else {
         var pkv = [[entity uniqueIdentifier] description]; 
         if (_trackedEntities[pkv]) {
@@ -248,26 +256,170 @@ var _objectContext;
                 var trackedEntity = _trackedEntities[pkv];
                 if ([trackedEntity hasChanged]) {
                     // TODO what to do here?
-                    //[IFLog error:"Entity " + pkv + " is already tracked by the ObjectContext but instances do not match"];
+                    [IFLog error:"Entity " + pkv + " is already tracked by the ObjectContext but instances do not match"];
                 }
             } 
         } else {
             _trackedEntities[pkv] = entity;
+            [entity awakeFromFetchInObjectContext:self];
         }
     }
-    [entity setIsTrackedByObjectContext:true];
+    [_forgottenEntities removeObject:entity];
+    [entity setTrackingObjectContext:self];
 }
 
-- (void) entityIsTracked:(id)entity {
-    if ([entity hasNeverBeenCommitted]) {
-        var pkv = [[entity uniqueIdentifier] description];
-        return Boolean(_trackedEntities[pkv]);
-    } else {
-        for (var i=0; i<_addedEntities.length; i++) {
-            if (_addedEntities[i] === entity) { return true }
-        }
-        return false;
+- (void) untrackEntity:(id)entity {
+    var e = [self trackedInstanceOfEntity:entity];
+    if (![_forgottenEntities containsObject:entity]) {
+        [_forgottenEntities addObject:entity];
     }
+    [_addedEntities removeObject:entity];
+    if (![e hasNeverBeenCommitted]) {
+        var pkv = [[e uniqueIdentifier] description];
+        delete _trackedEntities[pkv];
+    }
+    [e setTrackingObjectContext:nil];
+}
+
+- (Boolean) entityIsTracked:(id)entity {
+    var e = [self trackedInstanceOfEntity:entity];
+    return Boolean(e);
+}
+
+- (id) trackedInstanceOfEntity:(id)entity {
+    if ([entity hasNeverBeenCommitted]) {
+        // we can't check for it by pk
+        if ([_addedEntities containsObject:entity]) { return entity }
+        return nil;
+    } else {
+        var pkv = [[entity uniqueIdentifier] description];
+        return _trackedEntities[pkv];
+    }
+}
+
+// For now there's no real difference between
+// inserting it into the ObjectContext and
+// tracking stuff that comes from the DB - but
+// maybe there will be so I'm adding this
+// here.
+- (void) insertEntity:(id)entity {
+    [self trackEntity:entity];
+}
+
+- (void) forgetEntity:(id)entity {
+    [self untrackEntity:entity];
+}
+
+- deleteEntity:(id)entity {
+    // TODO add notifications
+    if (![entity isTrackedByObjectContext]) { return }
+    if (![entity hasNeverBeenCommitted]) {
+        var pkv = [[entity uniqueIdentifier] description]; 
+        if (_deletedEntities[pkv]) {
+            if (_deletedEntities[pkv] === entity) {
+                // this instance is already deleted - ignore
+            } else {
+                [IFLog error:"Can't delete " + entity + " - object with same PK value has already been deleted"];
+            } 
+        } else {
+            _deletedEntities[pkv] = entity;
+        }
+    }
+}
+
+// These are just here for testing; you generally won't want to use these.
+- (id) forgottenEntities { return _forgottenEntities }
+- (id) addedEntities { return _addedEntities }
+- (id) deletedEntities { return _deletedEntities }
+
+// we need to include _addedEntities here too; from the POV
+// outside of the OC, added entities are "tracked" too.
+- (id) trackedEntities {
+    return _p_values(_trackedEntities).concat(_addedEntities);
+}
+- (id) changedEntities {
+    var changed = [];
+    var tes = UTIL.values(_trackedEntities);
+    for (var i=0; i<_p_length(tes); i++) {
+        var e = _p_objectAtIndex(tes, i);
+        if ([e hasChanged]) {
+            changed[changed.length] = e;
+        }
+    }
+    return changed;
+}
+
+//
+- (void) saveChanges {
+    // TODO Make transactions optional
+    [IFDB startTransaction];
+    
+    try {
+        // Process additions first.
+        // For every inserted entity, move it to the _trackedEntities array
+        for (var i=0; i < [_addedEntities count]; i++) {
+            var ae = _addedEntities[i];
+            [ae save];  
+        }
+
+        // then updates
+        var updatedEntities = UTIL.values(_trackedEntities);
+        for (var i=0; i < updatedEntities.length; i++) {
+            var ue = updatedEntities[i];
+            [ue save];
+        }
+
+        // then deletions
+        var des = UTIL.values(_deletedEntities);
+        for (var i=0; i < des.length; i++) {
+            var de = des[i];
+            [des _deleteSelf];
+        }
+    } catch (CPException) {
+        [IFDB rollbackTransaction];
+        return;
+    }
+
+    // I think we succeeded at this point, so
+    // move the added entities into the trackedEntities
+    // dictionary, clear the deletedEntities out,
+    // and do some other housekeeping
+
+    try {
+        for (var i=0; i < _addedEntities.length; i++) {
+            var entity = _addedEntities[i];
+            if ([entity hasNeverBeenCommitted]) {
+                // this shouldn't be possible
+                throw [CPException raise:"CPException" reason:"Failed to save new object " + entity];
+            }
+            var pkv = [[entity uniqueIdentifier] description]; 
+            if (_trackedEntities[pkv]) {
+                // this instance is already being tracked
+                throw [CPException raise:"CPException" reason:"Newly saved object seems to be tracked already: " + entity];
+            } else {
+                _trackedEntities[pkv] = entity;
+            }
+        }
+
+        for (var i=0; _deletedEntities.length; i++) {
+            var entity = _deletedEntities[i];
+            if (![entity wasDeletedFromDataStore]) {
+                throw [CPException raise:"CPException" reason:"Object should have been deleted but wasn't: " + entity];
+            }
+        }
+    } catch (CPException) {
+        [IFDB rollbackTransaction];
+        return;
+    }
+
+    _addedEntities = [];
+    _deletedEntities = {};
+    
+    // hmmmm, do we really want to flush this?
+    _forgottenEntities = [];
+
+    // otherwise, commit the transaction
+    [IFDB endTransaction];
 }
 
 @end

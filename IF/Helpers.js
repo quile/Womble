@@ -43,6 +43,15 @@ _p_keys = function(thing) {
     return UTIL.keys(thing);
 }
 
+_p_values = function(thing) {
+    // if this is an objj object, send it an allKeys message
+    if (!thing) { return [] }
+    if (thing.isa) {
+        return objj_msgSend(thing, "allValues");
+    }
+    return UTIL.values(thing);
+}
+
 _p_push = function(a, thing) {
     if (!a) { return }
     if (a.isa) {
@@ -65,6 +74,14 @@ _p_setObjectAtIndex = function(a, value, index) {
         objj_msgSend(a, "replaceObjectAtIndex:withObject:", index, value);
     }
     a[index] = value;
+}
+
+_p_objectForKey = function(d, key) {
+    if (!d) { return }
+    if (d.isa) {
+        return objj_msgSend(d, "objectForKey:", key);
+    }
+    return d[key];
 }
 
 _p_valueForKey = function(d, key) {
@@ -94,4 +111,6 @@ _p_isArray = function(a) {
     return false;
 }
 
+// eval(_p_setTrace) lets you execute javascript in the current context
+// of wherever your eval is.  Useful for checking values of vars and stuff.
 _p_setTrace = "var oj=require('objective-j');var R=require('readline');while(true){try{system.stdout.write('if> ').flush();var line=R.readline();if (line=='q'){break;}var r=eval(line);if (r!==undefined)print(r);}catch(e){print(e);}}";
