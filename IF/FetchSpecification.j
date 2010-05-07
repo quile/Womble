@@ -347,11 +347,11 @@ var UTIL = require("util");
 /* This needs to be optimised so that it no longer requires the sort, which is a waste of RAM
    and computation, especially for big lists
 */
-- unpackResultsIntoEntities:(id)results {
+- unpackResultsIntoEntities:(id)results inObjectContext:(id)oc {
     var unpackedResults = {};
 
     var primaryKey = [[entityClassDescription _primaryKey] description].toUpperCase();
-    var objectContext = [IFObjectContext new];
+    var objectContext = oc || [IFObjectContext new];
     var order = 0;
     var rootEntityClassName = [self inflateAsInstancesOfEntityNamed] || entity;
 
@@ -366,7 +366,13 @@ var UTIL = require("util");
     for (var i=0; i < [results count]; i++) {
         var result = [results objectAtIndex:i];
         var entityHash = [[self sqlExpression] dictionaryOfEntitiesFromRawRow:result];
-        var primaryEntity = entityHash[rootEntityClassName];
+        // unique those entities coming in
+        var uniqueHash = {};
+        for (var entityType in entityHash) {
+            var u = [oc trackedInstanceOfEntity:entityHash[entityType]] || entityHash[entityType];
+            uniqueHash[entityType] = u;
+        }
+        var primaryEntity = uniqueHash[rootEntityClassName];
         if (isFetchingPartialEntity) {
             [primaryEntity setIsPartiallyInflated:true];
         }
@@ -381,7 +387,7 @@ var UTIL = require("util");
         } else {
             primaryEntity = existingPrimaryEntityRecord.ENTITY;
         }
-        [self resolveEntityHash:entityHash :primaryEntity];
+        [self resolveEntityHash:uniqueHash :primaryEntity];
         order++;
     }
     var sortedResults = [IFArray new];

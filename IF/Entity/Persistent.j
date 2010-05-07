@@ -1052,10 +1052,10 @@ var UTIL = require("util");
     */
     //[IFLog debug:"Initialising with stored values"];
     //[IFLog debug:_p_length(_p_keys(storedValueDictionary)) + " keys"];
-    var sten = [storedValueDictionary keyEnumerator], key = nil;
-    while (key = [sten nextObject]) {
+    var keys = _p_keys(storedValueDictionary);
+    for (var i=0; i<keys.length; i++) {
+        var key = keys[i];
         var value = [storedValueDictionary objectForKey:key];
-        //[IFLog debug:"value " + value + " for key " + key];
         [self setStoredValue:value forRawKey:key];
     }
     return self;
@@ -1097,7 +1097,7 @@ var UTIL = require("util");
     key = key + ""; // coerce to a string
     var newKey = [self __rawKeyForKey:key];
     _columnKeyMap[key] = newKey;
-    [IFLog debug:"Setting " + newKey + " to " + value];
+    //[IFLog debug:"Setting " + newKey + " to " + value];
     [self setStoredValue:value forRawKey:newKey];
 }
 

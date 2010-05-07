@@ -37,6 +37,7 @@
     id _prefetchingRelationships;
     id _readAhead;
     id _isComplete;
+    id _oc;
 }
 
 + new:(id)ecn {
@@ -57,6 +58,8 @@
     _prefetchingRelationships = [];
     _readAhead = null;
     _isComplete = 0;
+    // a query needs to keep a handle to the OC
+    _oc = [IFObjectContext new];
     return self;
 }
 
@@ -207,7 +210,7 @@
    is called.
 */
 - count {
-    return [[IFObjectContext new] countOfEntitiesMatchingFetchSpecification:[self fetchSpecification]];
+    return [_oc countOfEntitiesMatchingFetchSpecification:[self fetchSpecification]];
 }
 
 - next {
@@ -218,7 +221,7 @@
     var rows = [self _readRowsForSingleResult];
     if (!rows || rows.length == 0) { return nil }
     //[IFLog debug:rows];
-    var unpackedResults = [_fs unpackResultsIntoEntities:rows];
+    var unpackedResults = [_fs unpackResultsIntoEntities:rows inObjectContext:_oc];
     if (![IFLog assert:([unpackedResults count] == 1) message:"Got one result back"]) {
         [IFLog debug:unpackedResults];
     }

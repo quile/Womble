@@ -206,7 +206,10 @@ var _objectContext;
 
 - entityMatchingFetchSpecification:(id)fetchSpecification {
     var entities = [self entitiesMatchingFetchSpecification:fetchSpecification];
-    return [entities objectAtIndex:0];
+    if ([entities count] > 0) {
+        return [entities objectAtIndex:0];
+    }
+    return nil;
 }
 
 - (CPArray) entitiesMatchingFetchSpecification:(id)fetchSpecification {
@@ -215,7 +218,7 @@ var _objectContext;
     //[IFLog debug:st];
     var results = [IFDB rawRowsForSQLStatement:st];
     results = results || [IFArray new];
-    var unpackedResults = [fetchSpecification unpackResultsIntoEntities:results];
+    var unpackedResults = [fetchSpecification unpackResultsIntoEntities:results inObjectContext:self];
     [IFLog database:"Matched " + [results count] + " row(s), " + [unpackedResults count] + " result(s)"];
     //[IFLog debug:[unpackedResults objectAtIndex:0]];
     [self trackEntities:unpackedResults];
@@ -351,6 +354,7 @@ var _objectContext;
 
 //
 - (void) saveChanges {
+    [IFLog setLogMask:0xffff];
     // TODO Make transactions optional
     [IFDB startTransaction];
     
@@ -420,6 +424,8 @@ var _objectContext;
 
     // otherwise, commit the transaction
     [IFDB endTransaction];
+    [IFLog debug:UTIL.object.repr(UTIL.keys(_trackedEntities))];
+    [IFLog setLogMask:0x0000];
 }
 
 @end
