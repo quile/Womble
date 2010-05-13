@@ -1,5 +1,7 @@
 WOMBLE - Introduction
 =====================
+"Make good use of bad rubbish"
+
 
 This is a very very very early commit of a very very very
 nasty port from Perl of some very very very old code.
@@ -99,13 +101,20 @@ This is rough.  A lot of it is half-arsed.  It's currently
 a half-arsed port of a half-arsed implementation of some
 cool tools.  I'd love to clean it up and make it less-half-arsed
 but I am doing this on my own time and I can't make any promises!
+
+
+HELP
+====
 Any/all help would be greatly appreciated; I realise it's
 a pretty big ask.  But if anyone out there is brave enough
-to give it a go, it would be very cool.   However, I'll say this
-once here: I am not interested in listening to any criticism that
-is not constructive.  I know this is shitty and messy; I don't
-need anyone else to tell me that.  I would love constructive
-criticism and welcome it.  Thanks!
+to give it a try, I'd be happy to help out.
+I know this is shitty and messy; I don't need anyone else to tell
+me that.  The growth of the original framework was very ad-hoc,
+and was often driven by the Quick And Dirty Way.  I'm trying to
+clean things up but it's still very patchy indeed.
+I would love constructive criticism and welcome any help that
+anyone would want to throw my way!  It needs a lot of work; clean-up,
+optimisation, 
 
 
 -kd may 2010
