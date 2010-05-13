@@ -1,5 +1,5 @@
-WM - Introduction
-=================
+WOMBLE - Introduction
+=====================
 
 This is a very very very early commit of a very very very
 nasty port from Perl of some very very very old code.
@@ -7,7 +7,7 @@ nasty port from Perl of some very very very old code.
 **Don't use this unless you're very brave.**
 
 This code is under heavy development as of right now,
-May 2, 2010.  It is being ported at a fairly rapid rate
+May 13, 2010.  It is being ported at a fairly rapid rate
 from a Perl framework that is stable.  This port can
 not be considered stable in any way at all.  However,
 hopefully this will change soon.
@@ -26,10 +26,10 @@ something which is currently lacking.
 Status
 ------
 
-The name "WM" will change.  The API is in a state
-of flux.  The code itself was partially machine-
-ported, so it's pretty crazy-looking (on top of
-being based on old, crazy-looking Perl).
+The API is in a state of flux.  The code itself 
+was partially machine-ported, so it's pretty 
+crazy-looking (on top of being based on old, 
+crazy-looking Perl).
 
 Currently only the ORM and related functions have
 been ported to objj.  Some of the tests have
