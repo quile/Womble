@@ -1,5 +1,5 @@
-@import <IF/Entity/Persistent.j>
-@implementation _IFTestElasticModel : IFPersistentEntity
+@import <WM/Entity/Persistent.j>
+@implementation _WMTestElasticModel : WMPersistentEntity
 
 - (id) pling    { return [self storedValueForKey:"pling"] }
 - setPling:(id)value { [self setStoredValue:value forKey:"pling"] }

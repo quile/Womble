@@ -1,6 +1,6 @@
-@import <IF/Entity/Persistent.j>
+@import <WM/Entity/Persistent.j>
 
-@implementation _IFTestBranchModel : IFPersistentEntity
+@implementation _WMTestBranchModel : WMPersistentEntity
 {
 }
 

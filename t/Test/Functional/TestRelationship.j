@@ -1,8 +1,8 @@
 @import <OJUnit/OJTestCase.j>
 @import "../../DBTestCase.j"
 @import "../../Application.j"
-@import <IF/ObjectContext.j>
-@import <IF/Log.j>
+@import <WM/ObjectContext.j>
+@import <WM/Log.j>
 
 @implementation TestRelationship : DBTestCase
 {
@@ -10,15 +10,15 @@
 }
 
 - setUp {
-    [IFLog setLogMask:0x0000];
+    [WMLog setLogMask:0x0000];
     [super setUp];
-    oc = [IFObjectContext new];
+    oc = [WMObjectContext new];
     [oc disableTracking];
     // save some decoys to make sure that counting is correct
-    var decoyTrunk = [IFTestTrunk new];
+    var decoyTrunk = [WMTestTrunk new];
     [decoyTrunk setThickness:5];
     [decoyTrunk save];
-    var decoyBranch = [IFTestBranch new];
+    var decoyBranch = [WMTestBranch new];
     [decoyBranch setLeafCount:8];
     [decoyBranch save];
 }
@@ -30,7 +30,7 @@
     var entities = [];
 
     // create a trunk object
-    var trunk = [IFTestTrunk new];
+    var trunk = [WMTestTrunk new];
     [trunk setThickness:20];
     [entities addObject:trunk];
     [trunk save];
@@ -39,7 +39,7 @@
 
     // add some objects to a to-many
     for (var l=0; l <= 2; l++ ) {
-        var branch = [IFTestBranch new];
+        var branch = [WMTestBranch new];
         [branch setLength:l];
         [branch setLeafCount:(6-l)];
         [entities addObject:branch];
@@ -52,27 +52,27 @@
     [self assertNotNull:oc message:"Object context exists!"];
 
     // re-fetch
-    var rtr = [oc entity:"IFTestTrunk" withPrimaryKey:[trunk id]];
+    var rtr = [oc entity:"WMTestTrunk" withPrimaryKey:[trunk id]];
     [self assertTrue:[rtr is:trunk] message:"Refetched trunk object"];
     [self assert:[[rtr branches] count] equals:3 message:"Refetched trunk has correct number of branches"];
-    //[IFLog setLogMask:0xffff];
+    //[WMLog setLogMask:0xffff];
 
     // TODO check the actual branches to make sure they're correct
     var br = [[trunk branches] objectAtIndex:0];
     [trunk removeObject:br fromBothSidesOfRelationshipWithKey:"branches"];
     [trunk save];
-    [IFLog debug: br]
-    [IFLog debug: [oc trackedInstanceOfEntity:br]];
+    [WMLog debug: br]
+    [WMLog debug: [oc trackedInstanceOfEntity:br]];
 
     [self assert:[[trunk branches] count] equals:2 message:"Trunk now has 2 branches"];
 
-    var rtr = [oc entity:"IFTestTrunk" withPrimaryKey:[trunk id]];
+    var rtr = [oc entity:"WMTestTrunk" withPrimaryKey:[trunk id]];
     [self assertTrue:[rtr is:trunk] message:"Refetched trunk again"];
     [self assert:[[rtr branches] count] equals:2 message:"Refetched trunk has 2 branches"];
     //eval(_p_setTrace);
 
 
-    //[IFLog setLogMask:0x0000];
+    //[WMLog setLogMask:0x0000];
 
     // cleanup
     for (var i=0; i<[entities count]; i++) {
@@ -87,14 +87,14 @@
     var entities = [];
 
     //create a root object
-    var root = [IFTestRoot new];
+    var root = [WMTestRoot new];
     [root setTitle:"Foo"];
     entities[entities.length] = root;
     [root save];
     [self assertTrue:(root && [root id]) message:"Made a new root object and saved it"];
 
     // create a trunk object
-    var trunk = [IFTestTrunk new];
+    var trunk = [WMTestTrunk new];
     [trunk setThickness:20];
     entities[entities.length] = trunk;
     [trunk save];
@@ -106,17 +106,17 @@
     [self assertNotNull:[trunk root] message:"Trunk and root related correctly"];
 
     // re-fetch
-    var rr = [oc entity:"IFTestRoot" withPrimaryKey:[root id]];
+    var rr = [oc entity:"WMTestRoot" withPrimaryKey:[root id]];
     [self assertTrue:(rr && [rr trunk] && [[rr trunk] is:trunk]) message:"Root refetched and trunk related"];
 
     [rr setTrunk:nil];
     [rr save];
     [self assertNull:[rr trunk] message:"Trunk no longer related"]; 
 
-    var rt = [oc entity:"IFTestTrunk" withPrimaryKey:[trunk id]];
+    var rt = [oc entity:"WMTestTrunk" withPrimaryKey:[trunk id]];
     [self assertTrue:(rt == null) message:"Trunk has been deleted"];
 
-    var rr = [oc entity:"IFTestRoot" withPrimaryKey:[root id]];
+    var rr = [oc entity:"WMTestRoot" withPrimaryKey:[root id]];
     [self assertTrue:(rr && [rr is:root]) message:"Refetched root again"];
     [self assertNull:[rr trunk] message:"Refetched root has no trunk"];
 
@@ -135,7 +135,7 @@ sub test_many_to_many : Test(7) {
     my $branches = [];
     my $isOk = 1;
     foreach my $c (0..4) {
-        my $b = IFTest::Entity::Branch->new();
+        my $b = WMTest::Entity::Branch->new();
         $b->setLength($c);
         $b->setLeafCount($c+1);
         push @$branches, $b;
@@ -148,7 +148,7 @@ sub test_many_to_many : Test(7) {
     my $globules = [];
     $isOk = 1;
     foreach my $c (0..4) {
-        my $g = IFTest::Entity::Globule->new();
+        my $g = WMTest::Entity::Globule->new();
         $g->setName("Globule $c");
         push @$globules, $g;
         $g->save();

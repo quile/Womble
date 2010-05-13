@@ -1,7 +1,7 @@
 @import "Model/_Trunk.j"
 @import <Foundation/CPKeyValueCoding.j>
 
-@implementation IFTestTrunk : _IFTestTrunkModel
+@implementation WMTestTrunk : _WMTestTrunkModel
 {
 }
 

@@ -1,7 +1,7 @@
 @import "Model/_Globule.j"
 @import <Foundation/CPKeyValueCoding.j>
 
-@implementation IFTestGlobule : _IFTestGlobuleModel
+@implementation WMTestGlobule : _WMTestGlobuleModel
 {
 }
 

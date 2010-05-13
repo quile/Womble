@@ -1,7 +1,7 @@
 @import "Model/_Root.j"
 @import <Foundation/CPKeyValueCoding.j>
 
-@implementation IFTestRoot : _IFTestRootModel
+@implementation WMTestRoot : _WMTestRootModel
 {
 }
 

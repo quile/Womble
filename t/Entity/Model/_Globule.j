@@ -1,5 +1,5 @@
-@import <IF/Entity/Persistent.j>
-@implementation _IFTestGlobuleModel : IFPersistentEntity
+@import <WM/Entity/Persistent.j>
+@implementation _WMTestGlobuleModel : WMPersistentEntity
 
 - branches {
 	return [self faultEntitiesForRelationshipNamed:"branches"];

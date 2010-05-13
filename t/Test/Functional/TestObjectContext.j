@@ -1,10 +1,10 @@
-@import <IF/ObjectContext.j>
-@import <IF/Query.j>
+@import <WM/ObjectContext.j>
+@import <WM/Query.j>
 @import "Type/DataSource.j"
 
 var UTIL = require("util");
 
-@implementation TestObjectContext : IFDataSourceTest
+@implementation TestObjectContext : WMDataSourceTest
 
 - (void) setUp {
     [super setUp];
@@ -12,7 +12,7 @@ var UTIL = require("util");
 }
 
 - (void) testTrackNewObject {
-    var e = [IFTestGlobule new];
+    var e = [WMTestGlobule new];
     [self assertFalse:[e isTrackedByObjectContext] message:"New object is not being tracked"];
     [self assertFalse:[oc entityIsTracked:e] message:"Object context knows nothing of new object"];
 
@@ -22,7 +22,7 @@ var UTIL = require("util");
 }
 
 - (void) testIgnoreObject {
-    var e = [IFTestZab new];
+    var e = [WMTestZab new];
     [self assertFalse:[e isTrackedByObjectContext] message:"New object is not being tracked"];
 
     [oc insertEntity:e];
@@ -34,9 +34,9 @@ var UTIL = require("util");
 }
 
 - (void) testGetChangedObjects {
-    var e = [IFTestZab newFromDictionary:{ title: "Zab 1" } ];
-    var f = [IFTestZab newFromDictionary:{ title: "Zab 2" } ];
-    var g = [IFTestZab newFromDictionary:{ title: "Zab 3" } ];
+    var e = [WMTestZab newFromDictionary:{ title: "Zab 1" } ];
+    var f = [WMTestZab newFromDictionary:{ title: "Zab 2" } ];
+    var g = [WMTestZab newFromDictionary:{ title: "Zab 3" } ];
     [self assert:[e title] equals:"Zab 1" message:"Set title correctly"];
 
     [self assertFalse:[e isTrackedByObjectContext]];
@@ -55,10 +55,10 @@ var UTIL = require("util");
     [self assert:[[oc trackedEntities] count] equals:3 message:"oc has three tracked entities"];
 
     // This should commit the new objects
-    [IFLog setLogMask:0xffff];
-    [IFLog debug:[oc addedEntities]];
+    [WMLog setLogMask:0xffff];
+    [WMLog debug:[oc addedEntities]];
     [oc saveChanges];
-    [IFLog setLogMask:0x0000];
+    [WMLog setLogMask:0x0000];
 
     [self assert:[[oc changedEntities] count] equals:0 message:"oc has no changed objects"];
     [self assert:[[oc addedEntities] count] equals:0 message:"oc has no added entities"];
@@ -72,17 +72,17 @@ var UTIL = require("util");
 }
 
 - (void) testUniquing {
-    var e = [IFTestBranch newFromDictionary:{ leafCount:10, length:16 }];
-    var f = [IFTestBranch newFromDictionary:{ leafCount:12, length:8 }];
-    var g = [IFTestBranch newFromDictionary:{ leafCount:14, length:6 }];
-    var h = [IFTestBranch newFromDictionary:{ leafCount:16, length:4 }];
+    var e = [WMTestBranch newFromDictionary:{ leafCount:10, length:16 }];
+    var f = [WMTestBranch newFromDictionary:{ leafCount:12, length:8 }];
+    var g = [WMTestBranch newFromDictionary:{ leafCount:14, length:6 }];
+    var h = [WMTestBranch newFromDictionary:{ leafCount:16, length:4 }];
 
     [self assert:[[oc trackedEntities] count] equals:0 message:"no tracked entities yet"];
     [oc trackEntities:[e, f, g]];
     [self assert:[[oc trackedEntities] count] equals:3 message:"three tracked entities now"];
     [self assert:[[oc addedEntities] count] equals:3 message:"three added entities now"];
 
-    var t = [IFTestTrunk newFromDictionary:{ thickness: 3 }];
+    var t = [WMTestTrunk newFromDictionary:{ thickness: 3 }];
     [t addObjectToBranches:e];
     [t addObjectToBranches:f];
     [t addObjectToBranches:g];
@@ -102,10 +102,10 @@ var UTIL = require("util");
     [self assertNotNull:[e id] message:"e has an id now"];
 
     // now do some basic uniquing checks
-    var re = [oc entity:"IFTestBranch" withPrimaryKey:[e id]];
+    var re = [oc entity:"WMTestBranch" withPrimaryKey:[e id]];
     [self assertTrue:(re === e) message:"object fetched with pk should return unique instance"];
 
-    var re2 = [oc entity:"IFTestBranch" withPrimaryKey:[e id]];
+    var re2 = [oc entity:"WMTestBranch" withPrimaryKey:[e id]];
     [self assertTrue:(re2 === re) message:"fetched again, same again"];
 
     var brs = [t branches];
@@ -115,22 +115,22 @@ var UTIL = require("util");
     [self assertTrue:[brs containsObject:h] message:"h is in branches"];
 
     // make sure something fetched via a query is uniqued too
-    var newb = [[[IFQuery new:"IFTestBranch"] filter:"leafCount = %@", 12] first];
+    var newb = [[[WMQuery new:"WMTestBranch"] filter:"leafCount = %@", 12] first];
     [self assertTrue:(newb === f) message:"Fetched result is matched with in-memory result"];
 
     // what about traversing across a relationship?
-    var newt = [[[[IFQuery new:"IFTestTrunk"] filter:"branches.leafCount = %@", 10] prefetch:"branches"] first];
+    var newt = [[[[WMQuery new:"WMTestTrunk"] filter:"branches.leafCount = %@", 10] prefetch:"branches"] first];
     [self assertTrue:(newt === t) message:"Fetched result is matched with in-memory result"];
     [self assert:[[newt _cachedEntitiesForRelationshipNamed:"branches"] count] equals:4 message:"Four branches attached to in-memory"];
     [self assert:[[newt branches] count] equals:4 message:"Four branches when fetched via <branches> method"];
 }
 
 - (void) testFaultingAndUniquing {
-    var e = [IFTestBranch newFromDictionary:{ leafCount:10, length:16 }];
-    var f = [IFTestBranch newFromDictionary:{ leafCount:12, length:8 }];
-    var g = [IFTestBranch newFromDictionary:{ leafCount:14, length:6 }];
+    var e = [WMTestBranch newFromDictionary:{ leafCount:10, length:16 }];
+    var f = [WMTestBranch newFromDictionary:{ leafCount:12, length:8 }];
+    var g = [WMTestBranch newFromDictionary:{ leafCount:14, length:6 }];
 
-    var t = [IFTestTrunk newFromDictionary:{ thickness: 3 }];
+    var t = [WMTestTrunk newFromDictionary:{ thickness: 3 }];
     [t addObjectToBranches:e];
     [self assert:[[t branches] count] equals:1 message:"One branch connected"];
     [self assert:[[t _cachedEntitiesForRelationshipNamed:"branches"] count] equals:1 message:"One cached connected"];
@@ -145,7 +145,7 @@ var UTIL = require("util");
     [oc saveChanges];
     [oc clearTrackedEntities];
 
-    var rt = [oc entity:"IFTestTrunk" withPrimaryKey:[t id]];
+    var rt = [oc entity:"WMTestTrunk" withPrimaryKey:[t id]];
     //[self assert:[[rt branches] count] equals:1 message:"Refetched trunk has 1"];
 
     // add another
@@ -153,10 +153,10 @@ var UTIL = require("util");
 
     // calling branches here should fault in from the DB
     [self assert:[[rt _cachedEntitiesForRelationshipNamed:"branches"] count] equals:1 message:"One cached entity"];
-    //[IFLog setLogMask:0xffff];
+    //[WMLog setLogMask:0xffff];
     [self assert:[[rt branches] count] equals:2 message:"Now two"];
     [self assert:[[rt _cachedEntitiesForRelationshipNamed:"branches"] count] equals:2 message:"Two cached entities"];
-    //[IFLog setLogMask:0x0000];
+    //[WMLog setLogMask:0x0000];
 }
 
 @end

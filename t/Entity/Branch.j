@@ -1,7 +1,7 @@
 @import "Model/_Branch.j"
 @import <Foundation/CPKeyValueCoding.j>
 
-@implementation IFTestBranch : _IFTestBranchModel
+@implementation WMTestBranch : _WMTestBranchModel
 {
 }
 

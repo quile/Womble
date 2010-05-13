@@ -1,7 +1,7 @@
-@import <IF/Application.j>
-@import <IF/Default/Application.j>
-@import <IF/Log.j>
-@import <IF/Object.j>
+@import <WM/Application.j>
+@import <WM/Default/Application.j>
+@import <WM/Log.j>
+@import <WM/Object.j>
 
 @import "Model.j"
 
@@ -11,12 +11,12 @@ objj_msgSend_decorate(objj_backtrace_decorator);
 // Modules
 var _application;
 
-@implementation IFTestApplication : IFDefaultApplication
+@implementation WMTestApplication : WMDefaultApplication
 {
 }
 
-//use IFTest::Module::Twang;
-//use IFTest::Module::Bong;
+//use WMTest::Module::Twang;
+//use WMTest::Module::Bong;
 
 - init {
     [super init];
@@ -24,23 +24,23 @@ var _application;
 }
 
 - sessionClassName {
-  return "IFTestEntitySession";
+  return "WMTestEntitySession";
 }
 
 - requestContextClassName {
-  return "IFTestEntityRequestContext";
+  return "WMTestEntityRequestContext";
 }
 
 - siteClassifierClassName {
-  return "IFTestEntitySiteClassifier";
+  return "WMTestEntitySiteClassifier";
 }
 
 - siteClassifierNamespace {
-    return "IFTestEntitySiteClassifier";
+    return "WMTestEntitySiteClassifier";
 }
 
 - defaultModelClassName {
-    return "IFTestModel";
+    return "WMTestModel";
 }
 
 // This is at the application level so that the mailer
@@ -55,18 +55,18 @@ var _application;
 /*
 - application {
 	if (!_application) {
-		_application = [IFApplication applicationInstanceWithName:@"IFTest"];
+		_application = [WMApplication applicationInstanceWithName:@"WMTest"];
 	}
 	return _application;
 }
 */
 
 - run {
-    [IFLog info:"Test app started"];
+    [WMLog info:"Test app started"];
 }
 
 
 @end
 
 // This loads the application and its config
-_application = [IFApplication applicationInstanceWithName:@"IFTest"];
+_application = [WMApplication applicationInstanceWithName:@"WMTest"];

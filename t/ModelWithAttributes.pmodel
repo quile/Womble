@@ -1,9 +1,9 @@
 exports.MODEL = {
 	       'NAMESPACE': {
-			    'ENTITY': 'TestIFEntity'
+			    'ENTITY': 'TestWMEntity'
 			  },
 	       'ENTITIES': {
-			   'IFTestRoot': {
+			   'WMTestRoot': {
 					  'PRIMARY_KEY': 'ID',
 					  'TABLE': 'ROOT',
 					  'ATTRIBUTES': {
@@ -66,19 +66,19 @@ exports.MODEL = {
 					  'RELATIONSHIPS': {
 							   'ground': {
 								       'TARGET_ATTRIBUTE': 'ID',
-								       'TARGET_ENTITY': 'IFTestGround',
+								       'TARGET_ENTITY': 'WMTestGround',
 								       'TYPE': 'TO_ONE',
 								       'SOURCE_ATTRIBUTE': 'GROUND_ID'
 								     },
 							   'trunk': {
 								      'TARGET_ATTRIBUTE': 'ROOT_ID',
-								      'TARGET_ENTITY': 'IFTestTrunk',
+								      'TARGET_ENTITY': 'WMTestTrunk',
 								      'TYPE': 'TO_ONE',
 								      'SOURCE_ATTRIBUTE': 'ID'
 								    }
 							 }
 					},
-			   'IFTestGround': {
+			   'WMTestGround': {
 					    'PRIMARY_KEY': 'ID',
 					    'TABLE': 'GROUND',
 					    'ATTRIBUTES': {
@@ -130,13 +130,13 @@ exports.MODEL = {
 					    'RELATIONSHIPS': {
 							     'roots': {
 								        'TARGET_ATTRIBUTE': 'GROUND_ID',
-								        'TARGET_ENTITY': 'IFTestRoot',
+								        'TARGET_ENTITY': 'WMTestRoot',
 								        'TYPE': 'TO_MANY',
 								        'SOURCE_ATTRIBUTE': 'ID'
 								      }
 							   }
 					  },
-			   'IFTestBranch': {
+			   'WMTestBranch': {
 					    'PRIMARY_KEY': 'ID',
 					    'TABLE': 'BRANCH',
 					    'ATTRIBUTES': {
@@ -232,24 +232,24 @@ exports.MODEL = {
 					    'RELATIONSHIPS': {
 							     'trunk': {
 								        'TARGET_ATTRIBUTE': 'ID',
-								        'TARGET_ENTITY': 'IFTestTrunk',
+								        'TARGET_ENTITY': 'WMTestTrunk',
 								        'TYPE': 'TO_ONE',
 								        'SOURCE_ATTRIBUTE': 'TRUNK_ID'
 								      },
 							     'globules': {
 									 'RECIPROCAL_RELATIONSHIP_NAME': 'branches',
 									 'JOIN_SOURCE_ATTRIBUTE': 'GLOBULE_ID',
-									 'TARGET_ENTITY': 'IFTestGlobule',
+									 'TARGET_ENTITY': 'WMTestGlobule',
 									 'TYPE': 'FLATTENED_TO_MANY',
 									 'SOURCE_ATTRIBUTE': 'ID',
 									 'TARGET_ATTRIBUTE': 'ID',
 									 'JOIN_TARGET_ATTRIBUTE': 'BRANCH_ID',
-									 'DELETION_RULE': 'NULLIFY',
+									 'DELETION_RULE': 'NULLWMY',
 									 'JOIN_TABLE': 'BRANCH_X_GLOBULE'
 								         }
 							   }
 					  },
-			   'IFTestTrunk': {
+			   'WMTestTrunk': {
 					   'PRIMARY_KEY': 'ID',
 					   'TABLE': 'TRUNK',
 					   'ATTRIBUTES': {
@@ -312,19 +312,19 @@ exports.MODEL = {
 					   'RELATIONSHIPS': {
 							    'branches': {
 									'TARGET_ATTRIBUTE': 'TRUNK_ID',
-									'TARGET_ENTITY': 'IFTestBranch',
+									'TARGET_ENTITY': 'WMTestBranch',
 									'TYPE': 'TO_MANY',
 									'SOURCE_ATTRIBUTE': 'ID'
 								        },
 							    'root': {
 								      'TARGET_ATTRIBUTE': 'ID',
-								      'TARGET_ENTITY': 'IFTestRoot',
+								      'TARGET_ENTITY': 'WMTestRoot',
 								      'TYPE': 'TO_ONE',
 								      'SOURCE_ATTRIBUTE': 'ROOT_ID'
 								    }
 							  }
 					 },
-			   'IFTestZab': {
+			   'WMTestZab': {
 					 'PRIMARY_KEY': 'ID',
 					 'TABLE': 'ZAB',
 					 'ATTRIBUTES': {
@@ -374,7 +374,7 @@ exports.MODEL = {
 									  }
 						       }
 				         },
-			   'IFTestGlobule': {
+			   'WMTestGlobule': {
 					     'PRIMARY_KEY': 'ID',
 					     'TABLE': 'GLOBULE',
 					     'ATTRIBUTES': {
@@ -427,17 +427,17 @@ exports.MODEL = {
 							      'branches': {
 									  'RECIPROCAL_RELATIONSHIP_NAME': 'globules',
 									  'JOIN_SOURCE_ATTRIBUTE': 'BRANCH_ID',
-									  'TARGET_ENTITY': 'IFTestBranch',
+									  'TARGET_ENTITY': 'WMTestBranch',
 									  'TYPE': 'FLATTENED_TO_MANY',
 									  'SOURCE_ATTRIBUTE': 'ID',
 									  'TARGET_ATTRIBUTE': 'ID',
 									  'JOIN_TARGET_ATTRIBUTE': 'GLOBULE_ID',
-									  'DELETION_RULE': 'NULLIFY',
+									  'DELETION_RULE': 'NULLWMY',
 									  'JOIN_TABLE': 'BRANCH_X_GLOBULE'
 									}
 							    }
 					   },
-			   'IFTestElastic': {
+			   'WMTestElastic': {
 					     'PRIMARY_KEY': 'ID',
 					     'TABLE': 'ELASTIC',
 					     'ATTRIBUTES': {

@@ -1,5 +1,5 @@
-@import <IF/Entity/Persistent.j>
-@implementation _IFTestGroundModel : IFPersistentEntity
+@import <WM/Entity/Persistent.j>
+@implementation _WMTestGroundModel : WMPersistentEntity
 
 - roots {
 	return [self faultEntitiesForRelationshipNamed:"roots"];

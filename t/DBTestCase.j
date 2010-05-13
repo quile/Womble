@@ -5,13 +5,13 @@
 
 - setUp {
     [super setUp];
-    [[IFModel defaultModel] dropTables];        
-    [[IFModel defaultModel] createTables];        
+    [[WMModel defaultModel] dropTables];        
+    [[WMModel defaultModel] createTables];        
 }
 
 - tearDown {
     [super tearDown];
-    [[IFModel defaultModel] dropTables];        
+    [[WMModel defaultModel] dropTables];        
 }
 
 @end

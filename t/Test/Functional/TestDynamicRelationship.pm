@@ -1,4 +1,4 @@
-package IFTest::TestDynamicRelationship;
+package WMTest::TestDynamicRelationship;
 
 use strict;
 use base qw(
@@ -6,10 +6,10 @@ use base qw(
 );
 
 use Test::More;
-use IFTest::Application;
-use IF::ObjectContext;
-use IF::Relationship::Dynamic;
-use IF::Relationship::ManyToMany;
+use WMTest::Application;
+use WM::ObjectContext;
+use WM::Relationship::Dynamic;
+use WM::Relationship::ManyToMany;
 
 
 # TODO refactor this to be shared amongst tests
@@ -17,13 +17,13 @@ sub setUp : Test(startup => 5) {
     my ($self) = @_;
     
     my $entities = [];
-    $self->{oc} = IF::ObjectContext->new();
+    $self->{oc} = WM::ObjectContext->new();
     
-    my $root = IFTest::Entity::Root->new();
+    my $root = WMTest::Entity::Root->new();
     $root->setTitle("Root");
     push @$entities, $root;
     
-    my $trunk = IFTest::Entity::Trunk->new();
+    my $trunk = WMTest::Entity::Trunk->new();
     $trunk->setThickness(20);
     push @$entities, $trunk;
     
@@ -32,12 +32,12 @@ sub setUp : Test(startup => 5) {
     my $branches = [];
     my $zabs = [];
     foreach my $length (0..5) {
-        my $branch = IFTest::Entity::Branch->new();
+        my $branch = WMTest::Entity::Branch->new();
         $branch->setLength($length);
         $branch->setLeafCount(6-$length);
         
         # these are not related through the model
-        my $zab = IFTest::Entity::Zab->new();
+        my $zab = WMTest::Entity::Zab->new();
         $zab->setTitle("Zab-$length");
         $zab->save();
         push @$entities, $zab;
@@ -53,7 +53,7 @@ sub setUp : Test(startup => 5) {
     
     my $globules = [];
     foreach my $length (0..2) {
-        my $globule = IFTest::Entity::Globule->new();
+        my $globule = WMTest::Entity::Globule->new();
         $globule->setName("Globule-$length");
         $branches->[$length]->addObjectToBothSidesOfRelationshipWithKey($globule, "globules");
         $branches->[$length]->save();
@@ -71,7 +71,7 @@ sub setUp : Test(startup => 5) {
     ok(scalar @{$self->{oc}->allEntities("Zab")} == 6, "6 zabs created");
     
     # # make some weird connections between entities via the "Elastic" entity
-    # my $e1 = IFTest::Entity::Elastic->new();
+    # my $e1 = WMTest::Entity::Elastic->new();
     # $e1->setTargetType("Globule");
     # $e1->setSourceType("Zab");
     # $e1->setTargetId($globules->[0]->id());
@@ -80,12 +80,12 @@ sub setUp : Test(startup => 5) {
     # $e1->save();
     # push @$entities, $e1;
     # 
-    # my $ground = IFTest::Entity::Ground->new();
+    # my $ground = WMTest::Entity::Ground->new();
     # $ground->setColour("Banana yellow");
     # $ground->save();
     # push @$entities, $ground;
     # 
-    # my $e2 = IFTest::Entity::Elastic->new();
+    # my $e2 = WMTest::Entity::Elastic->new();
     # $e2->setTargetType("Branch");
     # $e2->setSourceType("Ground");
     # $e2->setTargetId($branches->[1]->id());
@@ -114,7 +114,7 @@ sub test_basic_dynamic_relationship : Test(2) {
     
 	# Let's start in a verbose fashion and move to something less
 	# wordy and a bit smarter.  Here's verbose:
-	my $dq = IF::Relationship::Dynamic->new();
+	my $dq = WM::Relationship::Dynamic->new();
 	$dq->setTargetAssetTypeAttribute("zabType");
 	$dq->setSourceAttributeName("zabId");
 	$dq->setTargetAttributeName("id");
@@ -122,15 +122,15 @@ sub test_basic_dynamic_relationship : Test(2) {
 
 	# now that we've created it, let's see if it gets set
 	# up right when we add it to a fetch spec
-	my $fs = IF::FetchSpecification->new("Branch");
+	my $fs = WM::FetchSpecification->new("Branch");
 	$fs->addDynamicRelationshipWithName($dq, "foo");
 	ok($dq->entityClassDescription() && $dq->entityClassDescription()->name() eq "Branch", "ECD gets set");	
 
 
 	# let's see if prefetching works:
 	$fs->setPrefetchingRelationships(["foo"]);
-	$fs->setQualifier(IF::Qualifier->and([
-		IF::Qualifier->key("foo.title = %@", "Zab-3"),
+	$fs->setQualifier(WM::Qualifier->and([
+		WM::Qualifier->key("foo.title = %@", "Zab-3"),
 	]));
 
 	my $results = $self->{oc}->entitiesMatchingFetchSpecification($fs);
@@ -144,19 +144,19 @@ sub test_basic_dynamic_relationship : Test(2) {
 sub test_qualify_across_different_relationship_types : Test(2) {
     my ($self) = @_;
     
-    my $dq = IF::Relationship::Dynamic->new();
+    my $dq = WM::Relationship::Dynamic->new();
     $dq->setTargetAssetTypeAttribute("zabType");
     $dq->setSourceAttributeName("zabId");
     $dq->setTargetAttributeName("id");
     $dq->setTargetAssetTypeName("Zab");
      
-    my $fs = IF::FetchSpecification->new("Branch");
+    my $fs = WM::FetchSpecification->new("Branch");
     $fs->addDynamicRelationshipWithName($dq, "bar");
     $fs->setPrefetchingRelationships(["globules", "bar"]);
     $fs->setQualifier(
-        IF::Qualifier->and([
-            IF::Qualifier->key("bar.title = %@", "Zab-1"),
-            IF::Qualifier->key("globules.name = %@", "Globule-1"),
+        WM::Qualifier->and([
+            WM::Qualifier->key("bar.title = %@", "Zab-1"),
+            WM::Qualifier->key("globules.name = %@", "Globule-1"),
         ])
     );
     
@@ -176,7 +176,7 @@ sub test_qualify_across_different_relationship_types : Test(2) {
 #     
 #     # Now let's test many2many relationships.  This is
 #     # doing it the raw way:
-#     my $dq = IF::Relationship::ManyToMany->new();
+#     my $dq = WM::Relationship::ManyToMany->new();
 #     # You can use these if you set the joinEntity()
 #     $dq->setTargetAssetTypeAttribute("targetId");
 #     $dq->setSourceAssetTypeAttribute("sourceId");  
@@ -192,7 +192,7 @@ sub test_qualify_across_different_relationship_types : Test(2) {
 #     # join can take place
 #     $dq->setTargetAssetTypeName("Globule");
 # 
-#     my $fs = IF::FetchSpecification->new("Zab");
+#     my $fs = WM::FetchSpecification->new("Zab");
 #     $fs->addDynamicRelationshipWithName($dq, "fokker");
 #     $fs->setPrefetchingRelationships(["fokker"]);
 #     diag ($fs->toCountSQLFromExpression()->{SQL});
@@ -221,11 +221,11 @@ sub test_qualify_across_different_relationship_types : Test(2) {
 #       # join can take place
 #       $dq->setTargetAssetTypeName("Job");
 #       
-#       my $fs = IF::FetchSpecification->new("Org");
+#       my $fs = WM::FetchSpecification->new("Org");
 #       $fs->addDynamicRelationshipWithName($dq, "gaylord");
 #       
 #       # find all orgs with jobs posted in spanish
-#       $fs->setQualifier(IF::Qualifier->key("gaylord.languageDesignation = %@", "es"));
+#       $fs->setQualifier(WM::Qualifier->key("gaylord.languageDesignation = %@", "es"));
 #       
 #       IQA_dump($fs->toCountSQLFromExpression());
 #       
@@ -254,9 +254,9 @@ sub test_qualify_across_different_relationship_types : Test(2) {
 #       # join can take place
 #       $dq->setTargetAssetTypeName("Org");
 # 
-#       my $fs = IF::SummarySpecification->new("User");
+#       my $fs = WM::SummarySpecification->new("User");
 #       $fs->addDynamicRelationshipWithName($dq, "zoolander");  
-#       my $sa = IF::SummaryAttribute->new("count", "COUNT(*)");
+#       my $sa = WM::SummaryAttribute->new("count", "COUNT(*)");
 #       $fs->initWithSummaryAttributes([$sa]);
 #       $fs->setGroupBy(["zoolander.languageDesignation"]);
 #       $fs->restrictFetchToAttributes(["count", "zoolander.languageDesignation"]);

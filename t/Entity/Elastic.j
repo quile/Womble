@@ -1,7 +1,7 @@
 @import "Model/_Elastic.j"
 @import <Foundation/CPKeyValueCoding.j>
 
-@implementation IFTestElastic : _IFTestElasticModel
+@implementation WMTestElastic : _WMTestElasticModel
 {
 }
 

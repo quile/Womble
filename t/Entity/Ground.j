@@ -1,7 +1,7 @@
 @import "Model/_Ground.j"
 @import <Foundation/CPKeyValueCoding.j>
 
-@implementation IFTestGround : _IFTestGroundModel
+@implementation WMTestGround : _WMTestGroundModel
 {
 }
 

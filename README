@@ -1,4 +1,4 @@
-IF - Introduction
+WM - Introduction
 =================
 
 This is a very very very early commit of a very very very
@@ -12,10 +12,10 @@ from a Perl framework that is stable.  This port can
 not be considered stable in any way at all.  However,
 hopefully this will change soon.
 
-What is IF?
+What is WM?
 -----------
 
-IF is based on the web framework and ORM previously
+WM is based on the web framework and ORM previously
 in use at Idealist.org.  The original framework was
 developed in-house but heavily influenced by WebObjects
 and EOF.  Porting it to Objective-J seemed fitting
@@ -26,7 +26,7 @@ something which is currently lacking.
 Status
 ------
 
-The name "IF" will change.  The API is in a state
+The name "WM" will change.  The API is in a state
 of flux.  The code itself was partially machine-
 ported, so it's pretty crazy-looking (on top of
 being based on old, crazy-looking Perl).

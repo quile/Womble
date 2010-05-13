@@ -1,7 +1,7 @@
 @import "Model/_Zab.j"
 @import <Foundation/CPKeyValueCoding.j>
 
-@implementation IFTestZab : _IFTestZabModel
+@implementation WMTestZab : _WMTestZabModel
 {
 }
 
