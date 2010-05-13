@@ -13,6 +13,7 @@
     [IFLog setLogMask:0x0000];
     [super setUp];
     oc = [IFObjectContext new];
+    [oc disableTracking];
     // save some decoys to make sure that counting is correct
     var decoyTrunk = [IFTestTrunk new];
     [decoyTrunk setThickness:5];
@@ -33,6 +34,7 @@
     [trunk setThickness:20];
     [entities addObject:trunk];
     [trunk save];
+    //[oc trackEntity:trunk];
     [self assertTrue:(trunk && [trunk id]) message:"Made a new trunk object and saved it"];
 
     // add some objects to a to-many
@@ -48,24 +50,29 @@
     [self assert:[[trunk branches] count] equals:3 message:"Trunk has correct number of branches"];
 
     [self assertNotNull:oc message:"Object context exists!"];
+
     // re-fetch
     var rtr = [oc entity:"IFTestTrunk" withPrimaryKey:[trunk id]];
     [self assertTrue:[rtr is:trunk] message:"Refetched trunk object"];
     [self assert:[[rtr branches] count] equals:3 message:"Refetched trunk has correct number of branches"];
+    //[IFLog setLogMask:0xffff];
 
     // TODO check the actual branches to make sure they're correct
-
     var br = [[trunk branches] objectAtIndex:0];
     [trunk removeObject:br fromBothSidesOfRelationshipWithKey:"branches"];
     [trunk save];
+    [IFLog debug: br]
+    [IFLog debug: [oc trackedInstanceOfEntity:br]];
 
     [self assert:[[trunk branches] count] equals:2 message:"Trunk now has 2 branches"];
 
-    // now remove a branch
-    rtr = [oc entity:"IFTestTrunk" withPrimaryKey:[trunk id]];
+    var rtr = [oc entity:"IFTestTrunk" withPrimaryKey:[trunk id]];
     [self assertTrue:[rtr is:trunk] message:"Refetched trunk again"];
     [self assert:[[rtr branches] count] equals:2 message:"Refetched trunk has 2 branches"];
+    //eval(_p_setTrace);
 
+
+    //[IFLog setLogMask:0x0000];
 
     // cleanup
     for (var i=0; i<[entities count]; i++) {

@@ -75,12 +75,13 @@ var application = [IFApplication applicationInstanceWithName:"IFTest"];
     }
     
     var isOk = true;
+    var count = 0;
     for (var i=0; i < [[trunk branches] count]; i++) {
         var branch = [[trunk branches] objectAtIndex:i];
-        if ([[branch globules] count] == 2) { continue };
+        if ([[branch globules] count] == 2) { count++; continue };
         isOk = false;
     }
-    [self assertTrue:isOk message:"All branches have 2 globules"];
+    [self assertTrue:(isOk && count == 6) message:"All branches have 2 globules"];
     
     [root save];
     [self assertNotNull:[root id] message:"Root has an id now"]; 
@@ -90,7 +91,7 @@ var application = [IFApplication applicationInstanceWithName:"IFTest"];
     [self assert:[[ground roots] count] equals:1 message:"Ground has one root"];
     [self assertTrue:([root trunk] && [[root trunk] is:trunk]) message:"Trunk and root connected"];
     [self assert:[[trunk branches] count] equals:6 message:"Trunk has 6 branches"];
-    
+    //[IFLog setLogMask:0xffff];eval(_p_setTrace);[IFLog setLogMask:0x0000];
     var isOk = true;
     for (var i=0; i< [[trunk branches] count]; i++) {
         var branch = [[trunk branches] objectAtIndex:i];

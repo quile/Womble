@@ -117,6 +117,7 @@ var application = [IFApplication applicationInstanceWithName:"IFTest"];
 }
 
 - (void) testPrefetching {
+    [oc clearTrackedEntities];
     var query = [IFQuery new:"IFTestTrunk"];
     var trunk = [query first];
     [self assertTrue:(trunk && [[trunk _cachedEntitiesForRelationshipNamed:"branches"] count] == 0) message:"No items prefetched"];

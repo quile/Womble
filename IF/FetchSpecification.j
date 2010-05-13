@@ -315,8 +315,6 @@ var UTIL = require("util");
     return [IFSQLStatement newWithSQL:[[self sqlExpression] selectCountStatement] andBindValues:[[self sqlExpression] bindValues]];
 }
 
-
-// TODO hmpf, use low-level JS hashes for this?
 - resolveEntityHash:(id)hash :(id)primaryEntity {
     if (!primaryEntity) { return }
     delete hash[entity];
@@ -390,7 +388,7 @@ var UTIL = require("util");
         [self resolveEntityHash:uniqueHash :primaryEntity];
         order++;
     }
-    var sortedResults = [IFArray new];
+    var sortedResults = [CPArray new];
     var sortedUnpacked = UTIL.values(unpackedResults).sort(function(a, b) { a.ORDER - b.ORDER });
 
     for (var i=0; i < sortedUnpacked.length; i++) {

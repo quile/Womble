@@ -33,13 +33,15 @@ var _objectContext;
 
 @implementation IFObjectContext : IFObject {
 {
-    id shouldUseCache @accessors;
     id model @accessors;
 
     //---------------------------------------------
     // Experimental!  Adding and tracking entities
     // so that we can add real transactions.
     //---------------------------------------------
+    id _shouldTrackEntities @accessors;
+    id _saveChangesInProgress;
+
     // Entities that have been committed are here
     id _trackedEntities;
     // New entities are here
@@ -65,10 +67,11 @@ var _objectContext;
 
 - init {
     [super init];
-    _trackedEntities = {};
-    _deletedEntities = {};
-    _addedEntities = [];
-    _forgottenEntities = [];
+    [self clearTrackedEntities];
+    // Default this to true so entity tracking is turned on
+    // for the OC *unless you disable it*
+    [self enableTracking];
+    _saveChangesInProgress = false;
     return self;
 }
 
@@ -89,12 +92,13 @@ var _objectContext;
 - (id) entity:(id)entityName withPrimaryKey:(id)idt {
     if (!idt) { [IFLog debug:"can't fetch " + entityName + " with no id"]; return nil };
 
-    /*
-    if ([self hasCachedEntityWithId:id forEntityClass:entityName] && [self shouldUseCache]) {
-        [IFLog debug:"Cache hit for entity " + entityName + " with id " + id];
-        return [self cachedEntityWithId:id forEntityClass:entityName];
+    // temporary hack - FIXME!
+    var uid = [IFEntityUniqueIdentifier newFromString:entityName + "," + idt];
+    var tracked = [self trackedInstanceOfEntityWithUniqueIdentifier:uid];
+    if (tracked) { 
+        return tracked;
     }
-    */
+   
     var entityClassDescription = [model entityClassDescriptionForEntityNamed:entityName];
     if (!entityClassDescription) { return nil };
 
@@ -156,14 +160,14 @@ var _objectContext;
     return entities;
 }
 
-- allEntities:(id)entityName {
-    if (!entityName) { return [IFArray new] }
+- (CPArray) allEntities:(id)entityName {
+    if (!entityName) { return [CPArray new] }
     var fetchSpecification = [IFFetchSpecification new:entityName :nil];
     [fetchSpecification setFetchLimit:0];
     return [self entitiesMatchingFetchSpecification:fetchSpecification];
 }
 
-- entities:(id)entityName withPrimaryKeys:(id)entityIds {
+- (CPArray) entities:(id)entityName withPrimaryKeys:(id)entityIds {
     var entityClassDescription = [model entityClassDescriptionForEntityNamed:entityName];
     if (!entityClassDescription) { return nil }
 
@@ -171,7 +175,7 @@ var _objectContext;
         return [];
     }
 
-    var results = [IFArray new];
+    var results = [CPArray new];
     for (var i=0; i<=[entityIds count]; i+=30) {
         var idList = [];
         for (var j=i; j<(i+30); j++) {
@@ -204,7 +208,7 @@ var _objectContext;
     return [self entitiesMatchingFetchSpecification:fetchSpecification];
 }
 
-- entityMatchingFetchSpecification:(id)fetchSpecification {
+- (id)entityMatchingFetchSpecification:(id)fetchSpecification {
     var entities = [self entitiesMatchingFetchSpecification:fetchSpecification];
     if ([entities count] > 0) {
         return [entities objectAtIndex:0];
@@ -213,15 +217,17 @@ var _objectContext;
 }
 
 - (CPArray) entitiesMatchingFetchSpecification:(id)fetchSpecification {
-    if (!fetchSpecification) { return [IFArray new] }
+    if (!fetchSpecification) { return [CPArray new] }
     var st = [fetchSpecification toSQLFromExpression];
     //[IFLog debug:st];
     var results = [IFDB rawRowsForSQLStatement:st];
-    results = results || [IFArray new];
+    results = results || [CPArray new];
     var unpackedResults = [fetchSpecification unpackResultsIntoEntities:results inObjectContext:self];
     [IFLog database:"Matched " + [results count] + " row(s), " + [unpackedResults count] + " result(s)"];
     //[IFLog debug:[unpackedResults objectAtIndex:0]];
-    [self trackEntities:unpackedResults];
+    if (_shouldTrackEntities) {
+        [self trackEntities:unpackedResults];
+    }
     return unpackedResults;
 }
 
@@ -246,6 +252,7 @@ var _objectContext;
 }
 
 - (void) trackEntity:(id)entity {
+    //[self enableTracking];
     if ([entity isTrackedByObjectContext]) { return }
     if ([entity hasNeverBeenCommitted]) {
         _addedEntities[_addedEntities.length] = entity; 
@@ -269,6 +276,13 @@ var _objectContext;
     }
     [_forgottenEntities removeObject:entity];
     [entity setTrackingObjectContext:self];
+
+    // if the entity that was just added has related
+    // entities, we are going to track them too.
+    var relatedEntities = [entity relatedEntities];
+    for (var i=0; i<relatedEntities.length; i++) {
+        [self trackEntity:relatedEntities[i]];
+    }
 }
 
 - (void) untrackEntity:(id)entity {
@@ -289,6 +303,12 @@ var _objectContext;
     return Boolean(e);
 }
 
+- (void) updateTrackedInstanceOfEntity:(id)entity {
+    if (_saveChangesInProgress) { return }
+    [self untrackEntity:entity];
+    [self trackEntity:entity];
+}
+
 - (id) trackedInstanceOfEntity:(id)entity {
     if ([entity hasNeverBeenCommitted]) {
         // we can't check for it by pk
@@ -300,20 +320,27 @@ var _objectContext;
     }
 }
 
+- (id) trackedInstanceOfEntityWithUniqueIdentifier:(id)uid {
+    return _trackedEntities[[uid description]];
+}
+
 // For now there's no real difference between
 // inserting it into the ObjectContext and
 // tracking stuff that comes from the DB - but
 // maybe there will be so I'm adding this
 // here.
 - (void) insertEntity:(id)entity {
+    if (!_shouldTrackEntities) { return }
     [self trackEntity:entity];
 }
 
 - (void) forgetEntity:(id)entity {
+    if (!_shouldTrackEntities) { return }
     [self untrackEntity:entity];
 }
 
 - deleteEntity:(id)entity {
+    if (!_shouldTrackEntities) { return }
     // TODO add notifications
     if (![entity isTrackedByObjectContext]) { return }
     if (![entity hasNeverBeenCommitted]) {
@@ -340,6 +367,7 @@ var _objectContext;
 - (id) trackedEntities {
     return _p_values(_trackedEntities).concat(_addedEntities);
 }
+
 - (id) changedEntities {
     var changed = [];
     var tes = UTIL.values(_trackedEntities);
@@ -352,17 +380,28 @@ var _objectContext;
     return changed;
 }
 
-//
+- (void) enableTracking {
+    _shouldTrackEntities = true;
+}
+
+- (void) disableTracking {
+    _shouldTrackEntities = false;
+}
+
 - (void) saveChanges {
-    [IFLog setLogMask:0xffff];
+    if (!_shouldTrackEntities) {
+        throw [CPException raise:"CPException" reason:"Can't call saveChanges on an ObjectContext that is not tracking"];
+    }
+
     // TODO Make transactions optional
     [IFDB startTransaction];
+    _saveChangesInProgress = true;
     
     try {
         // Process additions first.
-        // For every inserted entity, move it to the _trackedEntities array
-        for (var i=0; i < [_addedEntities count]; i++) {
-            var ae = _addedEntities[i];
+        var aes = _addedEntities;
+        for (var i=0; i < [aes count]; i++) {
+            var ae = aes[i];
             [ae save];  
         }
 
@@ -389,6 +428,10 @@ var _objectContext;
     // dictionary, clear the deletedEntities out,
     // and do some other housekeeping
 
+    // NOTE: none of the exceptions thrown here are
+    // likely ever to occur; conceivably they could,
+    // and we need to check for them, but in general
+    // this code shouldn't throw.
     try {
         for (var i=0; i < _addedEntities.length; i++) {
             var entity = _addedEntities[i];
@@ -413,6 +456,7 @@ var _objectContext;
         }
     } catch (CPException) {
         [IFDB rollbackTransaction];
+        _saveChangesInProgress = false;
         return;
     }
 
@@ -424,8 +468,17 @@ var _objectContext;
 
     // otherwise, commit the transaction
     [IFDB endTransaction];
+
+
+    _saveChangesInProgress = false;
     [IFLog debug:UTIL.object.repr(UTIL.keys(_trackedEntities))];
-    [IFLog setLogMask:0x0000];
+}
+
+- (void) clearTrackedEntities {
+    _trackedEntities = {};
+    _deletedEntities = {};
+    _addedEntities = [];
+    _forgottenEntities = [];
 }
 
 @end

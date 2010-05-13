@@ -34,11 +34,11 @@ var UTIL = require("util");
     id __uniqueIdentifier;
     id __isMarkedForSave;
     id __trackingObjectContext;
+    id __relationshipHints;
 
     // TODO - clean up this naming!
     id _wasDeletedFromDataStore;
     id _relatedEntities;
-    id _RELATIONSHIP_HINTS;
     id _columnKeyMap;
     id _currentStoredRepresentation;
     id _isPartiallyInflated;
@@ -75,10 +75,11 @@ var UTIL = require("util");
     __joinRecordForRelationship = {};
     __uniqueIdentifier = nil;
     __isTrackedByObjectContext = false;
+    __relationshipHints = {};
     _wasDeletedFromDataStore = false;
     _columnKeyMap = {};
     _relatedEntities = {};
-    _RELATIONSHIP_HINTS = {};
+    _relationshipIsDirty = {};
     _currentStoredRepresentation = nil;
     _isPartiallyInflated = false;
     return self;
@@ -131,9 +132,6 @@ var UTIL = require("util");
     // this is bogus... it shouldn't be here... all of this relationship
     // traversal stuff needs to be encapsulated properly.
     var targetTable = [targetEntity _table];
-    //unless (targetTable) {
-    //    targetTable = targetEntity.AGGREGATE_TABLE;
-    //}
     if (targetTable) {
         [sqlExpression addTable:targetTable];
     }
@@ -215,6 +213,13 @@ var UTIL = require("util");
     /* TODO un-deprecate this! */
     [object _deprecated_setRelationshipHints:hints];
     [self _addCachedEntities:[object] toRelationshipNamed:relationshipName];
+    
+    // if there's a reciprocal relationship, add it to that.  We couldn't
+    // do this in perl because perl is shite with circular references,
+    // but in JS it's ok.
+    if ([relationship reciprocalRelationshipName]) {
+        [object _addCachedEntities:[self] toRelationshipNamed:[relationship reciprocalRelationshipName]];
+    }
 
     /* if the relationship requires a join table entry, stash the
        hints as part of a to-be-created join table entry, and
@@ -267,11 +272,28 @@ var UTIL = require("util");
     var relationship = [self relationshipNamed:relationshipName];
     if (!relationship) { return }
 
+    // remove it from both sides in the object graph
     [self _removeCachedEntities:[obj] fromRelationshipNamed:relationshipName];
+    if ([relationship reciprocalRelationshipName]) {
+        [obj _removeCachedEntities:[self] fromRelationshipNamed:[relationship reciprocalRelationshipName]];
+    }
+
+    // diddle the keys - FIXME
     var objectPrimaryKey = [[[obj entityClassDescription] _primaryKey] asString].toUpperCase();
     var primaryKey = [[[self entityClassDescription] _primaryKey] asString].toUpperCase();
+    var sourceAttribute = [relationship sourceAttribute];
+    var targetAttribute = [relationship targetAttribute];
 
-    if ([relationship type] == "FLATTENED_TO_MANY") {
+    [IFLog debug:"Should remove entity " + obj + " from " + relationshipName];
+    // if it's a to-many, we need to blank out the FK
+    if ([relationship type] == "TO_ONE" || [relationship type] == "TO_MANY") {
+        if (sourceAttribute == primaryKey) {
+            // FIXME This should be nil, not 0
+            [obj setStoredValue:0 forRawKey:targetAttribute];
+        } else {
+            [self setStoredValue:0 forRawKey:sourceAttribute];
+        }
+    } else if ([relationship type] == "FLATTENED_TO_MANY") {
         /* make sure we have something to associate: */
         if (![obj storedValueForRawKey:objectPrimaryKey]) { return }
         if (![self storedValueForRawKey:primaryKey]) { return }
@@ -309,7 +331,11 @@ var UTIL = require("util");
             [self __setJoinRecord:nil forEntity:obj throughFlattenedToManyRelationshipNamed:relationshipName];
             [IFLog debug:"Blanked out join record from self to object"];
         }
+        if ([relationship reciprocalRelationshipName]) {
+            [self __setJoinRecord:{} forEntity:entity throughFlattenedToManyRelationshipNamed:[relationship reciprocalRelationshipName]];
+        }
     }
+    // TODO reciprocal relationship needs to be mutated.
 }
 
 
@@ -391,7 +417,7 @@ var UTIL = require("util");
     } else {
         var fs = [self fetchSpecificationForFlattenedToManyRelationshipNamed:relationshipName];
         if (!fs) {
-            return [IFArray new];
+            return [CPArray new];
         }
         var entities = [objectContext entitiesMatchingFetchSpecification:fs];
 
@@ -438,10 +464,6 @@ var UTIL = require("util");
 }
 
 - entityForRelationshipNamed:relationshipName {
-    /* TODO: This is shorthand, but I really should write a special
-       case for this.  Instead we need to rely on the return
-       values from entitiesForRelationshipNamed().
-    */
     var result =  [self entitiesForRelationshipNamed:relationshipName];
     var results = [IFArray arrayWithObject:result];
     if ([results count] > 0) {
@@ -470,9 +492,23 @@ var UTIL = require("util");
 
 
 - faultEntitiesForRelationshipNamed:(id)relationshipName {
-    if (![self _hasCachedEntitiesForRelationshipNamed:relationshipName]) {
+    if (![self _hasCachedEntitiesForRelationshipNamed:relationshipName]
+        || ([self isTrackedByObjectContext] && _relationshipIsDirty[relationshipName])) {
+        [IFLog debug:"fault called for " + relationshipName + " on " + [self class]];
         var entities = [self entitiesForRelationshipNamed:relationshipName];
+        var _ces = [self _cachedEntitiesForRelationshipNamed:relationshipName];
+        var uncommitted = _ces.filter(function (e) { return [e hasNeverBeenCommitted] } );
+        var changed     = _ces.filter(function (e) { return [e hasChanged] && ![e hasNeverBeenCommitted] } );
+        [IFLog debug:"Cached:" + _ces];
+        [IFLog debug:"Uncommitted: " + uncommitted];
+        [IFLog debug:"Changed: " + changed];
+        [entities addObjectsFromArray:uncommitted]; 
+        [entities addObjectsFromArray:changed]; 
         [self _setCachedEntities:entities forRelationshipNamed:relationshipName];
+        if ([uncommitted count] == 0 && [changed count] == 0) {
+            // clear the dirty bit for this relationship
+            _relationshipIsDirty[relationshipName] = false;
+        }
     }
     return [self _cachedEntitiesForRelationshipNamed:relationshipName];
 }
@@ -614,6 +650,12 @@ var UTIL = require("util");
         // check for a new ID
         if (![self id]) {
             [self setId:dataRecord[primaryKey]];
+            if ([self isTrackedByObjectContext]) {
+                // This is necessary to move a tracked entity into
+                // the right place in the OC after it's been saved.
+                // All other tracking should be automatic.
+                [__trackingObjectContext updateTrackedInstanceOfEntity:self];
+            }
         }
         [self markAllStoredValuesAsClean];
     } else {
@@ -636,15 +678,12 @@ var UTIL = require("util");
         for (var i=0; i < [[self _removedEntitiesForRelationshipNamed:relationshipName] count]; i++) {
             var entity = [[self _removedEntitiesForRelationshipNamed:relationshipName] objectAtIndex:i];
             [IFLog debug:"Should remove entity"];
-            if ([relationship type] == "TO_MANY") {
-                // if it's a to-many, we need to blank out the FK
-                if ([relationship type] == "TO_ONE" || [relationship type] == "TO_MANY") {
-
-                    if (sourceAttribute == primaryKey) {
-                        [entity setStoredValue:0 forRawKey:targetAttribute];
-                        [entity save]; // this should blank it out; you need to delete it yourself
-                    } // TODO blank out to-one relationship here
-                } // elsif ([relationship type] == "FLATTENED_TO_MANY") {
+            // if it's a to-many, we need to blank out the FK
+            if ([relationship type] == "TO_ONE" || [relationship type] == "TO_MANY") {
+                if (sourceAttribute == primaryKey) {
+                    [entity setStoredValue:0 forRawKey:targetAttribute];
+                    [entity save]; // this should blank it out; you need to delete it yourself
+                }
             }
         }
 
@@ -713,7 +752,7 @@ var UTIL = require("util");
                 var rrn;
                 if (rrn = [relationship reciprocalRelationshipName]) {
                     [entity _addCachedEntities:[self] toRelationshipNamed:rrn];
-                    [self __setJoinRecord:record forEntity:entity throughFlattenedToManyRelationshipNamed:[relationship reciprocalRelationshipName]];
+                    [self __setJoinRecord:record forEntity:entity throughFlattenedToManyRelationshipNamed:rrn];
                 }
             }
         }
@@ -873,12 +912,15 @@ var UTIL = require("util");
     [IFLog debug:"==> _deleteSelf() called for " + self + ", destroying record with ID " + [self storedValueForRawKey:"ID"]];
     [self willBeDeleted];
     [IFDB deleteRecord:self fromTable:[self _table]];
+    if ([self isTrackedByObjectContext:objectContext]) {
+        [objectContext untrackEntity:self];
+    }
     _wasDeletedFromDataStore = true;
 }
 
 
 - entitiesForDeletionByRules {
-    var entitiesForDeletion = [IFArray new];
+    var entitiesForDeletion = [CPArray new];
     for (var relationshipName in [[self entityClassDescription] relationships]) {
         var relationship = [self relationshipNamed:relationshipName];
         if (!(relationship && [relationship deletionRule])) { continue }
@@ -914,14 +956,14 @@ var UTIL = require("util");
 */
 
 - _deprecated_setRelationshipHints:(id)value {
-    _RELATIONSHIP_HINTS = value;
+    __relationshipHints = value;
 }
 
 - _deprecated_relationshipHints {
-    if (!_RELATIONSHIP_HINTS) {
-        _RELATIONSHIP_HINTS = {};
+    if (!__relationshipHints) {
+        __relationshipHints = {};
     }
-    return _RELATIONSHIP_HINTS;
+    return __relationshipHints;
 }
 
 - _deprecated_relationshipHintForKey:(id)key {
@@ -957,7 +999,7 @@ var UTIL = require("util");
 }
 
 - addEntity:(id)entity toRelationship:(id)relationshipName {
-    [self _addCachedEntities:[entity] toRelationshipNamed:relationshipName];
+    [self addEntities:[entity] toRelationship:relationshipName];
 }
 
 
@@ -987,7 +1029,6 @@ var UTIL = require("util");
     }
 
     /* clear what's there and add the new one
-      $self->_clearCachedEntitiesForRelationshipNamed($relationshipName);
     */
     [self _setCachedEntities:[] forRelationshipNamed:relationshipName];
     if (entity) {
@@ -1255,7 +1296,16 @@ var UTIL = require("util");
         _relatedEntities[relationshipName]['entities'] = [];
     }
     for (var i=0; i < entities.length; i++) {
-        _relatedEntities[relationshipName]['entities'].push(entities[i]);
+        if (![_relatedEntities[relationshipName]['entities'] containsObject:entities[i]]) {
+            _relatedEntities[relationshipName]['entities'].push(entities[i]);
+        }
+        // if a new entity is being added, mark the relationship as 'dirty',
+        // which means we aren't sure if we have the right entities in memory;
+        // any access to this relationship from the higher-level API for this relationship
+        // will cause a DB fault to fetch the entities that are in the DB.
+        if ([entities[i] hasNeverBeenCommitted]) {
+            _relationshipIsDirty[relationshipName] = true;
+        }
     }
 }
 
@@ -1281,7 +1331,7 @@ var UTIL = require("util");
 
 - _removeCachedEntities:(id)entities fromRelationshipNamed:(id)relationshipName {
     _relatedEntities[relationshipName] = _relatedEntities[relationshipName] || {};
-    var filteredEntities = [IFArray new];
+    var filteredEntities = [CPArray new];
     var relatedEntities = [IFArray arrayFromObject:[self _cachedEntitiesForRelationshipNamed:relationshipName]];
     var removedEntities = [IFArray arrayFromObject:[self _removedEntitiesForRelationshipNamed:relationshipName]];
     var es = [IFArray arrayFromObject:entities];
@@ -1290,20 +1340,21 @@ var UTIL = require("util");
     while (entity = [en nextObject]) {
         var ren = [relatedEntities objectEnumerator];
         while (relatedEntity = [ren nextObject]) {
-            if (relatedEntity == entity || [entity is:relatedEntity]) {
+            if (relatedEntity === entity || [entity is:relatedEntity]) {
                 [removedEntities addObject:entity];
                 continue;
             }
             [filteredEntities addObject:relatedEntity];
         }
         relatedEntities = filteredEntities;
-        filteredEntities = [IFArray new];
+        filteredEntities = [CPArray new];
     }
+    [IFLog debug:"After removing " + entities + ", setting removed to " + removedEntities + " and cached to " + relatedEntities];
     [self _setRemovedEntities:removedEntities forRelationshipNamed:relationshipName];
     [self _setCachedEntities:relatedEntities forRelationshipNamed:relationshipName];
 }
 
-/*-------- notifications ---------- */
+// -------- notifications ----------
 - prepareForCommit {
     //[self invokeDelegateMethodNamed:"prepareForCommit"];
 }
@@ -1311,6 +1362,8 @@ var UTIL = require("util");
 - didCommit {
     //[self invokeDelegateMethodNamed:"didCommit"];
 }
+
+// --------------------------------- 
 
 // FIXME: use primaryKey instead of id
 - hasNeverBeenCommitted {
@@ -1385,6 +1438,36 @@ var UTIL = require("util");
 // object is tracked by the ObjectContext.
 - (void) awakeFromFetchInObjectContext:(IFObjectContext)oc {
 
+}
+
+// This returns all entities attached to this one via
+// a relationship that are in-memory right now.  This
+// can be used for things like adding them all at once
+// into the ObjectContext, etc.
+
+- (id) relatedEntities {
+    return [self __cachedEntitiesForAllRelationships:[]];
+}
+
+- (id) __cachedEntitiesForAllRelationships:(id)visited {
+    // "visited" is an array, not a dictionary
+    if ([visited containsObject:self]) { return }
+    [visited addObject:self];
+
+    var ecd = [self entityClassDescription];
+    var relationships = [ecd relationships];
+    var cachedEntities = [];
+    for (var relationshipName in relationships) {
+        var relationship = [ecd relationshipWithName:relationshipName];
+        if ([relationship isReadOnly]) { continue }
+        var cached = [self _cachedEntitiesForRelationshipNamed:relationshipName];
+        for (var i=0; i<[cached count]; i++) {
+            var ce = [cached objectAtIndex:i];
+            cachedEntities[cachedEntities.length] = ce;
+            cachedEntities = cachedEntities.concat([ce __cachedEntitiesForAllRelationships:visited]);
+        }
+    }
+    return cachedEntities;
 }
 
 @end
