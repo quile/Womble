@@ -346,14 +346,14 @@ var UTIL = require("util");
 
 /*=============================================== */
 
-+ _attributeWithName:(id)name andColumnName:(id)columnName andSize:(id)size andType:(id)type {
++ _attributeWithName:(id)attributeName andColumnName:(id)columnName andSize:(id)size andType:(id)type {
     /* AndElvesAndOrcsesAndMen...Gollum!Gollum! */
     return {
         'DEFAULT': '',
         'EXTRA': '',
         'SIZE': size,
         'NULL': '',
-        'ATTRIBUTE_NAME': name,
+        'ATTRIBUTE_NAME': attributeName,
         'VALUES': [],
         'COLUMN_NAME': columnName,
         'KEY': '',

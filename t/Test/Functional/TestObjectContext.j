@@ -55,10 +55,8 @@ var UTIL = require("util");
     [self assert:[[oc trackedEntities] count] equals:3 message:"oc has three tracked entities"];
 
     // This should commit the new objects
-    [WMLog setLogMask:0xffff];
     [WMLog debug:[oc addedEntities]];
     [oc saveChanges];
-    [WMLog setLogMask:0x0000];
 
     [self assert:[[oc changedEntities] count] equals:0 message:"oc has no changed objects"];
     [self assert:[[oc addedEntities] count] equals:0 message:"oc has no added entities"];
@@ -153,10 +151,50 @@ var UTIL = require("util");
 
     // calling branches here should fault in from the DB
     [self assert:[[rt _cachedEntitiesForRelationshipNamed:"branches"] count] equals:1 message:"One cached entity"];
-    //[WMLog setLogMask:0xffff];
     [self assert:[[rt branches] count] equals:2 message:"Now two"];
     [self assert:[[rt _cachedEntitiesForRelationshipNamed:"branches"] count] equals:2 message:"Two cached entities"];
-    //[WMLog setLogMask:0x0000];
+}
+
+- (void) testTraversedRelationshipsBeforeCommit {
+    var branch = [WMTestBranch newFromDictionary:{ leafCount: 33, length: 12 }];
+    var trunk = [WMTestTrunk newFromDictionary:{ thickness: 20 }];
+    var root = [WMTestRoot newFromDictionary:{ title:"Big Tree!"}];
+
+    [oc trackEntity:root];
+    [root setTrunk:trunk];
+    [trunk addObjectToBranches:branch];
+    
+    [self assertNotNull:[root trunk] message:"in-memory connection made"];
+    [self assert:[[trunk branches] count] equals:1];
+    [self assert:[[oc addedEntities] count] equals:3 message:"oc has correct number of added entities"];
+    [self assert:[[[root trunk] branches] count] equals:1 message:"traversal gives correct results"];
+}
+
+- (void) testTraversedRelationshipsAfterCommit {
+    var branch = [WMTestBranch newFromDictionary:{ leafCount: 33, length: 12 }];
+    var trunk = [WMTestTrunk newFromDictionary:{ thickness: 888 }];
+    var root = [WMTestRoot newFromDictionary:{ title:"Big Tree!"}];
+
+    [oc trackEntity:root];
+    [root setTrunk:trunk];
+    [trunk addObjectToBranches:branch];
+    [oc saveChanges];
+    [oc clearTrackedEntities]; 
+
+    branch = nil;
+    trunk = nil;
+    root = nil;
+    // TODO: ensure garbage is collected here?
+    
+    var rr = [oc entity:"WMTestRoot" matchingQualifier:[WMKeyValueQualifier key:"title = %@", "Big Tree!"]];
+    [self assertNotNull:rr message:"Refetch root"];
+    var rt = [oc entity:"WMTestTrunk" matchingQualifier:[WMKeyValueQualifier key:"thickness = %@", 888]];
+    [self assertNotNull:rt message:"Refetch trunk"];
+    var br = [oc entity:"WMTestBranch" matchingQualifier:[WMKeyValueQualifier key:"leafCount = %@", 33]];
+    [self assertNotNull:br message:"Refetch branch"];
+
+    [self assertTrue:([rr trunk] === rt) message:"related trunk is same as refetched"];
+    [self assertTrue:([[rt branches] objectAtIndex:0] === br) message:"related branch is same as refetched"];
 }
 
 @end

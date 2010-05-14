@@ -1304,6 +1304,10 @@ var UTIL = require("util");
         // any access to this relationship from the higher-level API for this relationship
         // will cause a DB fault to fetch the entities that are in the DB.
         if ([entities[i] hasNeverBeenCommitted]) {
+            if ([self isTrackedByObjectContext]
+                && ![entities[i] isTrackedByObjectContext]) {
+                [[self trackingObjectContext] trackEntity:entities[i]];
+            }
             _relationshipIsDirty[relationshipName] = true;
         }
     }
