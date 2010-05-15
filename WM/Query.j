@@ -230,6 +230,10 @@
         /*WM::Log::debug("Reached fetch count, closing fetch"); */
         [self _close];
     }
+    var o = [unpackedResults objectAtIndex:0];
+    if ([_oc trackingIsEnabled]) {
+        [_oc trackEntity:o];
+    }
     return [unpackedResults objectAtIndex:0];
 }
 

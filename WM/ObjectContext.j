@@ -67,12 +67,19 @@ var _objectContext;
 
 - init {
     [super init];
-    [self clearTrackedEntities];
+    [self _initTrackingStore];
     // Default this to true so entity tracking is turned on
     // for the OC *unless you disable it*
     [self enableTracking];
     _saveChangesInProgress = false;
     return self;
+}
+
+- (void) _initTrackingStore {
+    _trackedEntities = {};
+    _deletedEntities = {};
+    _addedEntities = [];
+    _forgottenEntities = [];
 }
 
 - (void) loadModel {
@@ -252,7 +259,6 @@ var _objectContext;
 }
 
 - (void) trackEntity:(id)entity {
-    //[self enableTracking];
     if ([entity isTrackedByObjectContext]) { return }
     if ([entity hasNeverBeenCommitted]) {
         _addedEntities[_addedEntities.length] = entity; 
@@ -286,11 +292,11 @@ var _objectContext;
 }
 
 - (void) untrackEntity:(id)entity {
-    var e = [self trackedInstanceOfEntity:entity];
-    if (![_forgottenEntities containsObject:entity]) {
-        [_forgottenEntities addObject:entity];
+    var e = [self trackedInstanceOfEntity:entity] || entity;
+    if (![_forgottenEntities containsObject:e]) {
+        [_forgottenEntities addObject:e];
     }
-    [_addedEntities removeObject:entity];
+    [_addedEntities removeObject:e];
     if (![e hasNeverBeenCommitted]) {
         var pkv = [[e uniqueIdentifier] description];
         delete _trackedEntities[pkv];
@@ -310,13 +316,14 @@ var _objectContext;
 }
 
 - (id) trackedInstanceOfEntity:(id)entity {
+    if (!entity) { [WMLog error:"Cannot retrieve tracked instance of nil"]; return nil }
     if ([entity hasNeverBeenCommitted]) {
         // we can't check for it by pk
         if ([_addedEntities containsObject:entity]) { return entity }
         return nil;
     } else {
         var pkv = [[entity uniqueIdentifier] description];
-        return _trackedEntities[pkv];
+        return _trackedEntities[pkv] || _deletedEntities[pkv];
     }
 }
 
@@ -365,7 +372,7 @@ var _objectContext;
 // we need to include _addedEntities here too; from the POV
 // outside of the OC, added entities are "tracked" too.
 - (id) trackedEntities {
-    return _p_values(_trackedEntities).concat(_addedEntities);
+    return _p_values(_trackedEntities).concat(_addedEntities).concat(_p_values(_deletedEntities));
 }
 
 - (id) changedEntities {
@@ -386,6 +393,10 @@ var _objectContext;
 
 - (void) disableTracking {
     _shouldTrackEntities = false;
+}
+
+- (id) trackingIsEnabled {
+    return _shouldTrackEntities;
 }
 
 - (void) saveChanges {
@@ -475,10 +486,11 @@ var _objectContext;
 }
 
 - (void) clearTrackedEntities {
-    _trackedEntities = {};
-    _deletedEntities = {};
-    _addedEntities = [];
-    _forgottenEntities = [];
+    var all = [self trackedEntities];
+    for (var i=0; i<all.length; i++) {
+        [self untrackEntity:all[i]];
+    }
+    [self _initTrackingStore];
 }
 
 @end

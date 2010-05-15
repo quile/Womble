@@ -197,4 +197,23 @@ var UTIL = require("util");
     [self assertTrue:([[rt branches] objectAtIndex:0] === br) message:"related branch is same as refetched"];
 }
 
+- (void) testChangedObjects {
+    // first flush the OC
+    [oc clearTrackedEntities];
+    [self assert:[[oc trackedEntities] count] equals:0 message:"OC has been flushed"];
+
+    [self assertTrue:[oc trackingIsEnabled] message:"Tracking is enabled"];
+
+
+    // fetch any branch object
+    var branch = [[WMQuery new:"WMTestBranch"] first];
+    [self assertNotNull:branch message:"fetched a branch from the DB"];
+    [self assert:[[oc trackedEntities] count] equals:1 message:"OC is tracking one entity"];
+
+    // flush the OC
+    [oc clearTrackedEntities];
+    [self assert:[[oc trackedEntities] count] equals:0 message:"OC has been flushed"];
+    [self assertFalse:[branch isTrackedByObjectContext] message:"branch is no longer being tracked"];
+}
+
 @end
