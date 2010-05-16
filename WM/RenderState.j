@@ -28,6 +28,9 @@
 
 // how do i pop something off the end?
 - decreasePageContextDepth {
+    if (_pageContext.length <= 1) {
+        return;
+    }
 	return _pageContext.pop();
 }
 
@@ -52,7 +55,11 @@
 }
 
 - incrementLoopContextNumber {
-	_loopContext[(_loopContext.length-1)] += 1;
+    if (_loopContext.length == 0) {
+        _loopContext[0] = 1;
+    } else {
+        _loopContext[ (_loopContext.length - 1) ] += 1;
+    }
 }
 
 - loopContextNumber {
