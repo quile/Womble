@@ -63,7 +63,7 @@ var UTIL = require("util");
     return [[self alloc] initWithEntityType:type qualifier:qualifier sortOrderings:sortOrderings];
 }
 
-- initWithEntityType:(id)t qualifier:(id)q sortOrderings:(id)sortOrderings {
+- initWithEntityType:(id)t qualifier:(id)q sortOrderings:(id)so {
     [self init];
     var model = [WMModel defaultModel];
     if (![WMLog assert:model message:"Found a model to work with"]) { return }
@@ -84,7 +84,7 @@ var UTIL = require("util");
         traversedRelationshipAttributes: [WMArray new],
         distinct: 0,
         attributes: [WMArray new],
-        sortOrderings: sortOrderings,
+        sortOrderings: so,
         fetchLimit: [[WMApplication defaultApplication] configurationValueForKey:"DEFAULT_BATCH_SIZE"],
         startIndex: 0,
         sqlExpression: [WMSQLExpression new],
@@ -110,8 +110,8 @@ var UTIL = require("util");
     return self;
 }
 
-- subqueryForAttributes:(id)attributes {
-    [self restrictFetchToAttributes:attributes];
+- subqueryForAttributes:(id)attr {
+    [self restrictFetchToAttributes:attr];
     [self setFetchLimit:0]; // have to zero the fetch limit for subqueries
     return self;
 }
