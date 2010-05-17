@@ -2,7 +2,7 @@ WOMBLE - Introduction
 =====================
 "Make good use of bad rubbish"
 
-(Latest info)[http://wiki.github.com/quile/Womble/]
+[Latest info](http://wiki.github.com/quile/Womble/)
 
 This is a very early commit of a very 
 nasty port from Perl of some very old code.
@@ -116,7 +116,7 @@ and was often driven by the Quick And Dirty Way.  I'm trying to
 clean things up but it's still very patchy indeed.
 I would love constructive criticism and welcome any help that
 anyone would want to throw my way!  It needs a lot of work; clean-up,
-optimisation, 
+optimisation, etc. etc.
 
 
 -kd may 2010
