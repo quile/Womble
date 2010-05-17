@@ -18,10 +18,12 @@ var _application;
 //use WMTest::Module::Twang;
 //use WMTest::Module::Bong;
 
+/* Uncomment if any app-specific launch goo is needed
 - init {
     [super init];
     return self;
 }
+*/
 
 - sessionClassName {
   return "WMTestEntitySession";

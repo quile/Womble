@@ -2,11 +2,13 @@ WOMBLE - Introduction
 =====================
 "Make good use of bad rubbish"
 
+(Latest info)[http://wiki.github.com/quile/Womble/]
+
 This is a very early commit of a very 
 nasty port from Perl of some very old code.
 
-** Don't use this unless you're very brave and/or
-** want to help!
+> Don't use this unless you're very brave and/or
+> want to help!
 
 This code is under heavy development as of right now,
 May 13, 2010.  It is being ported at a fairly rapid rate

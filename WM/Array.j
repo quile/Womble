@@ -42,4 +42,17 @@
     return o;
 }
 
++ (Boolean) isArray:(id)foo {
+    if (typeof foo != "object") {
+        return false;
+    }
+    if (foo.isa) {
+        return ([foo isKindOfClass:CPArray] || [foo isKindOfClass:WMArray]);
+    }
+    if (typeof foo.length == "number") {
+        return true;
+    }
+    return false;
+}
+
 @end

@@ -60,9 +60,9 @@ var UTIL = require("util");
     */
 }
 
-+ instanceWithName:(id)name {
-    if (!name) { return nil }
-    return [[WMObjectContext new] entity:entityName matchingQualifier:[WMKeyValueQualifier key:'name = %@', name]];
++ instanceWithName:(id)n {
+    if (!n) { return nil }
+    return [[WMObjectContext new] entity:entityName matchingQualifier:[WMKeyValueQualifier key:'name = %@', n]];
 }
 
 + newFromRawDictionary:(id)d {
