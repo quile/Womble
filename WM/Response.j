@@ -1,6 +1,6 @@
 @import "Object.j"
 @import "RenderState.j"
-@import "Template.j"
+//@import "Template.j"
 
 @implementation WMResponse : WMObject
 {
