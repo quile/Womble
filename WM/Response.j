@@ -15,10 +15,10 @@
 - init {
     _params = {};
     _template = nil;
-	_contentList = [""]
-	_renderState = [WMRenderState new],
-	[self setContent:""];
-	return self;
+    _contentList = [""]
+    _renderState = [WMRenderState new],
+    [self setContent:""];
+    return self;
 }
 
 - (void)setTemplate:(WMTemplate)t { _template = t; }
@@ -32,12 +32,12 @@
 }
 
 - (void) setContent:(id)c {
-	_contentList = c;
+    _contentList = c;
 }
 
 // rename this?  contentAsString?
 - (id)content {
-	return _contentList.join("");
+    return _contentList.join("");
 }
 
 - (WMRenderState)renderState { return _renderState; }
