@@ -86,4 +86,34 @@
     [self assertFalse:_p_isArray(ojd) message:"OJ dictionary not identified"];
 }
 
+- (void) testSplitter {
+    var bits = _p_2_split("/", "");
+    [self assertTrue:(bits[0] == null) message:"nothing from nothing"];
+    [self assertTrue:(bits[1] == null) message:"nothing from nothing"];
+    [self assert:bits.length equals:0 message:"length is zero"];
+
+    var foo = "People's Front of Judea";
+    var bar = "Judean People's Front";
+    var baz = "Popular Front";
+
+    var groups = [foo, bar, baz].join(", ");
+   
+    var bits = _p_2_split("Front", foo);
+    [self assert:bits[0] equals:"People's " message:"a) first part ok"];
+    [self assert:bits[1] equals:" of Judea" message:"a) second part ok"];
+
+    var bits = _p_2_split(", ", groups);
+    [self assert:bits[0] equals:"People's Front of Judea" message:"b) first part ok"];
+    [self assert:bits[1] equals:"Judean People's Front, Popular Front" message:"b) second part ok"];
+
+    var re = new RegExp("[gfh]r[io]n+t", "i");
+    var bits = _p_2_split(re, foo);
+    [self assert:bits[0] equals:"People's " message:"c) first part ok"];
+    [self assert:bits[1] equals:" of Judea" message:"c) second part ok"];
+
+    var bits = _p_2_split("domus", "Romani ite domum");
+    [self assert:bits[0] equals:"Romani ite domum" message:"d) first part ok"];
+    [self assertTrue:(bits[1] == null) message:"d) second part ok"];
+}
+
 @end

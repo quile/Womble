@@ -111,6 +111,18 @@ _p_isArray = function(a) {
     return false;
 }
 
+_p_2_split = function(re, st) {
+    var bits = st.split(re);
+    var first = bits.shift();
+    if (bits.length > 0) {
+        st = st.replace(first, "");
+        var second = st.substring(st.indexOf(bits.shift())) || "";
+        return [first, second];
+    }
+    if (first == "") { return [] }
+    return [first];
+}
+
 // eval(_p_setTrace) lets you execute javascript in the current context
 // of wherever your eval is.  Useful for checking values of vars and stuff.
 _p_setTrace = "var oj=require('objective-j');var R=require('readline');while(true){try{system.stdout.write('if> ').flush();var line=R.readline();if (line=='q'){break;}var r=eval(line);if (r!==undefined)print(r);}catch(e){print(e);}}";
