@@ -22,7 +22,6 @@ var ERRORS = {
 {
     id content @accessors;
     id contentElementCount;
-    id explicitBindings @accessors;
     id language @accessors;
     id mimeType @accessors;
     id encoding @accessors;
@@ -35,55 +34,48 @@ var ERRORS = {
 - (id) init {
     [super init];
     content = [];
-    explicitBindings = [];
     parseErrors = [];
     paths = [];
     return self;
 }
 
-/*
-+ new {
-    var self = {
-            _content: [],
-            _explicitBindings: [],
-            _parseErrors: [],
-            _paths: [],
-        };
-    bless self, className;
-    var arguments = {_};
++ (id) newWithName:(id)n andPaths:(id)ps shouldCache:(id)c {
+    return [[self new] initWithName:n andPaths:ps shouldCache:c];
+}
 
-    if (arguments.path) {
-        [self setPaths:arguments.path](arguments.path);
+- (id) initWithName:(id)n andPaths:(id)ps shouldCache:(id)c {
+    [self init]
+    if (paths) {
+        [self setPaths:ps];
     }
-
-    if (arguments.filename) {
-        var fullPath = firstMatchingFileWithNameInPathList(arguments.filename, [self paths]);
-        unless (fullPath) {
-            IFLog.warning("Failed to find template " + arguments.filename + " in paths " + join(", ", @{[self paths]}));
-            return;
+    if (n) {
+        var fp = [WMTemplate firstMatchingFileWithName:n inPathList:[self paths]];
+        if (!fp) {
+            [CPException raise:"CPException" reason:"Failed to find template " + n + " in paths " + [self paths]];
         }
-        if (hasCachedTemplateForPath(fullPath)) {
-            //IF::Log::debug("Cache hit for template ".$arguments->{filename});
-            return cachedTemplateForPath(fullPath);
+
+        if ([WMTemplate hasCachedTemplateForPath:fp]) {
+            return [WMTemplate cachedTemplateForPath:fp];
         }
-        [self initWithFile:fullPath](fullPath);
+        [self initWithFile:fp];
+        if (c) {
+            [WMTemplate addToCache:self];
+        }
     }
 
-    if (arguments.cache) {
-        addToCache(self);
-    }
     return self;
 }
-*/
 
-- (id) initWithFile:(id)fullPath {
-    [self setFullPath:fullPath]
-    [self setTemplateSource:[WMTemplate contentsOfFileAtPath:fullPath]];
-    [self setLanguage:[self languageFromPath:fullPath]];
-    [self setMimeType:[self mimeTypeFromPath:fullPath]];
+- (id) initWithFile:(id)fp {
+    [self setFullPath:fp]
+    [self setTemplateSource:[WMTemplate contentsOfFileAtPath:fp]];
+    [self setLanguage:[self languageFromPath:fp]];
+    [self setMimeType:[self mimeTypeFromPath:fp]];
     [self setEncoding:'utf-8'];
     [self parseTemplate];
+    // source is not needed now, so blow it away
     [self setTemplateSource:nil];
+    return self;
 }
 
 - initWithString:(id)st inContext:(id)context {
@@ -92,6 +84,7 @@ var ERRORS = {
     [self setLanguage:[context language]];
     [self parseTemplate];
     [self setTemplateSource:nil];
+    return self;
 }
 
 - (void) setContent:(id)c {
@@ -400,9 +393,9 @@ var ERRORS = {
         if ([WMTemplate hasCachedTemplateForPath:fullPathToFile]) {
             return fullPathToFile;
         }
-        //IF::Log::debug("Checking for file at $fullPathToFile");
+        [WMLog debug:"Checking for file at " + fullPathToFile];
         if (!FILE.exists(fullPathToFile)) { continue }
-        //IF::Log::debug("Found template $file at $fullPathToFile");
+        [WMLog debug:"Found template " + file + " at " + fullPathToFile];
         return fullPathToFile;
     }
     return nil;
@@ -411,11 +404,11 @@ var ERRORS = {
 + (id) contentsOfFileAtPath:(id)fullPathToFile {
     var f;
     if (f = FILE.open(fullPathToFile)) {
-        var contents = f.read().join("");
+        var contents = f.read();
         //if (var decodedContents = decode_utf8(contents)) {
         //    contents = decodedContents;
         //} else {
-        //    IFLog.error("Template not valid utf8: fullPathToFile")
+        //    [WMLog error:"Template not valid utf8: " + fullPathToFile];
         //        if length (contents);
         //}
         f.close();
@@ -429,13 +422,14 @@ var ERRORS = {
 + (void) addToCache:(id)template {
     var path = [template fullPath];
     TEMPLATE_CACHE[path] = template;
-    var stat = FILE.stat([template fullPath]);
+    var stat = FILE.stat(path);
     if (stat) {
+        //[WMLog debug:"path " + path + " time " + stat['mtime']];
         TEMPLATE_AGE_CACHE[path] = stat['mtime'];
     } else {
         throw [CPException raise:"CPException" reason:"Couldn't get age of file " + [template fullPath]];
     }
-    //IF::Log::debug("Stashed cached template for $path in template cache");
+    [WMLog debug:"Stashed cached template for " + path + " in template cache"];
 }
 
 + (Boolean) hasCachedTemplateForPath:(id)path {
@@ -444,7 +438,8 @@ var ERRORS = {
         throw [CPException raise:"CPException" reason:"Couldn't get age of file " + path];
     }
     var currentAge = stat['mtime'];
-    return [WMTemplate cachedTemplateForPath:path] && (currentAge == TEMPLATE_AGE_CACHE[path]);
+    return [WMTemplate cachedTemplateForPath:path] && TEMPLATE_AGE_CACHE[path]
+         && (currentAge.getTime() == TEMPLATE_AGE_CACHE[path].getTime());
 }
 
 + (WMTemplate) cachedTemplateForPath:(id)path {
