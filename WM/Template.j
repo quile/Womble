@@ -78,10 +78,10 @@ var ERRORS = {
     return self;
 }
 
-- initWithString:(id)st inContext:(id)context {
+- initWithString:(id)st inLanguage:(id)l {
     [self setFullPath:nil];
     [self setTemplateSource:st];
-    [self setLanguage:[context language]];
+    [self setLanguage:l];
     [self parseTemplate];
     [self setTemplateSource:nil];
     return self;
@@ -114,10 +114,12 @@ var ERRORS = {
     [self checkSyntax];
 }
 
+// This is really deprecated - but here in case someone finds it
+// useful.  There are a few uses for it, I suppose
 - (void) processTemplateIncludes {
     var rei = new RegExp("(<TMPL_INCLUDE [^>]+>)", "i");
-    var ren = new RegExp("NAME=\"?([^>\"]+)\"?>", "i");
-    var rec = new RegExp('TMPL_INCLUDE "?([^\">]+)"?>', "i");
+    var ren = new RegExp("NAME=\"?([^>\"]+)\"?", "i");
+    var rec = new RegExp('TMPL_INCLUDE "?([^\">]+)"?', "i");
     var match;
     while (match = templateSource.match(rei)) {
         var tag = match[1];
@@ -188,14 +190,18 @@ var ERRORS = {
         if (index['BINDING_TYPE'] == "BINDING_ELSE") { continue }
         var nestingDepth = 0;
         //otherwise scan forward for an end tag 
+        //[WMLog debug:index.toSource()];
         for (var j = i+1; j<[self contentElementCount]; j++) {
             var contentElement = [self contentElementAtIndex:j];
             if (typeof contentElement != "object") { continue }
+            //[WMLog debug:contentElement.toSource()];
             if (contentElement['BINDING_NAME'] != bindingName) { continue }
+            //[WMLog debug:"name ok"];
             if (contentElement['BINDING_TYPE'] != index['BINDING_TYPE'] &&
                 contentElement['BINDING_TYPE'] != "BINDING_ELSE") {
-                continue
+                continue;
             }
+            //[WMLog debug:"type is same or type is else"];
             if (contentElement['IS_END_TAG']) {
                 if (nestingDepth == 0) {
                     index['END_TAG_INDEX'] = j;
@@ -213,7 +219,9 @@ var ERRORS = {
                 }
             } else {
                 if (contentElement['BINDING_TYPE'] == "BINDING_ELSE") {
+                    //[WMLog debug:"it's an else"];
                     if (index['BINDING_TYPE'] == "BINDING_IF" || index['BINDING_TYPE'] == "BINDING_UNLESS") {
+                        //[WMLog debug:"setting the else tag index to " + j];
                         index['ELSE_TAG_INDEX'] = j;
                     }
                 } else {
@@ -273,7 +281,7 @@ var ERRORS = {
 
 + (id)newTagEntryForTag:(id)tag {
     tag = tag.replace(/(?:^<|\/?>$)/g, "");
-    var bre = new RegExp("^(\/?)(binding[^:]*):([A-Za-z0-9_]+) ?( + *)\s*$", "i");
+    var bre = new RegExp("^(\/?)(binding[^:]*):([A-Za-z0-9_]+) ?(.*)\s*$", "i");
     var match = tag.match(bre);
     if (match) {
         var isEndTag = match[1];
@@ -393,9 +401,9 @@ var ERRORS = {
         if ([WMTemplate hasCachedTemplateForPath:fullPathToFile]) {
             return fullPathToFile;
         }
-        [WMLog debug:"Checking for file at " + fullPathToFile];
+        //[WMLog debug:"Checking for " + file + " at " + fullPathToFile];
         if (!FILE.exists(fullPathToFile)) { continue }
-        [WMLog debug:"Found template " + file + " at " + fullPathToFile];
+        //[WMLog debug:"Found template " + file + " at " + fullPathToFile];
         return fullPathToFile;
     }
     return nil;
@@ -429,7 +437,7 @@ var ERRORS = {
     } else {
         throw [CPException raise:"CPException" reason:"Couldn't get age of file " + [template fullPath]];
     }
-    [WMLog debug:"Stashed cached template for " + path + " in template cache"];
+    //[WMLog debug:"Stashed cached template for " + path + " in template cache"];
 }
 
 + (Boolean) hasCachedTemplateForPath:(id)path {
