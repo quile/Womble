@@ -44,15 +44,15 @@ var REQUEST = require("jack/request");
     if (_applicationName) { return _applicationName }
     // TODO: where do we get the app name?  in mod_perl, it was
     // set automatically by mod_perl when the request was being routed.
-	//return ENV['WM_APPLICATION_NAME'] || 'WM';
+    //return ENV['WM_APPLICATION_NAME'] || 'WM';
 }
 
 - (void) setApplicationName:(id)name {
-	_applicationName = name;
+    _applicationName = name;
 }
 
 - dropCookie {
-	[WMLog error:"dropCookie not implemented"];
+    [WMLog error:"dropCookie not implemented"];
 }
 
 - (id) formKeys {
