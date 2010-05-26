@@ -1,3 +1,22 @@
+/* --------------------------------------------------------------------
+ * WM - Web Framework and ORM heavily influenced by WebObjects & EOF
+ * (C) kd 2010
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ */
+
 @import "Log.j"
 @import "Dictionary.j"
 @import "Helpers.js"
@@ -304,7 +323,7 @@ var ERRORS = {
 }
 
 + (id) explicitBindingAndAttributeHashFromName:(id)name andAttributes:(id)attributes {
-    //IF::Log::debug("Processing $name/$attributes");
+    //[WMLog debug:"Processing " + name + " / " + attributes];
     //return (undef, $attributes) unless $attributes =~ /definition=\"explicit\"/i;
     //
     var attributeHash = {};
@@ -319,8 +338,9 @@ var ERRORS = {
         match = match || attributes.match(re2);
         match = match || attributes.match(re3);
         if (!match) { break }
-        attributeHash[1] = match[2];
-        attributes.replace(match[1], "");
+        attributeHash[match[1]] = match[2];
+        attributes = attributes.replace(match[0], "");
+        //[WMLog debug:attributeHash.toSource()];
     }
     var binding = { _NAME: name };
     for (var key in attributeHash) {
@@ -340,7 +360,6 @@ var ERRORS = {
             }
         }
     }
-
 
     // TODO : rewrite this method so that we don't need this check here:
     if (!attributeHash['definition'] || (attributeHash['definition'] != "explicit")) {

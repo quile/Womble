@@ -189,4 +189,28 @@ var TEMPLATE_ROOT = "t/templates";
     [self assert:be['END_TAG_INDEX'] equals:9 message:"end tag index is ok"];
 }
 
+- (void) testAttributeExtraction {
+    var tt = [WMTemplate new];
+    [tt setTemplateSource:"<html><body><h1>Foo <binding:foo name=\"ethel the aardvark\" /></h1><p>Bar: <binding:bar name=\"polly the parrot\" status=\"ex-parrot\" /></p></body></html>"];
+    [tt extractBindingTags];
+    [self assert:[tt contentElementCount] equals:5 message:"Right number of elements"];
+    [self assert:[[tt content] objectAtIndex:0] equals:"<html><body><h1>Foo " message:"First bit ok"];
+
+    var be = [[tt content] objectAtIndex:1];
+    [self assert:be['BINDING_NAME'] equals:"foo" message:"binding name ok"];
+    [self assert:be['BINDING_TYPE'] equals:"BINDING" message:"binding type ok"];
+    [self assert:be['IS_END_TAG'] equals:false message:"not an end tag"];
+    [self assert:be['ATTRIBUTE_HASH']['name'] equals:"ethel the aardvark" message:"first attribute extracted"];
+
+    var be = [tt contentElementAtIndex:2];
+    [self assert:be equals:"</h1><p>Bar: " message:"Last bit ok"];
+
+    be = [tt contentElementAtIndex:3];
+    [self assert:be['BINDING_TYPE'] equals:"BINDING" message:"binding type ok"];
+    [self assert:be['ATTRIBUTE_HASH']['name'] equals:"polly the parrot" message:"parrot!"];
+    [self assert:be['ATTRIBUTE_HASH']['status'] equals:"ex-parrot" message:"ex-parrot!"];
+
+    [self assert:[[tt content] objectAtIndex:4] equals:"</p></body></html>" message:"Last bit ok"];
+}
+
 @end
