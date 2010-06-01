@@ -31,13 +31,14 @@ var REQUEST = require("jack/request");
 }
 
 - (id) initWithEnv:(id)env {
-    var jr = REQUEST.Request(env);
+    var jr = new REQUEST.Request(env);
     [self initWithJackRequest:jr];
     return self;
 }
 
 - (id) initWithJackRequest:(id)jr {
     _request = jr;
+    return self;
 }
 
 - (id) applicationName {
@@ -49,10 +50,6 @@ var REQUEST = require("jack/request");
 
 - (void) setApplicationName:(id)name {
     _applicationName = name;
-}
-
-- dropCookie {
-    [WMLog error:"dropCookie not implemented"];
 }
 
 - (id) formKeys {

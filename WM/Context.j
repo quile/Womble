@@ -193,7 +193,14 @@ var NULL_SESSION_ID = "x";
     var keys = [[self request] formKeys];
     for (var i=0; i<keys.length; i++) {
         var key = keys[i];
-        _formValues[key] = [[self request] formValueForKey:key];
+        var values = [WMArray arrayFromObject:[_request formValueForKey:key]];
+        var decodedValues = [];
+        for (var j=0; j<values.length; j++) {
+            var value = values[j];
+            var decodedValue = UTF8.decode(value);
+            decodedValues.push(decodedValue || value);
+        }
+        _formValues[key] = decodedValues;
         // TODO we used to strip incoming values for
         // common xss tricks here; bad form but it was
         // a quick fix.
@@ -223,15 +230,6 @@ var NULL_SESSION_ID = "x";
 
 - (WMSession) session { return _session } 
 - (void) setSession:(WMSession)s { _session = s }
-
-/*   Is this needed?  I don't think so.
-- sessionId {
-    return self.sessionId;
-}
-- setSessionId:(id)value {
-    self.sessionId = value;
-}
-*/
 
 /* 
 + escape:(id)value {
@@ -284,7 +282,6 @@ var NULL_SESSION_ID = "x";
     */
 }
 
-// these two methods are just shortcuts:
 - (id) formValueForKey:(id)key {
     var values = [self formValuesForKey:key];
     if (values.length == 1) { return values[0] }
@@ -316,16 +313,7 @@ var NULL_SESSION_ID = "x";
 }
 
 - (id) formValuesForKey:(id)key {
-    var values = [];
-    // FIXME: this assumes _formValues exists
-    var vs = _formValues[key];
-    for (var i=0; i<vs.length; i++) {
-        var value = vs[i];
-        if (!value) { continue }
-        var decodedValue = UTF8.decode(value);
-        values.push(decodedValue || value);
-    }
-    return values;
+    return _formValues[key] || [];
 }
 
 - (id) formKeys {
@@ -339,12 +327,12 @@ var NULL_SESSION_ID = "x";
         for (var i=0; i < fks.length; i++) {
             var key = fks[i];
             var values = [self formValuesForKey:key];
-            var value = [self formValueForKey:key];
-            if ([WMArray isArray:values] && values.length > 1) {
+            //var value = [self formValueForKey:key];
+            //if ([WMArray isArray:values] && values.length > 1) {
                 qd[key] = values;
-            } else {
-                qd[key] = value;
-            }
+            //} else {
+            //    qd[key] = value;
+           // }
         }
         _queryDictionary = qd;
     }

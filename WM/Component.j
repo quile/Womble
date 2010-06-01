@@ -21,7 +21,7 @@
 //@import "Utility.j"
 @import "Array.j"
 @import "Response.j"
-//@import "Request/Offline.j"
+@import "Request/Offline.j"
 //@import "Context.j"
 //@import "Template.j"
 //@import "I18N.j"
@@ -218,6 +218,8 @@ var BINDING_DISPATCH_TABLE = {
     id _templateName;
     id _renderState;
     id _siteClassifier;
+    id _componentName;
+    id _componentNameRelativeToSiteClassifier;
 }
 
 + (id) newWithBinding:(id)binding {
@@ -243,6 +245,8 @@ var BINDING_DISPATCH_TABLE = {
     _directActionDispatchTable = nil;
     _overrides = {};
     _templateName = nil;
+    _componentName = nil;
+    _componentNameRelativeToSiteClassifier = nil;
     return self;
 }
 

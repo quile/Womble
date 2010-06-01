@@ -52,7 +52,7 @@ var UTIL = require("util");
         _qualifier: "",
         _sortOrderings: [],
         _groupBy: [],
-        _fetchLimit: null,
+        _fetchLimit: nil,
         _startIndex: 0,
         _traversedRelationships: {},
         _traversedRelationshipCounts: {},
@@ -62,6 +62,7 @@ var UTIL = require("util");
         _doNotFetch: {},
         _onlyFetch: {},
         _columnAndSummaryAliases: {},
+        _inflateAsInstancesOfEntityNamed: nil,
     };
 
     for (var key in template) {
@@ -761,11 +762,11 @@ var UTIL = require("util");
 }
 
 - inflateAsInstancesOfEntityNamed {
-    return self.inflateAsInstancesOfEntityNamed;
+    return self._inflateAsInstancesOfEntityNamed;
 }
 
 - setInflateAsInstancesOfEntityNamed:(id)value {
-    self.inflateAsInstancesOfEntityNamed = value;
+    self._inflateAsInstancesOfEntityNamed = value;
 }
 
 
