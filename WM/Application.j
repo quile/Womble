@@ -120,6 +120,7 @@ var JSON = require('json');
             application = [c _new:applicationNameForPath];
         } catch (e) {
             [WMLog error:e];
+            throw e;
         }
         if (!application) { return; }
         [_applications setObject:application forKey:applicationNameForPath];

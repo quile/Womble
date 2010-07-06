@@ -129,8 +129,9 @@ var NULL_SESSION_ID = "x";
 - inflateContextFromRequest {
     var uri = [[self request] uri];
     
+    eval(_p_setTrace);
     [WMLog debug:"Parsing URI: " + uri];
-    
+  
     var ure = new RegExp("^/(\w+)/([\w-]+)/([\w-]+)/(.+)/([\w\d\.-]+)");
     var match = uri.match(ure);
     var all = match[0];

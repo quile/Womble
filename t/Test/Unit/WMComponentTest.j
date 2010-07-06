@@ -1,8 +1,12 @@
 @import <OJUnit/OJTestCase.j>
+@import <WM/Application.j>
 @import <WM/Component.j>
 @import <WM/Response.j>
 @import <WM/Template.j>
+@import "../../Application.j"
 @import "../../Component/WMTest/Home.j"
+
+var application = [WMApplication applicationInstanceWithName:"WMTest"];
 
 @implementation WMComponentTest : OJTestCase
 

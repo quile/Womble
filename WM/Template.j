@@ -407,6 +407,7 @@ var ERRORS = {
 }
 
 + (id) firstMatchingFileWithName:(id)file inPathList:(id)paths {
+    paths = paths || [];
     var re = new RegExp("^\/");
     if (file.match(re)) {
         paths.unshift("");

@@ -22,8 +22,8 @@
 @import "Array.j"
 @import "Response.j"
 @import "Request/Offline.j"
-//@import "Context.j"
-//@import "Template.j"
+@import "Context.j"
+@import "Template.j"
 //@import "I18N.j"
 
 var UTIL = require("util");
@@ -217,7 +217,7 @@ var BINDING_DISPATCH_TABLE = {
     id _overrides;
     id _templateName;
     id _renderState;
-    id _siteClassifier;
+    //id _siteClassifier;
     id _componentName;
     id _componentNameRelativeToSiteClassifier;
 }
@@ -1293,12 +1293,6 @@ var BINDING_DISPATCH_TABLE = {
     return nil;
 }
 
-
-// These "parent" methods are super dangerous
-// because they can create cyclical references.
-// USE WITH CARE because the perl garbage-collector
-// is braindead and can't handle cycles.
-//
 - (id) parent {
     return _parent;
 }
