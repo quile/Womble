@@ -1381,10 +1381,15 @@ var BINDING_DISPATCH_TABLE = {
 // we return the default
 //
 - (id) _siteClassifier {
+    [WMLog debug:"_siteClassifier called"];
     if ([self context] && [[self context] siteClassifier]) {
+        [WMLog debug:"Context has no site classifier"];
         return [[self context] siteClassifier];
     }
-    return [[WMApplication defaultApplication] defaultSiteClassifier];
+    [WMLog debug:"Getting default site classifier from application"];
+    var sc = [[WMApplication defaultApplication] defaultSiteClassifier];
+    [WMLog debug:sc];
+    return sc;
 }
 
 - (id) session {
@@ -1648,7 +1653,6 @@ var BINDING_DISPATCH_TABLE = {
         var request = [WMOfflineRequest new];
         // build a URI representing the component with sensible defaults
         var cn = [self componentNameRelativeToSiteClassifier];
-        //cn = cn.replace(/::/, "/");
         var uri = [
                 [[self application] configurationValueForKey:"URL_ROOT"],
                 parameters['siteClassifierName'] || [[self _siteClassifier] name],

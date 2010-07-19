@@ -25,23 +25,23 @@ var _application;
 }
 */
 
-- sessionClassName {
++ sessionClassName {
   return "WMTestEntitySession";
 }
 
-- requestContextClassName {
++ requestContextClassName {
   return "WMTestEntityRequestContext";
 }
 
-- siteClassifierClassName {
++ siteClassifierClassName {
   return "WMTestEntitySiteClassifier";
 }
 
-- siteClassifierNamespace {
++ siteClassifierNamespace {
     return "WMTestEntitySiteClassifier";
 }
 
-- defaultModelClassName {
++ defaultModelClassName {
     return "WMTestModel";
 }
 

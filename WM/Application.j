@@ -26,10 +26,7 @@
 @import "Object.j"
 @import "Log.j"
 @import "Dictionary.j"
-
-/* TODO: wtf to do with paths? */
-//require.paths.unshift("conf");
-//require.paths.unshift("WM/conf");
+@import "SiteClassifier.j"
 
 /* cache the app instances */
 var _applications = [WMDictionary new];
@@ -47,6 +44,7 @@ var JSON = require('json');
     CPString     _sessionIdKey;
     WMDictionary configuration;
     WMDictionary _modules;
+    WMSiteClassifier _defaultSite;
 }
 
 + _new:(id)ns {
@@ -277,57 +275,32 @@ var JSON = require('json');
    resolutions of mappings so it doesn't needlessly run the
    expensive require() operation on every request.
 */
-/*
 
-+ siteClassifierWithName:(id)name {
++ siteClassifierWithName:(id)n {
     var namespace = [self siteClassifierNamespace];
     var className = [self siteClassifierClassName];
-    if (!WMLog.assert(className, "Site classifier classname implemented")) {
-        return null;
+    [WMLog debug:"SC info: " + namespace + " / " + className + " looking for " + n];
+    if (![WMLog assert:className message:"Site classifier " + className + " implemented"]) {
+        return nil;
     }
 
-    // This loads it from the DB. Note that it's loaded as
-    // a plain entity, then blessed into the right instance class.
-    var sc = [className siteClassifierWithName:name];
-    if (sc) {
-        if (namespace) {
-            var instanceClassName = namespace + "::" + [sc componentClassName];
-            if (!SITE_CLASSWMIER_CLASS_FOR_NAME[name]) {
-                var fn = instanceClassName;
-                fn =~ s!::!/!g;
-                fn .= " + pm";
-                eval {
-                    require fn;
-                };
-                if ($@) {
-                    SITE_CLASSWMIER_CLASS_FOR_NAME[name] = className;
-                } else {
-                    SITE_CLASSWMIER_CLASS_FOR_NAME[name] = instanceClassName;
-                }
-            }
-            if (!$@) {
-                WMLog.debug("Site classifier being blessed into class SITE_CLASSWMIER_CLASS_FOR_NAME[name]");
-                bless sc, SITE_CLASSWMIER_CLASS_FOR_NAME[name];
-            }
-        }
-    } else {
-        sc = [className defaultSiteClassifierForApplication:self->application()](self->application());
-        if (!sc) {
-            WMLog.error("Found neither Site Classifier: name".
-            "  or a default classifier.  PROBABLE MIS-CONFIGURATION or DATABASE PROBLEMS");
-            return;
-        }
+    var c = objj_getClass(className) || objj_getClass("WMSiteClassifier");
+    if (c) {
+        return [c siteClassifierWithName:n];
     }
-    return sc;
+    [WMLog error:"Couldn't load site classifier: " + n];
+    return nil;
 }
 
 - defaultSiteClassifier {
     if (!_defaultSite) {
-        // blah blah _defaultSite = return [self siteClassifierClassName:[WMApplication defaultSiteClassifierForApplication:[self->application());
+        [WMLog debug:"Loading default site classifier"];
+        var c = [self class];
+        [WMLog debug:"... class is " + c];
+        _defaultSite = [c siteClassifierWithName:"root"];
     }
     return _defaultSite;
 }
-*/
 
 /* This will allow an application to interact with its modules */
 

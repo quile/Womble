@@ -4,14 +4,12 @@ WOMBLE - Introduction
 
 [Latest info](http://wiki.github.com/quile/Womble/)
 
-This is a very early commit of a very 
-nasty port from Perl of some very old code.
 
 > Don't use this unless you're very brave and/or
 > want to help!
 
 This code is under heavy development as of right now,
-May 13, 2010.  It is being ported at a fairly rapid rate
+July 18, 2010.  It is being ported at a fairly rapid rate
 from a Perl framework that is stable.  This port can
 not be considered stable in any way at all.  However,
 hopefully this will change soon.
@@ -110,7 +108,7 @@ HELP
 Any/all help would be greatly appreciated; I realise it's
 a pretty big ask.  But if anyone out there is brave enough
 to give it a try, I'd be happy to help out.
-I know this is shitty and messy; I don't need anyone else to tell
+I know this is messy; I don't need anyone else to tell
 me that.  The growth of the original framework was very ad-hoc,
 and was often driven by the Quick And Dirty Way.  I'm trying to
 clean things up but it's still very patchy indeed.

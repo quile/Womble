@@ -41,7 +41,7 @@ var FILE = require("file");
     [WMLog debug:"Attempting to load default model " + modelPath];
     var mcp = FILE.path(modelPath);
 
-    var modelClassName = [self defaultModelClassName];
+    var modelClassName = [[self class] defaultModelClassName];
     try {
         var modelClass = objj_getClass(modelClassName);
         var m = [[modelClass alloc] initWithModelAtPath:mcp.canonical()];

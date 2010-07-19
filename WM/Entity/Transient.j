@@ -25,7 +25,15 @@
     if (d) {
         var den = [d keyEnumerator], k;
         while (k = [den nextObject]) {
-            [e setValue:[d objectForKey:k] forKey:k];
+            [self setValue:[d objectForKey:k] forKey:k];
+        }
+    }
+}
+
+- initWithJSON:(id)j {
+    if (j) {
+        for (var k in j) {
+            [self setValue:j[k] forKey:k];
         }
     }
 }

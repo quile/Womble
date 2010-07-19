@@ -1,10 +1,12 @@
 @import <WM/ObjectContext.j>
 @import <WM/Qualifier.j>
-//@import <WM/BindingDictionary.j>
+@import <WM/Entity/Transient.j>
+@import <WM/Helpers.js>
 /*
 	WMEntityPersistent
 	WMInterfaceStash
 */
+var FILE = require("file");
 
 var DEFAULT_SITE_CLASSIFIER;
 var SYSTEM_COMPONENT_NAMESPACE = "WM";
@@ -17,59 +19,102 @@ var TEMPLATE_MAP        = {};
 var COMPONENT_MAP       = {};
 var COMPONENT_LOAD_ATTEMPTS = {};
 
-@implementation WMSiteClassifier : WMObject
+var SITE_CLASSIFIERS_BY_NAME = {};
+var SITE_CLASSIFIERS_BY_COMPONENT_CLASS_NAME = {};
+var SITE_CLASSIFIERS_BY_ID = {};
+
+@implementation WMSiteClassifier : WMTransientEntity
 {
+    id id @accessors;
+    id parentId @accessors;
+    id name @accessors;
+    id languages @accessors;
+    id defaultLanguage @accessors;
+    id city @accessors;
+    id state @accessors;
+    id country @accessors;
     id _languages;
     id _defaultBindings @accessors(property=defaultBindings);
     id _defaultLanguage @accessors(property=defaultLanguage);
     id _componentClassName @accessors(property=componentClassName);
 }
 
-// This is not really relevant any more now that this shite has
-// been moved into "fixtures" rather than the DB.
-/*
-+ siteClassifierWithName:(id)name {
-	var sc = SITE_CLASSIFIER_MAP.name->{name};
-	unless (sc) {
-		// try to pull the object from memcache if we don't have it
-		// (won't have cached bindings etc... but saves a hit on the db)
-		sc = [className stashedValueForKey:'name-' + name]('name-' + name);
-		unless (sc) {
-			var objectContext = [WMObjectContext new];
-			sc = [objectContext entitiesMatchingQualifier:name)]("SiteClassifier", 
-									[WMQualifier key:"name = %@" :name]("name = %@", name))->[0];
-			unless (sc) {
-				WMLog.error("Failed to fetch a site classifier for name");
-				return null;
-			}
-			[className setStashedValueForKey:sc,'name-' + name](sc,'name-' + name);
-			[className setStashedValueForKey:sc,'scname-' + sc->componentClassName()](sc,'scname-' + sc->componentClassName());
-		}
-		SITE_CLASSIFIER_MAP.name->{name} = sc;
-		SITE_CLASSIFIER_MAP.componentClassName->{[sc componentClassName]} = sc;
-	}
-	return sc;
+
++ SITE_CLASSIFIERS {
+    return [
+        { id: 1, name: "root", languages: ["en"], defaultLanguage: "en", },
+    ];
 }
 
-+ siteClassifierWithComponentClassName:(id)componentClassName {
-	var sc = SITE_CLASSIFIER_MAP.componentClassName->{componentClassName};
-	unless (sc) {
-		sc = [className stashedValueForKey:'scname-' + componentClassName]('scname-' + componentClassName);
-		unless (sc) {
-			var objectContext = [WMObjectContext new];
-			sc = [objectContext entitiesMatchingQualifier:componentClassName)]("SiteClassifier", 
-									[WMQualifier key:"componentClassName = %@" :componentClassName]("componentClassName = %@", componentClassName))->[0];
-			unless (sc) {
-				WMLog.error("Failed to fetch a site classifier for compnent class name componentClassName");
-				return null;
-			}
-			[className setStashedValueForKey:sc,'name-' + sc->name()](sc,'name-' + sc->name());
-			[className setStashedValueForKey:sc,'scname-' + componentClassName](sc,'scname-' + componentClassName);
-		}
-		SITE_CLASSIFIER_MAP.componentClassName->{componentClassName} = sc;
-		SITE_CLASSIFIER_MAP.name->{[sc name]} = sc;		
-	}
-	return sc;
++ (id) componentClassName {
+    return "WM";
+}
+
++ (WMSiteClassifier) siteClassifierWithName:(id)n {
+    if (SITE_CLASSIFIERS_BY_NAME[n]) { return SITE_CLASSIFIERS_BY_NAME[n] }
+    var ss = [self SITE_CLASSIFIERS].filter(function (s) { return (s['name'] == n) });
+    if (!ss.length) {
+        return nil;
+    }
+    return SITE_CLASSIFIERS_BY_NAME[n] = [self newFromDictionary:[CPDictionary dictionaryWithJSObject:ss[0]]];
+}
+
++ (WMSiteClassifier) siteClassifierWithComponentClassName:(id)n {
+    if (SITE_CLASSIFIERS_BY_COMPONENT_CLASS_NAME[n]) { return SITE_CLASSIFIERS_BY_COMPONENT_CLASS_NAME[n] }
+    var ss = [self SITE_CLASSIFIERS].filter(function (s) { return (s.name == n) });
+    if (!ss.length) {
+        return nil;
+    }
+    return SITE_CLASSIFIERS_BY_COMPONENT_CLASS_NAME[n] = [self newFromDictionary:[CPDictionary dictionaryWithJSObject:ss[0]]];
+}
+
++ (WMSiteClassifier) instanceWithId:(id)i {
+    if (SITE_CLASSIFIERS_BY_ID[i]) { return SITE_CLASSIFIERS_BY_ID[i] }
+    var ss = [self SITE_CLASSIFIERS].filter(function (s) { return (s.id == i) });
+    if (!ss.length) {
+        return nil;
+    }
+    return SITE_CLASSIFIERS_BY_ID[i] = [self newFromDictionary:[CPDictionary dictionaryWithJSObject:ss[0]]];
+}
+
++ (WMArray) all {
+    var all = [];
+    var scs = [self SITE_CLASSIFIERS];
+    var i = scs.length;
+    while (i--) {
+        var e = scs[i];
+        all.push([self siteClassifierWithName:[e name]]);
+    }
+    return all;
+}
+
+// this should be enough - I don't think children() is ever called.
+- (WMSiteClassifier) parent {
+    if (![self parentId]) { return nil }
+    var c = [self class];
+    return [c instanceWithId:[self parentId]];
+}
+
+// bogus since we don't have an address abstraction
+/*
+- location {
+    return undef if $self->name() eq "root";
+    return IF::Dictionary->new({
+        city: $self->city(),
+        state: $self->state(),
+        country: $self->country(),
+    });
+}
+*/
+
+/*
+sub locationAsString {
+    my ($self) = @_;
+    my $ls = [];
+    push (@$ls, $self->city()) if $self->city();
+    push (@$ls, $self->state()) if $self->state();
+    push (@$ls, $self->country()) if $self->country();
+    return join(", ", @$ls);
 }
 */
 
@@ -372,11 +417,16 @@ var COMPONENT_LOAD_ATTEMPTS = {};
         [WMLog error:e];
     }
     
-
 	//WM::Log::debug("Trying to load bindings at $fullPath");
 	if (!b) {
     	try {
-    		b = [[WMBindingDictionary new] initWithContentsOfFileAtPath:fullPath];
+            var fp = FILE.path(fullPath).canonical();
+            var bf = require(fp);
+            if (bf) {
+                b = [[CPDictionary alloc] initWithDictionary:bf.BINDINGS];
+            } else {
+                [WMLog warning:"Failed to load bindings at path " + fullPath];
+            }
     		inheritanceContext[fullPath]++;
     	} catch (e) {
     		[WMLog error:e];

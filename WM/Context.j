@@ -68,13 +68,16 @@ var NULL_SESSION_ID = "x";
 + contextForRequest:(id)request {
     // grab the application instance:
     var application = [WMApplication applicationInstanceWithName:[request applicationName]];
-    var className = [self class];
+    var cl = [self class];
     if (application) {
-        className = [application contextClassName];
+        className = [[application class] contextClassName];
+        if (className) {
+            cl = objj_getClass(className);
+        }
     }
     
     // instantiate the context
-    var context = [className new];
+    var context = [cl new];
     [context setRequest:request];
     
     // inflate the context from the URI etc.
@@ -129,7 +132,6 @@ var NULL_SESSION_ID = "x";
 - inflateContextFromRequest {
     var uri = [[self request] uri];
     
-    eval(_p_setTrace);
     [WMLog debug:"Parsing URI: " + uri];
   
     var ure = new RegExp("^/(\w+)/([\w-]+)/([\w-]+)/(.+)/([\w\d\.-]+)");
