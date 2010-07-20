@@ -334,7 +334,7 @@ var BINDING_DISPATCH_TABLE = {
     // add any page resources that the component is requesting:
     var renderState = [response renderState];
     [self _setRenderState:renderState];
-    [renderState addPageResources:[self requiredPageResources]];
+    //[renderState addPageResources:[self requiredPageResources]];
 
     if (context && [context session]) {
         var requestContext = [[context session] requestContext];
@@ -721,7 +721,7 @@ var BINDING_DISPATCH_TABLE = {
     // clean up the bindings cache and fix up the header
     if ([self isRootComponent]) {
         BINDING_CACHE = {};
-        [self addPageResourcesToResponse:response inContext:context];
+        //[self addPageResourcesToResponse:response inContext:context];
     }
 
     // Trying to allow components to reset their values
@@ -1521,7 +1521,7 @@ var BINDING_DISPATCH_TABLE = {
 // FIXME!  What should this be without perl namespacing!?
 - (id) componentName {
     if (!_componentName) {
-        var className = [self class];
+        var className = [self className];
         //className =~ s/.+::Component:://go;
         _componentName = className;
     }

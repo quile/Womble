@@ -134,7 +134,7 @@ var NULL_SESSION_ID = "x";
     
     [WMLog debug:"Parsing URI: " + uri];
   
-    var ure = new RegExp("^/(\w+)/([\w-]+)/([\w-]+)/(.+)/([\w\d\.-]+)");
+    var ure = new RegExp("^/([A-Za-z0-9]+)/([A-Za-z0-9-]+)/([A-Za-z0-9_]+)/(.+)/([A-Za-z0-9\.-]+)");
     var match = uri.match(ure);
     var all = match[0];
     var adaptor = match[1];
@@ -142,7 +142,6 @@ var NULL_SESSION_ID = "x";
     var lang = match[3];
     var component = match[4];
     var action = match[5];
-
     if (!action) { return false }
     var bits = _p_2_split("-", action);
     var targetPageContextNumber = bits.shift();
@@ -221,7 +220,7 @@ var NULL_SESSION_ID = "x";
 }
 
 - newSession {
-    var sessionClassName = [[self application] sessionClassName];
+    var sessionClassName = [[[self application] class] sessionClassName];
     if (!sessionClassName) {
         throw [CPException raise:"CPException" reason:"No session class name found in application"];
     }
@@ -437,7 +436,7 @@ var NULL_SESSION_ID = "x";
 // Not too happy with the name of this method...
 
 - (void) setSiteClassifierByName:(id)name {
-    var sc = [[self application] siteClassifierWithName:name];
+    var sc = [[[self application] class] siteClassifierWithName:name];
     if (!sc) {
         throw [CPException raise:"CPException" reason:"Couldn't find site classifier " + name];
     }
@@ -584,7 +583,7 @@ var NULL_SESSION_ID = "x";
     var sessionId;
     
     var application = [context application];
-    var sessionClass = [application sessionClassName];
+    var sessionClass = objj_getClass([[application class] sessionClassName]);
     
     //WMDB.dbConnection()->releaseDataSourceLock();
     
@@ -612,7 +611,7 @@ var NULL_SESSION_ID = "x";
             // b) funny business going on
             // so we desperately need to flush the cookies for the client-side
             // auth to work correctly
-            delete _incomingCookies[[application sessionIdKey]];
+            //delete _incomingCookies[[application sessionIdKey]];
             [context setSessionCookieValue:"" forKey:[application sessionIdKey]];
             if (session) {
                 [session becomeInvalidated];
@@ -648,7 +647,7 @@ var NULL_SESSION_ID = "x";
     } else {
         [session save];
         [WMLog debug:"Created session with external ID " + [session externalId]];
-        delete _incomingCookies[[application sessionIdKey]];
+        //delete _incomingCookies[[application sessionIdKey]];
         [context setSessionCookieValue:[session externalId] forKey:[application sessionIdKey]];
     }
     

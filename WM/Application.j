@@ -356,7 +356,7 @@ var JSON = require('json');
 /* override this if you want to change the key */
 - sessionIdKey {
     if (!_sessionIdKey) {
-        _sessionIdKey = [[self name] lowerCaseString]  + "-sid";
+        _sessionIdKey = [[self name] lowercaseString]  + "-sid";
     }
     return _sessionIdKey;
 }

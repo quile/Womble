@@ -34,6 +34,7 @@ var SITE_CLASSIFIERS_BY_ID = {};
     id state @accessors;
     id country @accessors;
     id _languages;
+    id _languageMap;
     id _defaultBindings @accessors(property=defaultBindings);
     id _defaultLanguage @accessors(property=defaultLanguage);
     id _componentClassName @accessors(property=componentClassName);
@@ -190,8 +191,13 @@ sub locationAsString {
 
 // FIXME:kd THis stuff is not relevant really any more moving to obj-j
 - (id) relativeNameForComponentName:(id)componentName {
-	if (pathIsSystemPath(componentName)) { return componentName }
+	if ([[self class] pathIsSystemPath:componentName]) { return componentName }
 	var componentClassName = [self componentClassName];
+    // This means that the site classifier hasn't specified a component class name;
+    // if this is so, we can't generate a relative name so just return the component name.
+    if (!componentClassName) {
+        return componentName;
+    }
     var cre = new RegExp("^" + componentClassName + "(.+)$");
     var match;
 	if (match = componentName.match(cre)) {
@@ -252,12 +258,12 @@ sub locationAsString {
 		checkedLanguages[language] += 1;
 
 		while (1) {
-			var scPath = [sc path];
+			var scPath = [sc path] || [application name];
 
-			var scRoot = [templateRoot, scPath, language.toUpperCase()].join("/");
+			var scRoot = [templateRoot, scPath, language].join("/");
     	    [WMLog debug:"Looking for template " + path +" in " + scRoot];
 
-            template = [WMTemplate newWithName:filename andPaths:[scRoot]
+            template = [WMTemplate newWithName:path andPaths:[scRoot]
                                    shouldCache:shouldCacheTemplates];
 
             if (template) { break }
@@ -568,7 +574,7 @@ sub locationAsString {
 	}
 }
 
-+ preferredLanguagesForTemplateResolutionInContext {
+- (id) preferredLanguagesForTemplateResolutionInContext:(id)context {
 	return [];
 }
 
