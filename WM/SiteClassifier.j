@@ -191,7 +191,7 @@ sub locationAsString {
 
 // FIXME:kd THis stuff is not relevant really any more moving to obj-j
 - (id) relativeNameForComponentName:(id)componentName {
-	if ([[self class] pathIsSystemPath:componentName]) { return componentName }
+	if ([self pathIsSystemPath:componentName]) { return componentName }
 	var componentClassName = [self componentClassName];
     // This means that the site classifier hasn't specified a component class name;
     // if this is so, we can't generate a relative name so just return the component name.
@@ -328,15 +328,17 @@ sub locationAsString {
 
 	var application = context ? [context application] : [WMApplication defaultApplication];
 
+    var siteClassifierPath = [self path] || [application name];
+
 	// now we start checking from this site classifier and continue up the 
 	// site classifier tree until we find one
 	var bindingsRoot = [application configurationValueForKey:"BINDINGS_ROOT"];
 
 	SYSTEM_BINDINGS_ROOT = SYSTEM_BINDINGS_ROOT || [WMApplication systemConfigurationValueForKey:"FRAMEWORK_ROOT"] + "/lib";
 	
-	[WMLog debug:bindingsRoot + ":" + [self path] + ":" + path];
+	[WMLog debug:bindingsRoot + ":" + siteClassifierPath + ":" + path];
 
-	var bindFile = bindingsRoot + '/' + [self path] + '/' + path + '.bind'; // TODO:kd make the suffix configurable
+	var bindFile = bindingsRoot + '/' + siteClassifierPath + '/' + path + '.bind'; // TODO:kd make the suffix configurable
 	var bindings = [self _bindingGroupForFullPath:bindFile inContext:context :inheritanceContext];
 	
 	if (bindings.length == 0) {
@@ -380,7 +382,7 @@ sub locationAsString {
 	return bindingsHash;
 }
 
-+ _bindingGroupForFullPathInContext:(id)inheritanceContext {
+- (id) _bindingGroupForFullPath:(id)fullPath inContext:(id)context :(id)inheritanceContext {
     inheritanceContext = inheritanceContext || [WMDictionary new];
 	
 	// This should stop it from exploding.
@@ -399,7 +401,7 @@ sub locationAsString {
 	BINDINGS_ROOT = BINDINGS_ROOT || [application configurationValueForKey:"BINDINGS_ROOT"];
 	SYSTEM_BINDINGS_ROOT = SYSTEM_BINDINGS_ROOT || [WMApplication systemConfigurationValueForKey:"FRAMEWORK_ROOT"] + "/lib";
 	
-	var p = [self path];
+	// var p = [self path];
 	var c = fullPath; 
     c = c.replace(/\.bind$/, "");
     var bre = new RegExp("^" + BINDINGS_ROOT + "/");
@@ -527,7 +529,7 @@ sub locationAsString {
 	return component;
 }
 
-+ (CPString) _bestComponentNameForName:(id)componentName inContext:(id)context {
+- (CPString) _bestComponentNameForName:(id)componentName inContext:(id)context {
 	var application = context ? [context application] : [WMApplication defaultApplication];
 	var componentNamespaces = [application configurationValueForKey:"COMPONENT_SEARCH_PATH"];
 	var bestComponentPath;
@@ -564,7 +566,7 @@ sub locationAsString {
 	return bestComponentPath;
 }
 
-+ (WMComponent) bestComponentForName:(id)componentName inContext:(id)context {
+- (WMComponent) bestComponentForName:(id)componentName inContext:(id)context {
 	var resolvedComponentName = [self _bestComponentNameForName:componentName inContext:context];
 	if (resolvedComponentName) {
         var cls = objj_getClass(resolvedComponentName);
@@ -594,7 +596,7 @@ sub locationAsString {
 }
 
 // yikes
-+ (Boolean) pathIsSystemPath:(id)path {
+- (Boolean) pathIsSystemPath:(id)path {
     if (!path) { return false }
     if (path.match(/^WMComponent/)) { return true }
 }

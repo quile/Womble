@@ -1383,7 +1383,6 @@ var BINDING_DISPATCH_TABLE = {
 - (id) _siteClassifier {
     [WMLog debug:"_siteClassifier called"];
     if ([self context] && [[self context] siteClassifier]) {
-        [WMLog debug:"Context has no site classifier"];
         return [[self context] siteClassifier];
     }
     [WMLog debug:"Getting default site classifier from application"];
