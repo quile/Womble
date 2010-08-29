@@ -1,6 +1,6 @@
 WOMBLE - Introduction
 =====================
-"Make good use of bad rubbish"
+Wombling: "Making good use of bad rubbish"
 
 [Latest info](http://wiki.github.com/quile/Womble/)
 
@@ -9,10 +9,26 @@ WOMBLE - Introduction
 > want to help!
 
 This code is under heavy development as of right now,
-July 18, 2010.  It is being ported at a fairly rapid rate
+August 29, 2010.  It is being ported at a fairly rapid rate
 from a Perl framework that is stable.  This port can
 not be considered stable in any way at all.  However,
 hopefully this will change soon.
+
+Status
+------
+* Most of the core functionality of the ORM is working, although
+  only for SQLite right now.  I need to port the MySQL driver.
+* I am working pretty hard to get the basic component rendering
+  parts of the framework up and running.  Once the guts are
+  working (hopefully soon) I'll be able to hook it into
+  Jack/Node/JSGI easily.
+* Even when the web rendering stuff is working, it will not
+  be particularly optimised.  There is quite a bit of old
+  baggage in the code (some of which I am removing during
+  the port) which will slow it down needlessly.  There's
+  also a fair amount of unoptimised code, mainly due to the
+  nature of the port.  Fixing that will come later.
+
 
 What is WM?
 -----------
@@ -28,9 +44,9 @@ something which is currently lacking.
 Status
 ------
 
-The API is in a state of flux.  The code itself 
-was partially machine-ported, so it's pretty 
-crazy-looking (on top of being based on old, 
+The API is in a state of flux.  The code itself
+was partially machine-ported, so it's pretty
+crazy-looking (on top of being based on old,
 crazy-looking Perl).
 
 Currently only the ORM and related functions have
@@ -80,7 +96,7 @@ A small non-profit generally doesn't have the luxury of
 building large teams of coders, using fancy programming
 methodologies and spending money and time on things
 unless they're absolutely necessary.  This has forced us to
-cut a lot of corners, but the good side-effect of 
+cut a lot of corners, but the good side-effect of
 coding-to-necessity is that we actually launch code; we
 can't afford not to.
 

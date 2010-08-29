@@ -321,177 +321,177 @@ sub locationAsString {
 
 // This inheritance context stuff is bogus; plus, the whole variable # of args
 // in Perl thing is killing me... I'm glad we didn't use it much.
-- (id) bindingsForPath:(id)path inContext:(id)context {
-    return [self bindingsForPath:path inContext:context :nil];
-}
-
-- (id) bindingsForPath:(id)path inContext:(id)context :(id)inheritanceContext {
-	inheritanceContext = inheritanceContext || [WMDictionary new];
-
-	// we need to strip off the site classifier prefix from the path
-	// if it was included
-	var scPrefix = [self path];
-	// ISSUE: 2326....Could not have a SiteClassifier with the same name as a Component
-	// since it was requiring 0 or more /....this makes the / required.
-    var pre = new RegExp("^" + scPrefix + "/");
-    path = path.replace(pre, "");
-
-    var hashKey = ["/", scPrefix, path].join("/");
-
-	// for bindings, we search until we find one, and then follow the inheritsFrom
-	// tree
-
-	if (BINDING_CACHE[hashKey]) {
-		[WMLog debug:"Returning cached bindings for " + hashKey];
-		return BINDING_CACHE[hashKey];
-	}
-
-	var application = context ? [context application] : [WMApplication defaultApplication];
-
-    var siteClassifierPath = [self path] || [application name];
-
-	// now we start checking from this site classifier and continue up the
-	// site classifier tree until we find one
-	var bindingsRoot = [application configurationValueForKey:"BINDINGS_ROOT"];
-
-	SYSTEM_BINDINGS_ROOT = SYSTEM_BINDINGS_ROOT || [WMApplication systemConfigurationValueForKey:"FRAMEWORK_ROOT"] + "/lib";
-
-	[WMLog debug:bindingsRoot + ":" + siteClassifierPath + ":" + path];
-
-	var bindFile = bindingsRoot + '/' + siteClassifierPath + '/' + path + '.bind'; // TODO:kd make the suffix configurable
-	var bindings = [self _bindingGroupForFullPath:bindFile inContext:context :inheritanceContext];
-
-	if (bindings.length == 0) {
-		if ([self hasParent]) {
-			bindings = [[self parent] bindingsForPath:path inContext:context :inheritanceContext];
-		}
-	}
-
-	if (bindings.length == 0) {
-		// Check the system bindings since we haven't located anything yet
-		//my $systemBindFile = $bindingsRoot.'/WM/'.$path.'.bind';
-		var systemBindFile = SYSTEM_BINDINGS_ROOT + "/WM/Component/" + path + ".bind";
-		//WM::Log::debug("Loading system bind file $systemBindFile if possible");
-		var systemBindingGroup = [self _bindingGroupForFullPath:systemBindFile inContext:context :inheritanceContext];
-		if (systemBindingGroup.length) {
-			bindings = systemBindingGroup;
-			[WMLog debug:"Successfully loaded system binding group " + systemBindFile];
-		}
-	}
-
-	var bindingsHash = {};
-	//WM::Log::dump($bindings);
-	if (bindings.length == 0) {
-		[WMLog warning:"Couldn't load bindings for " + path];
-		return {};
-	}
-    // update them in reverse order to make sure the
-    // highest priority ones win
-
-    for (var i = bindings.length; i>0; i--) {
-        var binding = bindings[i-1];
-        bindingsHash = bindingsHash.update(binding);
-    }
-
-	// add them to the bindings cache and return them
-	if ([WMApplication systemConfigurationValueForKey:"SHOULD_CACHE_BINDINGS"]) {
-		//WM::Log::debug(" ==> stashing bindings for $path in cache <== ");
-		//WM::Log::dump($bindings);
-		BINDING_CACHE[hashKey] = bindingsHash;
-	}
-	return bindingsHash;
-}
-
-- (id) _bindingGroupForFullPath:(id)fullPath inContext:(id)context :(id)inheritanceContext {
-    inheritanceContext = inheritanceContext || [WMDictionary new];
-
-	// This should stop it from exploding.
-	if (inheritanceContext[fullPath]) {
-	    [WMLog warning:"Averting possible infinite recursion in binding resolution of " + fullPath];
-	    return [];
-	}
-
-	var bindings = [];
-	var b;
-
-	var application = context ? [context application] : [WMApplication defaultApplication];
-
-	BINDINGS_ROOT = BINDINGS_ROOT || [application configurationValueForKey:"BINDINGS_ROOT"];
-	SYSTEM_BINDINGS_ROOT = SYSTEM_BINDINGS_ROOT || [WMApplication systemConfigurationValueForKey:"FRAMEWORK_ROOT"] + "/lib";
-
-	var c = fullPath;
-    c = c.replace(/\.bind$/, "");
-    var bre = new RegExp("^" + BINDINGS_ROOT + "/");
-    c = c.replace(bre, "");
-    var sre = new RegExp("^" + SYSTEM_BINDINGS_ROOT + "/");
-    c = c.replace(sre, "");
-
-    cn = [self _bestComponentNameForName:c inContext:context];
-	[WMLog debug:"Component name is " + c];
-    if (cn) {
-        var cncls = objj_getClass(cn);
-        try {
-            if (cncls && [cncls respondsToSelector:@SEL("Bindings")]) {
-                var bd = [cncls Bindings];
-                if (bd) {
-                    [WMLog debug:"Found Bindings() method in " + cn];
-                    b = [[WMBindingDictionary new] initWithDictionary:bd];
-                }
-            }
-        } catch (e) {
-            [WMLog error:e];
-        }
-    }
-
-	if (!b) {
-    	try {
-            var fp = FILE.path(fullPath).canonical();
-            var bf = require(fp);
-            if (bf) {
-                b = [[CPDictionary alloc] initWithDictionary:bf.BINDINGS];
-            } else {
-                [WMLog warning:"Failed to load bindings at path " + fullPath];
-            }
-    		inheritanceContext[fullPath]++;
-    	} catch (e) {
-    		[WMLog error:e];
-    	}
-    }
-	if (b) {
-		bindings.push(b);
-
-		//WM::Log::debug("^^^^^^^^^^^^ Checking for inheritance");
-		if (b['inheritsFrom']) {
-			var ancestor = b['inheritsFrom'];
-			[WMLog debug:"^^^^^^^^^^^^^^ inherits from " + ancestor];
-			if ([self pathIsSystemPath:ancestor]) {
-				//ancestor =~ s/SYSTEM_COMPONENT_NAMESPACE\:\://;
-			}
-			//ancestor =~ s/::/\//g;
-
-			// TODO bulletproof this... it would be possible and EASY to send this
-			// into an infinite spin by having a loop in inheritance (binding A depends on
-			// other bindings files that somehow depend on A)
-
-            bindings.push([self bindingsForPath:ancestor inContext:context :inheritanceContext]);
-		} else {
-
-			// If there's no specific parent, we're at the root of the user-specified
-			// inheritance tree, so we will suck in the default binding if it exists
-			// making sure we don't get stuck in a resolution loop for the default binding
-			// file too...
-			var defaultBinding = [application configurationValueForKey:"DEFAULT_BINDING_FILE"];
-			if (defaultBinding) {
-                var dbre = new RegExp("/" + defaultBinding + ".bind");
-                if (!fullPath.match(dbre)) {
-                    [WMLog debug:"Sucking in default bindings " + defaultBinding];
-				    bindings.push([self bindingsForPath:defaultBinding inContext:context :inheritanceContext]);
-                }
-			}
-		}
-	}
-	return bindings;
-}
+//- (id) bindingsForPath:(id)path inContext:(id)context {
+//    return [self bindingsForPath:path inContext:context :nil];
+//}
+//
+//- (id) bindingsForPath:(id)path inContext:(id)context :(id)inheritanceContext {
+//	inheritanceContext = inheritanceContext || [WMDictionary new];
+//
+//	// we need to strip off the site classifier prefix from the path
+//	// if it was included
+//	var scPrefix = [self path];
+//	// ISSUE: 2326....Could not have a SiteClassifier with the same name as a Component
+//	// since it was requiring 0 or more /....this makes the / required.
+//    var pre = new RegExp("^" + scPrefix + "/");
+//    path = path.replace(pre, "");
+//
+//    var hashKey = ["/", scPrefix, path].join("/");
+//
+//	// for bindings, we search until we find one, and then follow the inheritsFrom
+//	// tree
+//
+//	if (BINDING_CACHE[hashKey]) {
+//		[WMLog debug:"Returning cached bindings for " + hashKey];
+//		return BINDING_CACHE[hashKey];
+//	}
+//
+//	var application = context ? [context application] : [WMApplication defaultApplication];
+//
+//    var siteClassifierPath = [self path] || [application name];
+//
+//	// now we start checking from this site classifier and continue up the
+//	// site classifier tree until we find one
+//	var bindingsRoot = [application configurationValueForKey:"BINDINGS_ROOT"];
+//
+//	SYSTEM_BINDINGS_ROOT = SYSTEM_BINDINGS_ROOT || [WMApplication systemConfigurationValueForKey:"FRAMEWORK_ROOT"] + "/lib";
+//
+//	[WMLog debug:bindingsRoot + ":" + siteClassifierPath + ":" + path];
+//
+//	var bindFile = bindingsRoot + '/' + siteClassifierPath + '/' + path + '.bind'; // TODO:kd make the suffix configurable
+//	var bindings = [self _bindingGroupForFullPath:bindFile inContext:context :inheritanceContext];
+//
+//	if (bindings.length == 0) {
+//		if ([self hasParent]) {
+//			bindings = [[self parent] bindingsForPath:path inContext:context :inheritanceContext];
+//		}
+//	}
+//
+//	if (bindings.length == 0) {
+//		// Check the system bindings since we haven't located anything yet
+//		//my $systemBindFile = $bindingsRoot.'/WM/'.$path.'.bind';
+//		var systemBindFile = SYSTEM_BINDINGS_ROOT + "/WM/Component/" + path + ".bind";
+//		//WM::Log::debug("Loading system bind file $systemBindFile if possible");
+//		var systemBindingGroup = [self _bindingGroupForFullPath:systemBindFile inContext:context :inheritanceContext];
+//		if (systemBindingGroup.length) {
+//			bindings = systemBindingGroup;
+//			[WMLog debug:"Successfully loaded system binding group " + systemBindFile];
+//		}
+//	}
+//
+//	var bindingsHash = {};
+//	//WM::Log::dump($bindings);
+//	if (bindings.length == 0) {
+//		[WMLog warning:"Couldn't load bindings for " + path];
+//		return {};
+//	}
+//    // update them in reverse order to make sure the
+//    // highest priority ones win
+//
+//    for (var i = bindings.length; i>0; i--) {
+//        var binding = bindings[i-1];
+//        bindingsHash = bindingsHash.update(binding);
+//    }
+//
+//	// add them to the bindings cache and return them
+//	if ([WMApplication systemConfigurationValueForKey:"SHOULD_CACHE_BINDINGS"]) {
+//		//WM::Log::debug(" ==> stashing bindings for $path in cache <== ");
+//		//WM::Log::dump($bindings);
+//		BINDING_CACHE[hashKey] = bindingsHash;
+//	}
+//	return bindingsHash;
+//}
+//
+//- (id) _bindingGroupForFullPath:(id)fullPath inContext:(id)context :(id)inheritanceContext {
+//    inheritanceContext = inheritanceContext || [WMDictionary new];
+//
+//	// This should stop it from exploding.
+//	if (inheritanceContext[fullPath]) {
+//	    [WMLog warning:"Averting possible infinite recursion in binding resolution of " + fullPath];
+//	    return [];
+//	}
+//
+//	var bindings = [];
+//	var b;
+//
+//	var application = context ? [context application] : [WMApplication defaultApplication];
+//
+//	BINDINGS_ROOT = BINDINGS_ROOT || [application configurationValueForKey:"BINDINGS_ROOT"];
+//	SYSTEM_BINDINGS_ROOT = SYSTEM_BINDINGS_ROOT || [WMApplication systemConfigurationValueForKey:"FRAMEWORK_ROOT"] + "/lib";
+//
+//	var c = fullPath;
+//    c = c.replace(/\.bind$/, "");
+//    var bre = new RegExp("^" + BINDINGS_ROOT + "/");
+//    c = c.replace(bre, "");
+//    var sre = new RegExp("^" + SYSTEM_BINDINGS_ROOT + "/");
+//    c = c.replace(sre, "");
+//
+//    cn = [self _bestComponentNameForName:c inContext:context];
+//	[WMLog debug:"Component name is " + c];
+//    if (cn) {
+//        var cncls = objj_getClass(cn);
+//        try {
+//            if (cncls && [cncls respondsToSelector:@SEL("Bindings")]) {
+//                var bd = [cncls Bindings];
+//                if (bd) {
+//                    [WMLog debug:"Found Bindings() method in " + cn];
+//                    b = [[WMBindingDictionary new] initWithDictionary:bd];
+//                }
+//            }
+//        } catch (e) {
+//            [WMLog error:e];
+//        }
+//    }
+//
+//	if (!b) {
+//    	try {
+//            var fp = FILE.path(fullPath).canonical();
+//            var bf = require(fp);
+//            if (bf) {
+//                b = [[CPDictionary alloc] initWithDictionary:bf.BINDINGS];
+//            } else {
+//                [WMLog warning:"Failed to load bindings at path " + fullPath];
+//            }
+//    		inheritanceContext[fullPath]++;
+//    	} catch (e) {
+//    		[WMLog error:e];
+//    	}
+//    }
+//	if (b) {
+//		bindings.push(b);
+//
+//		//WM::Log::debug("^^^^^^^^^^^^ Checking for inheritance");
+//		if (b['inheritsFrom']) {
+//			var ancestor = b['inheritsFrom'];
+//			[WMLog debug:"^^^^^^^^^^^^^^ inherits from " + ancestor];
+//			if ([self pathIsSystemPath:ancestor]) {
+//				//ancestor =~ s/SYSTEM_COMPONENT_NAMESPACE\:\://;
+//			}
+//			//ancestor =~ s/::/\//g;
+//
+//			// TODO bulletproof this... it would be possible and EASY to send this
+//			// into an infinite spin by having a loop in inheritance (binding A depends on
+//			// other bindings files that somehow depend on A)
+//
+//            bindings.push([self bindingsForPath:ancestor inContext:context :inheritanceContext]);
+//		} else {
+//
+//			// If there's no specific parent, we're at the root of the user-specified
+//			// inheritance tree, so we will suck in the default binding if it exists
+//			// making sure we don't get stuck in a resolution loop for the default binding
+//			// file too...
+//			var defaultBinding = [application configurationValueForKey:"DEFAULT_BINDING_FILE"];
+//			if (defaultBinding) {
+//                var dbre = new RegExp("/" + defaultBinding + ".bind");
+//                if (!fullPath.match(dbre)) {
+//                    [WMLog debug:"Sucking in default bindings " + defaultBinding];
+//				    bindings.push([self bindingsForPath:defaultBinding inContext:context :inheritanceContext]);
+//                }
+//			}
+//		}
+//	}
+//	return bindings;
+//}
 
 + componentForBinding:(id)binding inContext:(id)context {
     // Allow the user to specify components as either
@@ -626,6 +626,7 @@ sub locationAsString {
 - (Boolean) pathIsSystemPath:(id)path {
     if (!path) { return false }
     if (path.match(/^WMComponent/)) { return true }
+    return false;
 }
 
 @end
