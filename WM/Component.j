@@ -78,6 +78,7 @@ var BINDING_DISPATCH_TABLE = {
     //         );
     // },
     STRING: function(self, binding, context) {
+        [WMLog debug:"Evaluating " + binding + " in " + self];
         var value = [WMUtility evaluateExpression:binding['value'] inComponent:self context:context];
         if (binding['maxLength']) {
             var ml = binding['maxLength'];
@@ -204,6 +205,7 @@ var BINDING_DISPATCH_TABLE = {
     id _bindings;
     id _didLoadBindings;
     id _subcomponents;
+    WMComponent _parent;
     id _parentBindingName;
     id _synchronizesBindingsWithParent;
     id _synchronizesBindingsWithChildren;
@@ -275,7 +277,9 @@ var BINDING_DISPATCH_TABLE = {
     var componentName = [self componentNameRelativeToSiteClassifier];
 
     //componentName =~ s/::/\//g; # TODO: need a convenience for this!
-    _bindings = [[self _siteClassifier] bindingsForPath:componentName inContext:[self context]];
+    //_bindings = [[self _siteClassifier] bindingsForPath:componentName inContext:[self context]];
+    _bindings = [[self class] Bindings];
+    [WMLog debug:_bindings.toSource()];
     if (![WMLog assert:_bindings message:"Loaded bindings for componentName"]) {
         return;
     }
@@ -289,6 +293,7 @@ var BINDING_DISPATCH_TABLE = {
     var sortedKeys = UTIL.sort(UTIL.keys(_bindings));
     for (var i=0; i < sortedKeys.length; i++) {
         var bindingKey = sortedKeys[i];
+        [WMLog debug:"Processing binding "+ bindingKey];
         if (bindingKey == "inheritsFrom") { continue }
         var binding = [self bindingForKey:bindingKey];
         if (!binding) { continue }
@@ -475,17 +480,18 @@ var BINDING_DISPATCH_TABLE = {
                         }
                         //WM::Log::debug("Tag attribute string is $tagAttributes for binding $binding->{NAME}");
 
+
                         value.replace(TAG_ATTRIBUTE_MARKER_RE, tagAttributes);
                     }
                 //} // __LEGACY__
                 [response appendContentString:value];
                 i++;
                 continue;
-            } else if (contentElement['BINDING_TYPE'] == "BINDING_WM" ||
+            } else if (contentElement['BINDING_TYPE'] == "BINDING_IF" ||
                      contentElement['BINDING_TYPE'] == "BINDING_UNLESS") {
                 if (contentElement['IS_END_TAG']) {
                     if (!contentElement['START_TAG_INDEX']) {
-                        var error = [WMTemplate errorForKey:"NO_MATCHING_START_TAG_FOUND" :contentElement['BINDING_NAME'] :i];
+                        var error = [WMTemplate errorForKey:"NO_MATCHING_START_TAG_FOUND", contentElement['BINDING_NAME'], i];
                         [WMLog error:error];
                         [self _appendErrorString:error toResponse:response];
                     }
@@ -493,7 +499,7 @@ var BINDING_DISPATCH_TABLE = {
                     continue;
                 } else {
                     if (!contentElement['END_TAG_INDEX'] && !contentElement['ELSE_TAG_INDEX']) {
-                        var error = [WMTemplate errorForKey:"NO_MATCHING_END_TAG_FOUND" :contentElement['BINDING_NAME'] :i];
+                        var error = [WMTemplate errorForKey:"NO_MATCHING_END_TAG_FOUND", contentElement['BINDING_NAME'], i];
                         [WMLog error:error];
                         [self _appendErrorString:error toResponse:response];
                         i += 1;
@@ -582,7 +588,7 @@ var BINDING_DISPATCH_TABLE = {
             } else if (contentElement['BINDING_TYPE'] == "BINDING_LOOP") {
                 if (contentElement['IS_END_TAG']) {
                     if (!contentElement['START_TAG_INDEX']) {
-                        var error = [WMTemplate errorForKey:"NO_MATCHING_START_TAG_FOUND" :contentElement['BINDING_NAME'] :i];
+                        var error = [WMTemplate errorForKey:"NO_MATCHING_START_TAG_FOUND", contentElement['BINDING_NAME'], i];
                         [self _appendErrorString:error toResponse:response];
                         i += 1;
                         [renderState decreaseLoopContextDepth];
@@ -593,7 +599,7 @@ var BINDING_DISPATCH_TABLE = {
                     continue;
                 } else {
                     if (!contentElement['END_TAG_INDEX']) {
-                        var error = [WMTemplate errorForKey:"NO_MATCHING_END_TAG_FOUND" :contentElement['BINDING_NAME'] :i];
+                        var error = [WMTemplate errorForKey:"NO_MATCHING_END_TAG_FOUND", contentElement['BINDING_NAME'], i];
                         [self _appendErrorString:error toResponse:response];
                         i += 1;
                         continue;
@@ -702,6 +708,7 @@ var BINDING_DISPATCH_TABLE = {
                 i++;
                 continue;
             } else if (contentElement['BINDING_TYPE'] == "KEY_PATH") {
+                [WMLog debug:"Rendering key path " + contentElement['KEY_PATH']];
                 [response appendContentString:[self valueForKey:contentElement['KEY_PATH']]];
             }
         } else {
@@ -820,7 +827,7 @@ var BINDING_DISPATCH_TABLE = {
             };
         }
         //WM::Log::debug("Couldn't find binding with name $key");
-        var error = [WMTemplate errorForKey:"BINDING_NOT_FOUND" :key];
+        var error = [WMTemplate errorForKey:"BINDING_NOT_FOUND", key];
         return {
             type: "STRING",
             value: "\'" + error + "\'",
@@ -835,11 +842,12 @@ var BINDING_DISPATCH_TABLE = {
 }
 
 
-- (id) evaluateBinding:(id)context {
+- (id) evaluateBinding:(id)binding inContext:(id)context {
     if (!binding) return;
     var bindingType = [self bindingIsComponent:binding] ? "COMPONENT" : binding['type'];
-    var dispatch = _BINDING_DISPATCH_TABLE[bindingType];
-    var rv = dispatch.call(self, binding, context);
+    var dispatch = BINDING_DISPATCH_TABLE[bindingType];
+    [WMLog debug:"evaluateBinding: binding is " + binding.toSource()];
+    var rv = dispatch(self, binding, context);
     return rv;
 }
 
@@ -1423,7 +1431,7 @@ var BINDING_DISPATCH_TABLE = {
     return [[self parent] invokeDirectActionNamed:actionName inContext:context];
 }
 
-- (Boolean) bindingisComponent:(id)binding {
+- (Boolean) bindingIsComponent:(id)binding {
     if (typeof binding != "object") {
         return false;
     }
@@ -1435,7 +1443,7 @@ var BINDING_DISPATCH_TABLE = {
 
 - (Boolean) _bindingIsComponent:(id)binding {
     if (binding['type'] == "COMPONENT") { return true }
-    if (SYSTEM_BINDING_TYPES[binding[type]]) { return false }
+    if (SYSTEM_BINDING_TYPES[binding['type']]) { return false }
     return true;
 }
 
@@ -1689,7 +1697,4 @@ var BINDING_DISPATCH_TABLE = {
 //    return WMI18N._s(args);
 //}
 
-*/
-
 @end
-

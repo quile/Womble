@@ -29,7 +29,7 @@
 @import "Log.j"
 @import "DB.j"
 @import "Model.j"
-//@import "Utility.j"
+@import "Utility.j"
 @import "Relationship/Derived.j"
 @import "Relationship/Modelled.j"
 
@@ -125,7 +125,7 @@ var QUALWMIER_REGEX = "(" + QUALWMIER_OPERATORS.join("|") + ")";
     var sourceGoo = [recd parseKeyPath:sourceKeyPath withSQLExpression:sqlExpression andModel:model];
     var rhs = targetKeyPath;
 
-    if (expressionIsKeyPath(targetKeyPath)) {
+    if ([WMUtility expressionIsKeyPath:targetKeyPath]) {
         var targetGoo = [recd parseKeyPath:targetKeyPath withSQLExpression:sqlExpression andModel:model];
         var rtecd;
         if (rtecd = targetGoo.TARGET_ENTITY_CLASS_DESCRIPTION) {
@@ -477,7 +477,7 @@ var QUALWMIER_REGEX = "(" + QUALWMIER_OPERATORS.join("|") + ")";
             // TODO... I am pretty sure this code is redundant now;
             // the code above takes care of resolving the key paths now.
             //
-            if (expressionIsKeyPath(value)) {
+            if ([WMUtility expressionIsKeyPath:value]) {
                 //[WMLog debug:"key path"];
                 var targetGoo = [ecd parseKeyPath:value withSQLExpression:sqlExpression andModel:model];
                 var tecd = targetGoo.TARGET_ENTITY_CLASS_DESCRIPTION;
@@ -574,12 +574,3 @@ var QUALWMIER_REGEX = "(" + QUALWMIER_OPERATORS.join("|") + ")";
 }
 
 @end
-
-
-var KP_RE = new RegExp('^[A-Za-z_\(\)]+[A-Za-z0-9_#\@\.\(\)\"]*$');
-var KP_RE_PLUS = new RegExp('^[A-Za-z_\(\)]+[A-Za-z0-9_#\@]*[\(\.]+');
-
-function expressionIsKeyPath(expression) {
-    if ( expression.match(KP_RE) ) { return true }
-    return expression.match(KP_RE_PLUS);
-}

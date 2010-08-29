@@ -25,13 +25,17 @@
 {
 }
 
+// TODO: consider using my own implementation of KVC, which is
+// a bit smarter about many things, including being able
+// to traverse arbitrary data structures, and to allow
+// key paths with argument lists (like "foo.bar(banana, apple)")
+
 - (id)valueForUndefinedKey:(CPString)aKey {
     // DANGER!? could this loop?
     if (aKey.indexOf(".") != -1) {
         return [self valueForKeyPath:aKey];
     }
     // what about FOO_BAR?
-
 }
 
 - (void) subclassResponsibility {

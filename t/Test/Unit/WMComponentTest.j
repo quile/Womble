@@ -14,10 +14,12 @@ var application = [WMApplication applicationInstanceWithName:"WMTest"];
     var component = [WMTestHome new];
     [self assertNotNull:component message:"instantiated ok"];
 
-    var o = [component render];
-    [self assertTrue:(o && o.match(/Jabberwock/)) message:"Rendered directly"];
-    /*
 
+    var o = [component render];
+    [WMLog debug:o];
+    [self assertTrue:(o && o.match(/Jabberwock/)) message:"Rendered directly"];
+
+    /*
     var response = [component response];
     [component appendToResponse:response inContext:nil];
 

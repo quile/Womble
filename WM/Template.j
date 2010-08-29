@@ -169,9 +169,9 @@ var ERRORS = {
     var templateSource = [self templateSource];
     var tags = {};
     var content = [];
-    // most important are binding tags 
+    // most important are binding tags
     // yikes:
-    var ere = new RegExp("(<\/?binding[^:]*:[A-Za-z0-9_]+ ?[^>]*>|<key(path)?\s+([^\s>]+)\s*\/?>)", "i");
+    var ere = new RegExp("(<\/?binding[^:]*:[A-Za-z0-9_]+ ?[^>]*>|<key(path)?[\t\r\n ]+([^\t\r\n >]+)[\t\r\n ]*\/?>)", "i");
     var match;
     while (match = templateSource.match(ere)) {
         var tag = match[1];
@@ -208,7 +208,7 @@ var ERRORS = {
         if (index['IS_END_TAG']) { continue }
         if (index['BINDING_TYPE'] == "BINDING_ELSE") { continue }
         var nestingDepth = 0;
-        //otherwise scan forward for an end tag 
+        //otherwise scan forward for an end tag
         //[WMLog debug:index.toSource()];
         for (var j = i+1; j<[self contentElementCount]; j++) {
             var contentElement = [self contentElementAtIndex:j];
@@ -253,7 +253,7 @@ var ERRORS = {
         if (nestingDepth > 0 && (index['BINDING_TYPE'] == "BINDING_IF" ||
                                   index['BINDING_TYPE'] == "BINDING_LOOP" ||
                                   index['BINDING_TYPE'] == "BINDING_UNLESS")) {
-            //$self->addParseError("BADLY_NESTED_BINDING", $bindingName); 
+            //$self->addParseError("BADLY_NESTED_BINDING", $bindingName);
         }
     }
 }
@@ -559,7 +559,7 @@ var ERRORS = {
 }
 
 + (id) errorForKey:(id)key, ... {
-    return PRINTF.sprintf(ERRORS[key], arguments.slice(2)) || key;
+    return PRINTF.sprintf(ERRORS[key], arguments.slice(3)) || key;
 }
 
 // this method is the most complicated thing in this whole friggin project
@@ -575,7 +575,7 @@ var ERRORS = {
         var lookingForEnd;
         if (html =~ /(<(tmpl_if|tmpl_unless)[^>]*>)/i) {
             startTag = 1;
-            //IF::Log::debug("Found start tag $startTag"); 
+            //IF::Log::debug("Found start tag $startTag");
             lookingForStart = split(/startTag/, html, 2);
         } else {
             lookingForStart[0] = html;
@@ -685,7 +685,7 @@ var ERRORS = {
             bits = [WMTemplate splitTemplateOnMatchingCloseTag:afterTag forTag:logicTag];
             var content = bits.shift();
             var afterContent = bits.shift();
-            // read forward for matching end tag 
+            // read forward for matching end tag
             if (!content && !afterContent) {
                 [self addParseError:"NO_MATCHING_END_TAG_FOUND", tag];
             }

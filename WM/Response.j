@@ -34,7 +34,7 @@
 - init {
     _params = {};
     _template = nil;
-    _contentList = [""]
+    _contentList = ['',];
     _renderState = [WMRenderState new],
     [self setContent:""];
     return self;
@@ -51,7 +51,7 @@
 }
 
 - (void) setContent:(id)c {
-    _contentList = c;
+    _contentList = [c];
 }
 
 // rename this?  contentAsString?
