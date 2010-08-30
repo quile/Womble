@@ -19,12 +19,10 @@ var application = [WMApplication applicationInstanceWithName:"WMTest"];
     [WMLog debug:o];
     [self assertTrue:(o && o.match(/Jabberwock/)) message:"Rendered directly"];
 
-    /*
     var response = [component response];
     [component appendToResponse:response inContext:nil];
 
     [self assertTrue:[response content].match(/Jabberwock/) message:"Rendered via response"];
-    */
 }
 
 @end
