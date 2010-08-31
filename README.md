@@ -51,19 +51,20 @@ There's not necessarily anything revolutionary about this project
 and it's not going to break down walls or convert Python programmers
 to a good language.
 
-Status
-------
+
+The Port
+--------
 
 The API is in a state of flux.  The code itself
 was partially machine-ported, so it's pretty
 crazy-looking (on top of being based on old,
 crazy-looking Perl).
 
-Currently only the ORM and related functions have
+Currently most of the ORM and related functions have
 been ported to objj.  Some of the tests have
 been copied from perl and recoded verbatim; they're
 pretty basic but will show some of the basic
-functionality.  Next up in terms of porting will be
+functionality.  I'm currently working hard
 to port the component-based web framework.  Anyone
 familiar with WebObjects, Seaside or Tapestry will
 be at home with it; hopefully as I learn more about
