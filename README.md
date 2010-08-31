@@ -41,6 +41,16 @@ and convenient; it also fills a gap in providing
 an ORM and web framework written in Objective-J;
 something which is currently lacking.
 
+Why?
+----
+
+Because I want to use Objective-J, and I tend to work on server-side
+projects.  Because I want to build my own projects in Objective-J
+and deploy them easily on Google App Engine.  Because it's fun.
+There's not necessarily anything revolutionary about this project
+and it's not going to break down walls or convert Python programmers
+to a good language.
+
 Status
 ------
 
@@ -85,7 +95,7 @@ toolkits like HTML::Mason.
 So over the next year or so, the seeds of this code were
 sown, in Perl.  Eventually after many years of "code-as-needed"
 work, the framework filled itself out.  It diverged in many
-ways from its WO/EOF roots, and in greatly inferior in most
+ways from its WO/EOF roots, and is greatly inferior in most
 ways.  There are numerous soft-spots and bugs; those are
 avoided and worked around in our application code because
 we know where they are; We have very poor test coverage and
@@ -104,7 +114,7 @@ The perl version of this framework is not (yet) open source,
 but will be soon, as it is being EOL'ed within the next
 few months and being replaced by a more current Python-based
 system.  This obj-j port of the framework is entirely my work;
-none of this code is in production, or has been used in any
+none of this code has been used in any
 way whatsoever by my employer. However, I am very thankful
 to them for their generous support.
 
