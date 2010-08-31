@@ -20,11 +20,9 @@
 @import <WM/ObjectContext.j>
 @import <WM/Qualifier.j>
 @import <WM/Entity/Transient.j>
+@import <WM/Component.j>
 @import <WM/Helpers.js>
-/*
-	WMEntityPersistent
-	WMInterfaceStash
-*/
+
 var FILE = require("file");
 
 var DEFAULT_SITE_CLASSIFIER;
@@ -493,7 +491,7 @@ sub locationAsString {
 //	return bindings;
 //}
 
-+ componentForBinding:(id)binding inContext:(id)context {
+- (WMComponent) componentForBinding:(id)binding inContext:(id)context {
     // Allow the user to specify components as either
 	// type => COMPONENT value => bindingClass
 	//      or
@@ -509,12 +507,12 @@ sub locationAsString {
 	var fullComponentClassName = [self _bestComponentNameForName:componentName inContext:context];
 	if (fullComponentClassName) {
         var cls = objj_getClass(fullComponentClassName);
-	    return [cls newFromBinding:binding];
+	    return [cls newWithBinding:binding];
 	}
 	return nil;
 }
 
-+ (WMComponent) componentForName:(id)componentName andContext:(id)context {
+- (WMComponent) componentForName:(id)componentName andContext:(id)context {
 	var component;
 	[WMLog debug:" ++++!!!!++++ componentName"];
 

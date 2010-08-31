@@ -32,4 +32,21 @@ var application = [WMApplication applicationInstanceWithName:"WMTest"];
     [self assertTrue:o.match(/Zabzib/) message:"Direct access of properties working"];
 }
 
+- (void) testNestedComponents {
+    var component = [WMTestHome new];
+    var o = [component render];
+
+    [self assertTrue:o.match('frumious') message:"Root's required resource appears"];
+    [self assertTrue:o.match('slithy') message:"Subcomponent's required resource appears"];
+
+    // check the subcomponent is rendered
+    [self assertTrue:o.match(/Mimsy/) message:"Nested subcomponent rendered"];
+
+    // this tests bindings in subcomponents
+    [self assertTrue:o.match(/Bing!/) message:"Nested subcomponent bindings rendered"];
+
+    // this tests that values are bound into subcomponents
+    [self assertTrue:o.match(/Guanabana/) message:"Nested subcomponent bindings passed"];
+}
+
 @end

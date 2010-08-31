@@ -35,7 +35,7 @@
     _params = {};
     _template = nil;
     _contentList = ['',];
-    _renderState = [WMRenderState new],
+    _renderState = nil; // [WMRenderState new],
     [self setContent:""];
     return self;
 }
@@ -43,9 +43,6 @@
 - (void)setTemplate:(WMTemplate)t { _template = t; }
 - (WMTemplate) template { return _template; }
 
-/* This shit is for compatibility with crappy old
-   templates
-*/
 - appendContentString:(id)s {
     _contentList[_contentList.length] = s;
 }
@@ -54,17 +51,22 @@
     _contentList = [c];
 }
 
-// rename this?  contentAsString?
-- (id)content {
+- (id) content {
     return _contentList.join("");
 }
 
-- (WMRenderState)renderState { return _renderState; }
-- (void)setRenderState:(WMRenderState)rs { _renderState = rs; }
+- (WMRenderState) renderState {
+    if (!_renderState) {
+        _renderState = [WMRenderState new];
+    }
+    return _renderState;
+}
+
+- (void) setRenderState:(WMRenderState)rs { _renderState = rs; }
 
 /* we'll use these to flush content out as it's generated */
-- (void)setContentIsBuffered:(Boolean)foo { _contentIsBuffered = foo; }
-- (Boolean)contentIsBuffered { return _contentIsBuffered; }
+- (void) setContentIsBuffered:(Boolean)foo { _contentIsBuffered = foo; }
+- (Boolean) contentIsBuffered { return _contentIsBuffered; }
 
 /* how dumb is it that this wasn't on the response? */
 - (id) contentType    { return _contentType }

@@ -61,7 +61,7 @@ var JS_PAGE_RESOURCE_TAG = "<%_JS_PAGE_RESOURCES_%>";
 - (id) _contentWithPageResourcesFromResponse:(id)response {
 	var content = [response content];
 	var cssResources = [self htmlForPageResourcesOfType:'stylesheet' inResponse:response];
-	var jsResources = [self htmlForPageResourcesOfType:'javascript' inResponse:response];
+	var jsResources  = [self htmlForPageResourcesOfType:'javascript' inResponse:response];
 	// replace the tag even if it's with nothing ...
 	var allResources = cssResources + jsResources;
 	content = content.replace(CSS_PAGE_RESOURCE_TAG, cssResources);
@@ -75,8 +75,6 @@ var JS_PAGE_RESOURCE_TAG = "<%_JS_PAGE_RESOURCES_%>";
 // and generates tags that pull them into the page.  This is
 // a bit gnarly because generating HTML from here is bad,
 // bit this stuff will change very infrequently.
-// This should be moved to IF::Page once all the
-// pages are ported to be subclasses of that.
 
 - (id) htmlForPageResourcesOfType:(id)type inResponse:(id)response {
 	var resources = [[response renderState] pageResources];

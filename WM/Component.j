@@ -78,7 +78,7 @@ var BINDING_DISPATCH_TABLE = {
     //         );
     // },
     STRING: function(self, binding, context) {
-        [WMLog debug:"Evaluating " + binding + " in " + self];
+        //[WMLog debug:"Evaluating " + binding + " in " + self];
         var value = [WMUtility evaluateExpression:binding['value'] inComponent:self context:context];
         if (binding['maxLength']) {
             var ml = binding['maxLength'];
@@ -276,10 +276,13 @@ var BINDING_DISPATCH_TABLE = {
 - (void) loadBindings {
     var componentName = [self componentNameRelativeToSiteClassifier];
 
-    //componentName =~ s/::/\//g; # TODO: need a convenience for this!
     //_bindings = [[self _siteClassifier] bindingsForPath:componentName inContext:[self context]];
-    _bindings = [[self class] Bindings];
-    [WMLog debug:_bindings.toSource()];
+    var _bindings = {};
+    if ([[self class] respondsToSelector:@SEL("Bindings")]) {
+        _bindings = [[self class] Bindings];
+    } else if ([self respondsToSelector:@SEL("Bindings")]) {
+        _bindings = [self Bindings];
+    }
     if (![WMLog assert:_bindings message:"Loaded bindings for componentName"]) {
         return;
     }
@@ -293,7 +296,6 @@ var BINDING_DISPATCH_TABLE = {
     var sortedKeys = UTIL.sort(UTIL.keys(_bindings));
     for (var i=0; i < sortedKeys.length; i++) {
         var bindingKey = sortedKeys[i];
-        [WMLog debug:"Processing binding "+ bindingKey];
         if (bindingKey == "inheritsFrom") { continue }
         var binding = [self bindingForKey:bindingKey];
         if (!binding) { continue }
@@ -304,8 +306,8 @@ var BINDING_DISPATCH_TABLE = {
             // the component; it's an extremely expensive
             // operation that we don't need to do yet.
 
-            _bindings[bindingKey][_index] = c;
-            _bindings[bindingKey][_defaultPageContextNumber] = [self pageContextNumber] + "_" + c;
+            _bindings[bindingKey]['_index'] = c;
+            _bindings[bindingKey]['_defaultPageContextNumber'] = [self pageContextNumber] + "_" + c;
 
             // if the binding has an "overrides" property, it will be used
             // to replace any subcomponents in the tree matching the name
@@ -708,7 +710,7 @@ var BINDING_DISPATCH_TABLE = {
                 i++;
                 continue;
             } else if (contentElement['BINDING_TYPE'] == "KEY_PATH") {
-                [WMLog debug:"Rendering key path " + contentElement['KEY_PATH']];
+                //[WMLog debug:"Rendering key path " + contentElement['KEY_PATH']];
                 [response appendContentString:[self valueForKey:contentElement['KEY_PATH']]];
             }
         } else {
@@ -847,7 +849,7 @@ var BINDING_DISPATCH_TABLE = {
     if (!binding) return;
     var bindingType = [self bindingIsComponent:binding] ? "COMPONENT" : binding['type'];
     var dispatch = BINDING_DISPATCH_TABLE[bindingType];
-    [WMLog debug:"evaluateBinding: binding is " + binding.toSource()];
+    //[WMLog debug:"evaluateBinding: " + bindingType + " binding is " + binding.toSource()];
     var rv = dispatch(self, binding, context);
     return rv;
 }
@@ -860,6 +862,7 @@ var BINDING_DISPATCH_TABLE = {
 // TODO remove most of this bloat... it's repeated and unnecessary.
 - (id) componentResponseForBinding:(id)binding {
     var context = [self context];
+    var renderState = [self _renderState];
     var bindingKey = binding['_NAME'];
     var bindingClass = binding['value'] || binding['type'];
     var componentName = [WMUtility evaluateExpression:bindingClass inComponent:self context:context] || bindingClass;
@@ -1025,7 +1028,7 @@ var BINDING_DISPATCH_TABLE = {
 
 - pushValuesToComponent:(id)component usingBindings:(id)bindings {
     // set the bindings
-    var bs = bindings['bindings'] || {};
+    var bs = bindings || {};
     for (var key in bs) {
         var value = [WMUtility evaluateExpression:bindings[key] inComponent:self context:[self context]];
         [component setValue:value forKey:key];
@@ -1211,7 +1214,7 @@ var BINDING_DISPATCH_TABLE = {
     if (!_regionCache[subcomponentName]) {
         var subcomponentBinding = [self bindingForKey:subcomponentName];
         [WMLog debug:"Adding " + subcomponentName + " to region cache"];
-         [self evaluateBinding:subcomponentBinding inContext:[self context]];
+        [self evaluateBinding:subcomponentBinding inContext:[self context]];
         _regionCache[subcomponentName] = [self subcomponentForBindingNamed:subcomponentName];
     }
     return [_regionCache[subcomponentName] regionsForKey:key];
@@ -1440,6 +1443,7 @@ var BINDING_DISPATCH_TABLE = {
         return true;
     }
     binding['_IS_COMPONENT'] = binding['_IS_COMPONENT'] || [self _bindingIsComponent:binding];
+    return binding['_IS_COMPONENT'];
 }
 
 - (Boolean) _bindingIsComponent:(id)binding {

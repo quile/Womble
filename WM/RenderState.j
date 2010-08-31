@@ -31,49 +31,50 @@
     id _orderPageResources;
 }
 
-- init {
+- (WMRenderState) init {
     _pageContext = [1];
 	_loopContext = [];
 	_renderedComponents = {};
     _pageResources = {};
     _orderedPageResources = [];
+	[WMLog debug:"Initialising render state..."];
 	return self;
 }
 
 /* These are used in page generation */
-- increasePageContextDepth {
+- (void) increasePageContextDepth {
     _pageContext[_pageContext.length] = 0;
 }
 
 // how do i pop something off the end?
-- decreasePageContextDepth {
+- (id) decreasePageContextDepth {
     if (_pageContext.length <= 1) {
         return;
     }
 	return _pageContext.pop();
 }
 
-- incrementPageContextNumber {
+- (void) incrementPageContextNumber {
 	_pageContext[ (_pageContext.length-1) ] += 1;
 }
 
 // TODO make separator configurable
-- pageContextNumber {
+- (id) pageContextNumber {
 	return _pageContext.join("_");
 }
 
 /* these mirror the page context stuff but are used
    with a page context for keeping track of loops:
 */
-- increaseLoopContextDepth {
+- (void) increaseLoopContextDepth {
     _loopContext[_loopContext.length] = 0;
 }
 
-- decreaseLoopContextDepth {
+- (id) decreaseLoopContextDepth {
 	_loopContext.pop();
 }
 
-- incrementLoopContextNumber {
+- (void) incrementLoopContextNumber {
     if (_loopContext.length == 0) {
         _loopContext[0] = 1;
     } else {
@@ -81,18 +82,18 @@
     }
 }
 
-- loopContextNumber {
+- (id) loopContextNumber {
     return _loopContext.join("_");
 }
 
-- loopContextDepth {
+- (id) loopContextDepth {
 	return _loopContext.length
 }
 
 /* ----------- these help components manage page resources --------- */
 
 // FIXME clean up this external API... pageResources = orderedPageResources?
-- pageResources {
+- (CPArray) pageResources {
 	return [self _orderedPageResources];
 }
 
@@ -103,11 +104,11 @@
    requests WILL BE in the order that it requests them.
 */
 
-- _orderedPageResources {
+- (CPArray) _orderedPageResources {
 	return _orderedPageResources;
 }
 
-- addPageResource:(id)resource {
+- (void) addPageResource:(id)resource {
 	/* Only add it to the list if it's not already there. */
 	var location = [resource location];
 	if (!_pageResources[location]) {

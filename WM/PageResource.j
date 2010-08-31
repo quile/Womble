@@ -66,7 +66,7 @@ var DEFAULT_JQUERY_VERSION = "1.2.6";
 }
 
 
-+ alternateStylesheetNamed:(id)name {
++ (WMPageResource) alternateStylesheetNamed:(id)name {
 	var value = [self new];
 	[value setLocation:location, "location"];
 	[value setTitle:name];
@@ -81,7 +81,7 @@ var DEFAULT_JQUERY_VERSION = "1.2.6";
 
 // ------- this generates the tag to pull this resource in -------
 
-- tag {
+- (id) tag {
 	var libVersion = [WMApplication systemConfigurationValueForKey:"BUILD_VERSION"];
 
 	if ([self type] == "javascript") {
@@ -94,6 +94,10 @@ var DEFAULT_JQUERY_VERSION = "1.2.6";
 		return link;
 	}
 	return "<!-- unknown resource type: " + [self type] + " location: " + [self location] + " - ";
+}
+
+- (id) description {
+	return [self tag];
 }
 
 @end

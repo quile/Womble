@@ -33,7 +33,7 @@ var KP_RE_PLUS = new RegExp('^[A-Za-z_\(\)]+[A-Za-z0-9_#\@]*[\(\.]+');
     if (!component) { return nil }
 
     if ([self expressionIsKeyPath:expression]) {
-        [WMLog debug:"expression " + expression + " is key path"];
+        //[WMLog debug:"expression " + expression + " is key path"];
         return [component valueForKeyPath:expression];
     }
 

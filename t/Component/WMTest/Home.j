@@ -1,6 +1,8 @@
 @import <WM/Component.j>
 @import <WM/PageResource.j>
 
+@import "Footer.j"
+
 @implementation WMTestHome : WMComponent
 {
     id allowsDirectAccess @accessors;
@@ -41,6 +43,12 @@
         header: {
             type: "STRING",
             value: '"Jabberwock"',
+        },
+        footer: {
+            type: "WMTestFooter",
+            bindings: {
+                someString: '"Guanabana"',
+            },
         },
         //system_test: {
         //    type: "URL",
