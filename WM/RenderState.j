@@ -111,14 +111,14 @@
 	/* Only add it to the list if it's not already there. */
 	var location = [resource location];
 	if (!_pageResources[location]) {
-		[IFLog debug:"Requesting resource location"];
+		[WMLog debug:"Requesting resource " + location];
 		_orderedPageResources[_orderedPageResources.length] = resource;
 	}
 	_pageResources[location] = resource;
 }
 
 - addPageResources:(id)resources {
-	resources = [IFArray arrayFromObject:resources];
+	resources = [WMArray arrayFromObject:resources];
 	for (var i=0; i < [resources count]; i++) {
         var r = resources[i];
 		[self addPageResource:r];
@@ -126,7 +126,7 @@
 }
 
 - removePageResource:(id)resource {
-	delete _pageResources[[resource location]];	
+	delete _pageResources[[resource location]];
 }
 
 @end

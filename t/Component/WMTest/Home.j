@@ -1,8 +1,16 @@
 @import <WM/Component.j>
+@import <WM/PageResource.j>
 
 @implementation WMTestHome : WMComponent
 {
     id allowsDirectAccess @accessors;
+}
+
+// testing page resources
+- (id) requiredPageResources {
+    return [
+        [WMPageResource javascript:"/frumious/jubjub.js"],
+    ]
 }
 
 - (id) zibzab { return "Zabzib!" }

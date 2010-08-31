@@ -339,7 +339,7 @@ var BINDING_DISPATCH_TABLE = {
     // add any page resources that the component is requesting:
     var renderState = [response renderState];
     [self _setRenderState:renderState];
-    //[renderState addPageResources:[self requiredPageResources]];
+    [renderState addPageResources:[self requiredPageResources]];
 
     if (context && [context session]) {
         var requestContext = [[context session] requestContext];
@@ -354,7 +354,7 @@ var BINDING_DISPATCH_TABLE = {
     if (!template) {
         // what to do here?
         _context = nil;
-        [self _setRenderState];
+        [self _setRenderState:nil];
         throw [CPException raise:"CPException" message:"Couldn't find template for response"];
     }
 
@@ -728,7 +728,7 @@ var BINDING_DISPATCH_TABLE = {
     // clean up the bindings cache and fix up the header
     if ([self isRootComponent]) {
         BINDING_CACHE = {};
-        //[self addPageResourcesToResponse:response inContext:context];
+        [self addPageResourcesToResponse:response inContext:context];
     }
 
     // Trying to allow components to reset their values
@@ -823,7 +823,8 @@ var BINDING_DISPATCH_TABLE = {
         if ([self allowsDirectAccess]) {
             return {
                 type: "STRING",
-                value: key + "(context)",
+                //value: key + "(context)",
+                value: key,
             };
         }
         //WM::Log::debug("Couldn't find binding with name $key");
