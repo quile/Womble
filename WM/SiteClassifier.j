@@ -249,8 +249,6 @@ sub locationAsString {
 		var t = [WMTemplate cachedTemplateForPath:cachedTemplatePath];
         if (t) return t;
 		[WMLog debug:"Didn't find cached template in the template cache, so just loading it directly"];
-		// SW: This should be rare, I've pushed the config lookup down here to avoid calling it in
-		// the heavy traffic bit of this method above
 		var shouldCacheTemplates = [WMApplication systemConfigurationValueForKey:"SHOULD_CACHE_TEMPLATES"];
         t = [WMTemplate newWithName:filename andPaths:nil shouldCache:shouldCacheTemplates];
 		if (t) return t;
@@ -268,6 +266,7 @@ sub locationAsString {
 	// next language
 
     var pll = preferredLanguages.length;
+	[WMLog debug:"Searching for template in languages " + preferredLanguages];
     for (var i=0; i<pll; i++) {
         var language = preferredLanguages[i];
 		var sc = self;
@@ -280,10 +279,10 @@ sub locationAsString {
 			var scRoot = [templateRoot, scPath, language].join("/");
     	    [WMLog debug:"Looking for template " + path +" in " + scRoot];
 
-            template = [WMTemplate newWithName:path andPaths:[scRoot]
-                                   shouldCache:shouldCacheTemplates];
+			template = [WMTemplate newWithName:path andPaths:[scRoot]
+								   shouldCache:shouldCacheTemplates];
 
-            if (template) { break }
+			if (template) { break }
 			if ([sc hasParent]) {
 				sc = [sc parent];
 			} else {
@@ -500,7 +499,6 @@ sub locationAsString {
 	// Locate the component and the template
 	var componentName = [WMUtility evaluateExpression:bindingClass inComponent:self context:context] || bindingClass;
 
-	//WM::Log::debug(" ******** ". $binding->{_NAME} .": $bindingClass, $self, $componentName *********");
     if (![WMLog assert:componentName message:"Component path exists for binding " + binding._NAME]) { return nil }
 
 	// we need full classname of component here.

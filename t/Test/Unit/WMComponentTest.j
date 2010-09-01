@@ -32,6 +32,12 @@ var application = [WMApplication applicationInstanceWithName:"WMTest"];
     [self assertTrue:o.match(/Zabzib/) message:"Direct access of properties working"];
 }
 
+- (void) testBindingNotFound {
+    var component = [WMTestHome new];
+    var o = [component render];
+    [self assertTrue:o.match(/Binding quux not found/) message:"Binding not found message"];
+}
+
 - (void) testNestedComponents {
     var component = [WMTestHome new];
     var o = [component render];
@@ -47,6 +53,13 @@ var application = [WMApplication applicationInstanceWithName:"WMTest"];
 
     // this tests that values are bound into subcomponents
     [self assertTrue:o.match(/Guanabana/) message:"Nested subcomponent bindings passed"];
+}
+
+- (void) testBasicLanguageResolution {
+    var component = [WMTestHome new];
+    var o = [component renderWithParameters:{ language: "es" }];
+
+    [self assertTrue:o.match(/Vamos/) message:"Nested subcomponent rendered in correct language"];
 }
 
 @end

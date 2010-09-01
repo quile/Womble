@@ -70,7 +70,9 @@ var ERRORS = {
     if (n) {
         var fp = [WMTemplate firstMatchingFileWithName:n inPathList:[self paths]];
         if (!fp) {
-            [CPException raise:"CPException" reason:"Failed to find template " + n + " in paths " + [self paths]];
+            //[CPException raise:"CPException" reason:"Failed to find template " + n + " in paths " + [self paths]];
+            [WMLog debug:"Failed to find template " + n + " in paths " + [self paths]];
+            return nil;
         }
 
         if ([WMTemplate hasCachedTemplateForPath:fp]) {
