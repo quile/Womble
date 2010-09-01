@@ -2,6 +2,7 @@
 @import <WM/Classes.j>
 @import "../../Application.j"
 @import "../../Component/WMTest/Home.j"
+@import "../../Component/WMTest/Nested/Home.j"
 
 var application = [WMApplication applicationInstanceWithName:"WMTest"];
 
@@ -53,6 +54,12 @@ var application = [WMApplication applicationInstanceWithName:"WMTest"];
 
     // this tests that values are bound into subcomponents
     [self assertTrue:o.match(/Guanabana/) message:"Nested subcomponent bindings passed"];
+
+    var component = [WMTestNestedHome new];
+    var o = [component render];
+
+    var re = new RegExp("The password is <strong>Ping!</strong>");
+    [self assertTrue:o.match(re) message:"Doubly nested subcomponent rendered correctly"];
 }
 
 - (void) testBasicLanguageResolution {
