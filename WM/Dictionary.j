@@ -17,11 +17,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+var QS = require("querystring")
+
 @import <Foundation/CPDictionary.j>
 
 @implementation WMDictionary : CPDictionary
-{
 
++ (id) dictionaryFromQueryString:(id)string {
+    return QS.parseQuery(string);
 }
 
 + (id) dictionaryFromObject:(id)object {
