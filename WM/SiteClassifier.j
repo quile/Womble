@@ -24,12 +24,14 @@
 @import <WM/Helpers.js>
 
 var FILE = require("file");
+var OBJJ = require("objective-j")
 
 var DEFAULT_SITE_CLASSIFIER;
 var SYSTEM_COMPONENT_NAMESPACE = "WM";
 var BINDINGS_ROOT;
 var SYSTEM_BINDINGS_ROOT;
 var SYSTEM_TEMPLATE_ROOT;
+var SYSTEM_NAMESPACE;
 var SITE_CLASSIFIER_MAP = {};
 var BINDING_CACHE       = {};
 var TEMPLATE_MAP        = {};
@@ -188,7 +190,7 @@ sub locationAsString {
 	return Boolean(_languageMap[language]);
 }
 
-- listOfAncestors {
+- (id) listOfAncestors {
     if (![self hasParent]) { return [] }
     var ancestors = [CPArray new];
     [ancestors addObject:parent];
@@ -196,7 +198,7 @@ sub locationAsString {
     return ancestors;
 }
 
-- resolutionOrder {
+- (id) resolutionOrder {
     var ro = [CPArray new];
     [ro addObject:self];
     [ro addObjectsFromArray:[self listOfAncestors]];
@@ -243,6 +245,7 @@ sub locationAsString {
 
 	var templateLookupKey = [languageToken, [self name], path].join("/");
     SYSTEM_TEMPLATE_ROOT = SYSTEM_TEMPLATE_ROOT || [WMApplication systemConfigurationValueForKey:"SYSTEM_TEMPLATE_ROOT"];
+	SYSTEM_NAMESPACE = SYSTEM_NAMESPACE || [WMApplication systemConfigurationValueForKey:"SYSTEM_NAMESPACE"];
 	var cachedTemplatePath = TEMPLATE_MAP[templateLookupKey];
     if (cachedTemplatePath) {
 		//WM::Log::debug("Short-circuiting template search, returning cached template at $cachedTemplatePath");
@@ -296,11 +299,20 @@ sub locationAsString {
 
 	// If we still haven't found it, try the system templates:
 	if (!template) {
-		//WM::Log::debug("Trying to load $path from $SYSTEM_TEMPLATE_ROOT");
-        var paths = [ SYSTEM_TEMPLATE_ROOT + "/WM", templateRoot + "/WM" ];
-		template = [WMTemplate newWithName:filename andPaths:paths cache:shouldCacheTemplates];
-		if (template) {
-			[WMLog debug:"Found system template"];
+		for (var i=0; i<pll; i++) {
+			var language = preferredLanguages[i];
+			var sc = self;
+			if (checkedLanguages[language]) { continue }
+			checkedLanguages[language] += 1;
+
+			var paths = [ SYSTEM_TEMPLATE_ROOT + "/" + SYSTEM_NAMESPACE + "/" + language,
+						  templateRoot + "/" + SYSTEM_NAMESPACE + "/" + language ];
+			var syspath = path.replace(new RegExp(SYSTEM_NAMESPACE), "");
+			template = [WMTemplate newWithName:syspath andPaths:paths shouldCache:shouldCacheTemplates];
+			if (template) {
+			    [WMLog debug:"Found system template " + syspath];
+				break;
+			}
 		}
 	}
 
@@ -618,10 +630,10 @@ sub locationAsString {
                withQueryDictionary:qd];
 }
 
-// yikes
+// yikes, the WMTest hack is gnarly.
 - (Boolean) pathIsSystemPath:(id)path {
     if (!path) { return false }
-    if (path.match(/^WMComponent/)) { return true }
+    if (path.match(/^WM/) && !path.match(/^WMTest/)) { return true }
     return false;
 }
 

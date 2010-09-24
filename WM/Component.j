@@ -222,6 +222,12 @@ var BINDING_DISPATCH_TABLE = {
     //id _siteClassifier;
     id _componentName;
     id _componentNameRelativeToSiteClassifier;
+
+    // This allows us to group these into hierarchies/folders/etc.
+    // and still allow template/binding resolution to work.
+    // It defaults to nothing, but you can add in a path
+    // and template/binding resolution will use it.
+    id _hierarchy;
 }
 
 + (id) newWithBinding:(id)binding {
@@ -229,7 +235,7 @@ var BINDING_DISPATCH_TABLE = {
     return [c initWithBinding:binding];
 }
 
-- init {
+- (id) init {
     [super init];
     _context = nil;
     _bindings = nil;
@@ -249,6 +255,7 @@ var BINDING_DISPATCH_TABLE = {
     _templateName = nil;
     _componentName = nil;
     _componentNameRelativeToSiteClassifier = nil;
+    _hierarchy = "";
     return self;
 }
 
@@ -938,7 +945,6 @@ var BINDING_DISPATCH_TABLE = {
 }
 
 - (WMComponent) pageWithName:(id)componentName {
-//    return $[self context()->siteClassifier()->componentForNameAndContext($componentName, $[self context());
     var c = [[self _siteClassifier] componentForName:componentName andContext:[self context]];
     [c setContext:[self context]];
     return c;
@@ -1535,6 +1541,10 @@ var BINDING_DISPATCH_TABLE = {
     if (!_componentName) {
         var className = [self className];
         //className =~ s/.+::Component:://go;
+        // freaky hack
+        if (!className.match(/^WMTest/)) {
+            className = className.replace(/^WM/, "");
+        }
         _componentName = className;
     }
     return _componentName;
@@ -1547,6 +1557,14 @@ var BINDING_DISPATCH_TABLE = {
         _componentNameRelativeToSiteClassifier = componentName;
     }
     return _componentNameRelativeToSiteClassifier;
+}
+
+- (id) hierarchy {
+    return _hierarchy;
+}
+
+- (void) setHierarchy:(id)value {
+    _hierarchy = value;
 }
 
 // - componentNameSpace {

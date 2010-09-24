@@ -25,7 +25,7 @@ var QS = require("querystring");
 @import <WM/Utility.j>
 @import <WM/Web/ActionLocator.j>
 
-@implementation WMComponentURL : WMComponent
+@implementation WMURL : WMComponent
 {
 	id protocol @accessors;
 	id action @accessors;

@@ -1,5 +1,6 @@
 @import <OJUnit/OJTestCase.j>
 @import <WM/Classes.j>
+@import <WM/Component/URL.j>
 @import "../../Application.j"
 @import "../../Component/WMTest/Home.j"
 @import "../../Component/WMTest/Nested/Home.j"
@@ -68,5 +69,12 @@ var application = [WMApplication applicationInstanceWithName:"WMTest"];
 
     [self assertTrue:o.match(/Vamos/) message:"Nested subcomponent rendered in correct language"];
 }
+
+/*
+- (void) testResourceLocation {
+    var component = [WMURL new];
+    eval(_p_setTrace);
+}
+*/
 
 @end
