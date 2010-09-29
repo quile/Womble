@@ -75,20 +75,20 @@ var NULL_SESSION_ID = "x";
             cl = objj_getClass(className);
         }
     }
-    
+
     // instantiate the context
     var context = [cl new];
     [context setRequest:request];
-    
+
     // inflate the context from the URI etc.
     if (![context inflateContextFromRequest]) {
         [WMLog error:"Malformed URL: couldn't parse - " + [request uri]];
         return nil;
     }
-    
-    // set the order of preferred languages for this user    
+
+    // set the order of preferred languages for this user
     [context setLanguagePreferences:[context browserLanguagePreferences]];
-    
+
     // derive language preferences for this transaction
 //    if ($context->formValueForKey("LANGUAGE")) {
 //        # check for multiple values here (2003-10-27)
@@ -107,7 +107,7 @@ var NULL_SESSION_ID = "x";
 //        my $languagePreferences = $context->languagePreferences();
 //        $context->setLanguage($languagePreferences->[0]);
 //    }
-    
+
     return context;
 }
 
@@ -127,13 +127,13 @@ var NULL_SESSION_ID = "x";
     [emptyContext setSession:[emptyContext newSession]];
     return emptyContext;
 }
-        
+
 //  lang will match fr and fr_ca style languages
 - inflateContextFromRequest {
     var uri = [[self request] uri];
-    
+
     [WMLog debug:"Parsing URI: " + uri];
-  
+
     var ure = new RegExp("^/([A-Za-z0-9]+)/([A-Za-z0-9-]+)/([A-Za-z0-9_]+)/(.+)/([A-Za-z0-9\.-]+)");
     var match = uri.match(ure);
     var all = match[0];
@@ -157,11 +157,11 @@ var NULL_SESSION_ID = "x";
     // If we didn't even find a default SC, bail, we're toast.  This only happens in a mis-configured setup
     if (![self siteClassifier]) { return false }
     [WMLog debug:"- Site Classifier Name: " + site];
-    
+
     //component =~ s#/#::#g;
     [self setTargetComponentName:component];
     [WMLog debug:"- Component: " + component];
-    
+
     [self buildFormValueDictionaryFromRequest];
 
     // check for an action indicated by a button code:
@@ -177,7 +177,7 @@ var NULL_SESSION_ID = "x";
         }
         break;
     }
-    
+
     [self setDirectAction:action];
     [WMLog debug:"- Direct Action: " + action];
 
@@ -190,7 +190,7 @@ var NULL_SESSION_ID = "x";
 }
 
 // FIXME: mod_perl needed this, but I doubt we
-// need it in objj.  
+// need it in objj.
 - (void) buildFormValueDictionaryFromRequest {
     var keys = [[self request] formKeys];
     for (var i=0; i<keys.length; i++) {
@@ -230,10 +230,10 @@ var NULL_SESSION_ID = "x";
     return session;
 }
 
-- (WMSession) session { return _session } 
+- (WMSession) session { return _session }
 - (void) setSession:(WMSession)s { _session = s }
 
-/* 
+/*
 + escape:(id)value {
     return CGI::escape(value);
 }
@@ -304,7 +304,7 @@ var NULL_SESSION_ID = "x";
 
 /* TODO: implement uploads via the Request obj
 - (id) uploadForKey:(id)key {
-    return [[self request] uploadForKey:key];    
+    return [[self request] uploadForKey:key];
 }
 */
 
@@ -383,16 +383,16 @@ var NULL_SESSION_ID = "x";
     foreach var language (split (/[ ]/, [self request]->headers_in->{'Accept-Language'})) {
         push (@languagePreferences, language);
     }
-    
+
     // failover case:
     push (@languagePreferences, [self application]->configurationValueForKey("DEFAULT_LANGUAGE"));
     */
-    
+
     //NOTE!  THIS IS JUST TEMPORARY!  IT MUST BE REMOVED WHEN LANGUAGES
     //PREFERENCES ARE SWITCHED ON
     languagePreferences = ["en"];
     //END OF TEMPORARY FIX
-    
+
     return languagePreferences;
 }
 
@@ -459,13 +459,13 @@ var NULL_SESSION_ID = "x";
     _lastRequestContext = _lastRequestContext || [[self session] requestContextForContextNumber:[self contextNumber]];
     return _lastRequestContext;
 }
- 
+
 - (id) callingComponentPageContextNumber {
-    return _callingComponentPageContextNumber; 
+    return _callingComponentPageContextNumber;
 }
 
 - (void) setCallingComponentPageContextNumber:(id)value {
-    _callingComponentPageContextNumber = value;    
+    _callingComponentPageContextNumber = value;
 }
 
 - (id) callingComponentId {
@@ -501,7 +501,7 @@ var NULL_SESSION_ID = "x";
 }
 
 - (id) userAgent {
-    return [self headerValueForKey:"User-Agent"];    
+    return [self headerValueForKey:"User-Agent"];
 }
 
 - (id) referrer {
@@ -533,7 +533,7 @@ var NULL_SESSION_ID = "x";
 // languageToken - used by WMComponent in matching templates to contexts
 - (id) preferredLanguagesForTransactionAsToken {
     if (_preferredLanguagesForTransactionAsToken) { return _preferredLanguagesForTransactionAsToken }
-    
+
     var siteClassifier = [self siteClassifier];
     var token;
 
@@ -545,13 +545,13 @@ var NULL_SESSION_ID = "x";
     if (!token) {
         // 1. base language preference
         token = [self language];
-        
+
         // 2. site classifier default language site
-        if ([siteClassifier defaultLanguage] && 
+        if ([siteClassifier defaultLanguage] &&
             ([siteClassifier defaultLanguage] != [self language])) {
             token = token + ":" + [siteClassifier defaultLanguage];
         }
-        
+
         // 3. any other preferred langs that site classifier has
         if (siteClassifier) {
             for (var i=0; i < [[self languagePreferences] count]; i++) {
@@ -564,7 +564,7 @@ var NULL_SESSION_ID = "x";
             token = token + ':' + [[self languagePreferences] componentsJoinedByString:':'];
         }
     }
-    
+
     _preferredLanguagesForTransactionAsToken = token;
     return token;
 }
@@ -581,29 +581,29 @@ var NULL_SESSION_ID = "x";
 + sessionFromContext:(id)context {
     var session;
     var sessionId;
-    
+
     var application = [context application];
     var sessionClass = objj_getClass([[application class] sessionClassName]);
-    
+
     //WMDB.dbConnection()->releaseDataSourceLock();
-    
+
     // check for a SID
     var externalId = [context formValueForKey:[application sessionIdKey]] || [context cookieValueForKey:[application sessionIdKey]];
 
-    if (externalId && externalId != NULL_SESSION_ID) {        
+    if (externalId && externalId != NULL_SESSION_ID) {
         // check for a context-number
         var contextNumber = [context contextNumber];
         [WMLog debug:"Context number is " + contextNumber];
         if (contextNumber) {
             session = [sessionClass sessionWithExternalId:externalId andContextNumber:contextNumber];
         }
-        
+
         if (!session) {
             session = [sessionClass sessionWithExternalId:externalId];
         } else {
             //[WMLog dump:session];
         }
-        
+
         if (!session || (session && [session hasExpired])) {
             [WMLog debug:"!!! Session has expired, deleting it + "];
             // if we reach this point and still have no session, it means
@@ -619,21 +619,23 @@ var NULL_SESSION_ID = "x";
             }
         }
     }
-    
+
     if (session) {
-        [session wasInflated];  
+        [session wasInflated];
         return session;
     }
 
     // create new session
     session = [context newSession];
-    
+
     if (!session) {
-        [WMLog error:"Error creating new session"];
+        // it's no longer considered an error to have no session
+        // at this point.
+        //[WMLog error:"Error creating new session"];
         return nil;
     }
     [WMLog debug:"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!  created new session"];
-    
+
     // TODO header case?  can it be mixed case like this? We could grab the ip from the jack request
     if ([context headerValueForKey:"X-Forwarded-For"]) {
         [session setClientIp:[context headerValueForKey:"X-Forwarded-For"]];
@@ -650,7 +652,7 @@ var NULL_SESSION_ID = "x";
         //delete _incomingCookies[[application sessionIdKey]];
         [context setSessionCookieValue:[session externalId] forKey:[application sessionIdKey]];
     }
-    
+
     return session;
 }
 

@@ -24,10 +24,12 @@ var QS = require("querystring");
 @import <WM/Component.j>
 @import <WM/Utility.j>
 @import <WM/Web/ActionLocator.j>
+@import <WM/Helpers.js>
 
 @implementation WMURL : WMComponent
 {
 	id protocol @accessors;
+	id server @accessors;
 	id action @accessors;
 	id directAction @accessors;
 	id siteClassifierName @accessors;
@@ -48,9 +50,7 @@ var QS = require("querystring");
 }
 
 - (id) init {
-	//my $application = $self->context()->application();
-	//$self->setDirectAction($application->configurationValueForKey("DEFAULT_DIRECT_ACTION"));
-
+	[super init];
 	action = nil;
 	directAction = nil;
 	siteClassifierName = nil;
@@ -81,16 +81,12 @@ var QS = require("querystring");
 		}
 	}
 
-	//componentName =~ s!::!/!g;
-	//var root     = [self urlRoot];
-	//var language = [self language];
-
 	var al = [WMWebActionLocator new];
-	[al setUrlRoot:root];
-	[al setSiteClassifierName:siteClassifierName];
-	[al setLanguage:language];
-	[al setTargetComponentName:componentName];
-	[al setDirectAction:directAction];
+	[al setUrlRoot:[self urlRoot]];
+	[al setSiteClassifierName:[self siteClassifierName]];
+	[al setLanguage:[self language]];
+	[al setTargetComponentName:[self targetComponentName]];
+	[al setDirectAction:[self directAction]];
 
 	var application = [self context] ? [[self context] application] : [WMApplication defaultApplication];
 	var module = [application moduleInContext:[self context] forComponentNamed:componentName];
@@ -129,12 +125,12 @@ var QS = require("querystring");
 
 - (id) hasQueryDictionary {
 	var qd = [self queryDictionary];
-	if (qd && typeof qd == "object" && qd.keys().length > 0) return true;
+	if (qd && typeof qd == "object" && _p_keys(qd).length > 0) return true;
 	if ([queryDictionaryAdditions count]) return true;
 	if ([[queryDictionaryReplacements allKeys] count]) return true;
-	if (queryString.length) return true;
+	if (queryString && queryString.length) return true;
 	var rqd = [self rawQueryDictionary];
-	if (rqd && typeof rqd == "object" && rqd.keys().length > 0) return true;
+	if (rqd && typeof rqd == "object" && _p_keys(rqd).length > 0) return true;
 	return false;
 }
 
@@ -166,7 +162,7 @@ var QS = require("querystring");
 		var key = addition['NAME'];
 		if ([self shouldSuppressQueryDictionaryKey:key]) { continue }
 		var value = [replacements objectForKey:key] || addition['VALUE'];
-		[keyValuePairs addObject:{ NAME: key, VALUE: value}];
+		[keyValuePairs addObject:{ "NAME": key, "VALUE": value}];
 		[usedKeys setObject:true forKey:key];
 	}
 
@@ -187,7 +183,7 @@ var QS = require("querystring");
 		var keys = _p_keys(d);
 		for (var ki=0; ki < keys.length; ki++) {
 			var key = keys[ki];
-			if ([self shouldSurpressQueryDictionaryKey:key]) { continue }
+			if ([self shouldSuppressQueryDictionaryKey:key]) { continue }
 			var value = [replacements objectForKey:key] || d[key];
 
 			// handle the multiple values:
@@ -195,28 +191,25 @@ var QS = require("querystring");
 
 			for (var vi=0; vi < values.length; vi++) {
 				var v = values[vi];
-				[keyValuePairs addObject:{ NAME: key, VALUE: v }];
+				[keyValuePairs addObject:{ "NAME": key, "VALUE": v }];
 			}
 			[usedKeys setObject:true forKey:key];
 		}
 	}
 
-
 	// Lastly, we make sure there are no unused values in the "replacements"
 	var rpks = _p_keys(replacements);
 	for (var ki = 0; ki < rpks.length; ki++) {
 		var key = rpks[ki];
-		if ([usedKeys hasObjectForKey:key]) { continue }
+		if ([usedKeys containsKey:key]) { continue }
 		var values = [WMArray arrayFromObject:[replacements objectForKey:key]];
-			for (var vi=0; vi < values.length; vi++) {
-				var v = values[vi];
-				[keyValuePairs addObject:{ NAME: key, VALUE: v }];
-			}
+		for (var vi=0; vi < values.length; vi++) {
+			var v = values[vi];
+			[keyValuePairs addObject:{ "NAME": key, "VALUE": v }];
 		}
 	}
-	[WMLog dump:keyValuePairs];
+
 	return keyValuePairs;
-	//return [sort {$a->{NAME} cmp $b->{NAME}} @$keyValuePairs];
 }
 
 - (id) queryDictionaryAsQueryString {
@@ -254,7 +247,7 @@ var QS = require("querystring");
 }
 
 - (id) shouldSuppressQueryDictionaryKey:(id)key {
-	return [queryDictionarySubtractions hasObjectForKey:key];
+	return [queryDictionarySubtractions containsKey:key];
 }
 
 // a binding starting with "^" will direct this component
@@ -295,7 +288,7 @@ var QS = require("querystring");
 }
 
 - (id) hasCompiledResponse {
-	if ([self componentNameRelativeToSiteClassifier] == "WMComponentURL") { return true }
+	if ([self componentNameRelativeToSiteClassifier] == "URL") { return true }
 	return false;
 }
 
@@ -372,6 +365,71 @@ var QS = require("querystring");
 - (id) externalSessionId {
 	if (!sessionId) { return "0:0" }
 	return [WMUtility externalIdForId:sessionId];
+}
+
+
+- (id) Bindings {
+	return {
+		HAS_PROTOCOL: {
+			type: "BOOLEAN",
+			value: "'protocol'",
+		},
+		PROTOCOL: {
+			type: "STRING",
+			value: "'protocol'",
+		},
+		HAS_SERVER: {
+			type: "BOOLEAN",
+			value: "'server'",
+		},
+		SERVER: {
+			type: "STRING",
+			value: "'server'",
+		},
+		ACTION: {
+			type: "STRING",
+			value: "'action'",
+		},
+		HAS_URL: {
+			type: "BOOLEAN",
+			value: "'url'"
+		},
+		URL: {
+			type: "STRING",
+			value: "'url'",
+		},
+		ANCHOR: {
+			type: "STRING",
+			value: "'anchor'",
+		},
+		HAS_ANCHOR: {
+			type: "BOOLEAN",
+			value: "'anchor'",
+		},
+		HAS_QUERY_DICTIONARY: {
+			type: "BOOLEAN",
+			value: "'hasQueryDictionary'",
+		},
+		QUERY_DICTIONARY: {
+			type: "LOOP",
+			list: "'queryDictionaryKeyValuePairs'",
+			item: "'aKeyValuePair'",
+		},
+		NAME: {
+			type: "STRING",
+			value: "'aKeyValuePair.NAME'",
+			filter: "'escapeQueryStringValue'",
+		},
+		VALUE: {
+			type: "STRING",
+			value: "'aKeyValuePair.VALUE'",
+			filter: "'escapeQueryStringValue'",
+		},
+		DIRECT_ACTION: {
+			type: "STRING",
+			value: "'directAction'",
+		},
+	}
 }
 
 @end

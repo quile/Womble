@@ -147,7 +147,7 @@ var BINDING_DISPATCH_TABLE = {
     BOOLEAN: function(self, binding, context) {
         var value;
         try {
-            value = [WMUtility evaluateExpression:binding['value'] inComponent:Self context:context]? 1:0;
+            value = [WMUtility evaluateExpression:binding['value'] inComponent:self context:context]? 1:0;
             if (binding['negate']) {
                 value = !value;
             }
@@ -1719,5 +1719,17 @@ var BINDING_DISPATCH_TABLE = {
 //    var (self, args) = @_;
 //    return WMI18N._s(args);
 //}
+
++ COMPONENT_CONTENT_MARKER {
+    return COMPONENT_CONTENT_MARKER;
+}
+
++ TAG_ATTRIBUTE_MARKER {
+    return TAG_ATTRIBUTE_MARKER;
+}
+
++ REGION_TAG_MARKER {
+    return REGION_TAG_MARKER;
+}
 
 @end

@@ -17,16 +17,27 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-@import "Object.j"
-@import "Application.j"
-@import "Component.j"
-@import "Context.j"
-@import "Response.j"
-@import "Template.j"
-@import "SiteClassifier.j"
-@import "Model.j"
-@import "Log.j"
-@import "LogMessage.j"
-@import "ObjectContext.j"
-@import "Utility.j"
-@import "Category/PageResourceHandling.j"
+@import <OJUnit/OJTestCase.j>
+@import <WM/Classes.j>
+@import <WM/Component/Hyperlink.j>
+@import "../../Application.j"
+
+var application = [WMApplication applicationInstanceWithName:"WMTest"];
+
+@implementation WMHyperlinkTest : OJTestCase
+
+- (void) testInstantiation {
+    var component = [WMHyperlink new];
+    [self assertNotNull:component message:"instantiated ok"];
+}
+
+- (void) testRender {
+    var component = [WMHyperlink new];
+    [component setServer:"www.zig.zag"];
+    [component setLanguage:"fr"];
+    [component setTargetComponentName:"FooBar"];
+    var content = [component render];
+    [self assertTrue:content.match("http://www.zig.zag/WMTest/root/fr/FooBar/default")];
+}
+
+@end
