@@ -32,13 +32,23 @@ var KP_RE_PLUS = new RegExp('^[A-Za-z_\(\)]+[A-Za-z0-9_#\@]*[\(\.]+');
 + (id) evaluateExpression:(id)expression inComponent:(id)component context:(id)context {
     if (!component) { return nil }
 
-    [WMLog debug:" Checking if " + expression + " is key path"];
+    if (typeof expression == 'function') {
+        try {
+            return expression(component, context);
+        } catch (e) {
+            [WMLog error:"Failed to evaluate expression " + e + " in " + component];
+            return nil;
+        }
+    }
+
+    [WMLog debug:"Checking if " + expression + " is key path"];
     if ([WMUtility expressionIsKeyPath:expression]) {
         [WMLog debug:"expression " + expression + " is key path"];
         return [component valueForKeyPath:expression];
     }
 
-    // hack
+    // hack!  trying to do away with this by making
+    // these non-keypath ones into js functions
     var foo = self;
     self = component;
     try {

@@ -117,7 +117,7 @@ var NULL_SESSION_ID = "x";
 // ...except this, used for off-line generation of
 // contexts
 + emptyContext {
-    return [className emptyContextForApplicationWithName:[self applicationName]];
+    return [self emptyContextForApplicationWithName:[self applicationName]];
 }
 
 + emptyContextForApplicationWithName:(id)appName {

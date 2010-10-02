@@ -53,9 +53,8 @@ var UTIL = require("util")
 	return name || [self queryKeyNameForPageAndLoopContexts];
 }
 
-- (id) escapeDoubleQuotes:(id)string {
-	string = string.replace(new RegExp('"', "g"), "&quot;");
-	return string;
+- (id) escapeDoubleQuotes:(id)str {
+	return str.replace(new RegExp('"', "g"), '&quot;');
 }
 
 - (id) Bindings {

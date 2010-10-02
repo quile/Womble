@@ -24,6 +24,8 @@
 @import "Request/Offline.j"
 @import "Context.j"
 @import "Template.j"
+@import "Bindings.js"
+
 //@import "I18N.j"
 
 var UTIL = require("util");
