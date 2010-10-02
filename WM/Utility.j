@@ -32,8 +32,9 @@ var KP_RE_PLUS = new RegExp('^[A-Za-z_\(\)]+[A-Za-z0-9_#\@]*[\(\.]+');
 + (id) evaluateExpression:(id)expression inComponent:(id)component context:(id)context {
     if (!component) { return nil }
 
-    if ([self expressionIsKeyPath:expression]) {
-        //[WMLog debug:"expression " + expression + " is key path"];
+    [WMLog debug:" Checking if " + expression + " is key path"];
+    if ([WMUtility expressionIsKeyPath:expression]) {
+        [WMLog debug:"expression " + expression + " is key path"];
         return [component valueForKeyPath:expression];
     }
 
@@ -42,6 +43,7 @@ var KP_RE_PLUS = new RegExp('^[A-Za-z_\(\)]+[A-Za-z0-9_#\@]*[\(\.]+');
     self = component;
     try {
         var rv = eval(expression);
+        [WMLog debug:expression + " " + rv];
         return rv;
     } catch (e) {
         [WMLog warning:"Expression (" + expression + ") evaluation failure: " + e];

@@ -382,6 +382,7 @@ var BINDING_DISPATCH_TABLE = {
     var legacyLoops = [];
     for (var i=0; i<[template contentElementCount];) {
         var contentElement = [template contentElementAtIndex:i];
+        [WMLog debug:i + " " + contentElement];
         if (pregeneratedContent[i]) {
             [response appendContentString:pregeneratedContent[i]];
             delete pregeneratedContent[i];
@@ -784,9 +785,9 @@ var BINDING_DISPATCH_TABLE = {
     return "c" + [self renderContextNumber];
 }
 
-- (id) renderContextNumber:(id)renderState {
+- (id) renderContextNumber {
     var pcn = [self pageContextNumber];
-    renderState = renderState || [self _renderState];
+    renderState = [self _renderState];
     if (renderState && [renderState loopContextDepth] > 0) {
         pcn = pcn + "L" + [renderState loopContextNumber];
     }

@@ -47,6 +47,7 @@ var QS = require("querystring");
 	id queryDictionaryAdditions @accessors;
 	id queryDictionarySubtractions @accessors;
 	id queryDictionaryReplacements @accessors;
+	id aKeyValuePair @accessors;
 }
 
 - (id) init {
@@ -372,62 +373,62 @@ var QS = require("querystring");
 	return {
 		HAS_PROTOCOL: {
 			type: "BOOLEAN",
-			value: "'protocol'",
+			value: "protocol",
 		},
 		PROTOCOL: {
 			type: "STRING",
-			value: "'protocol'",
+			value: "protocol",
 		},
 		HAS_SERVER: {
 			type: "BOOLEAN",
-			value: "'server'",
+			value: "server",
 		},
 		SERVER: {
 			type: "STRING",
-			value: "'server'",
+			value: "server",
 		},
 		ACTION: {
 			type: "STRING",
-			value: "'action'",
+			value: "action",
 		},
 		HAS_URL: {
 			type: "BOOLEAN",
-			value: "'url'"
+			value: "url"
 		},
 		URL: {
 			type: "STRING",
-			value: "'url'",
+			value: "url",
 		},
 		ANCHOR: {
 			type: "STRING",
-			value: "'anchor'",
+			value: "anchor",
 		},
 		HAS_ANCHOR: {
 			type: "BOOLEAN",
-			value: "'anchor'",
+			value: "anchor",
 		},
 		HAS_QUERY_DICTIONARY: {
 			type: "BOOLEAN",
-			value: "'hasQueryDictionary'",
+			value: "hasQueryDictionary",
 		},
 		QUERY_DICTIONARY: {
 			type: "LOOP",
-			list: "'queryDictionaryKeyValuePairs'",
-			item: "'aKeyValuePair'",
+			list: "queryDictionaryKeyValuePairs",
+			item: "aKeyValuePair",
 		},
 		NAME: {
 			type: "STRING",
-			value: "'aKeyValuePair.NAME'",
-			filter: "'escapeQueryStringValue'",
+			value: "aKeyValuePair.NAME",
+			filter: "escapeQueryStringValue",
 		},
 		VALUE: {
 			type: "STRING",
-			value: "'aKeyValuePair.VALUE'",
-			filter: "'escapeQueryStringValue'",
+			value: "aKeyValuePair.VALUE",
+			filter: "escapeQueryStringValue",
 		},
 		DIRECT_ACTION: {
 			type: "STRING",
-			value: "'directAction'",
+			value: "directAction",
 		},
 	}
 }

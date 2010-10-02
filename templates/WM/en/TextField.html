@@ -1,0 +1,18 @@
+<input name="<BINDING:NAME>" id="<BINDING:UNIQUE_ID>" title="<BINDING:PARENT_BINDING_NAME>" <BINDING:TAG_ATTRIBUTES> <TMPL_IF BINDING:SIZE>size="<BINDING:SIZE>"</TMPL_IF> <TMPL_IF BINDING:MAX_LENGTH>maxlength="<BINDING:MAX_LENGTH>"</TMPL_IF> value="<BINDING:VALUE>" /><span id="<BINDING:UNIQUE_ID>-error" class="error" style="display: none;"></span><BINDING_IF:SHOULD_ENABLE_CLIENT_SIDE_SCRIPTING>
+<script type="text/javascript">
+<!--
+function <BINDING:UNIQUE_ID>Value() {
+	return valueOfTextField("<BINDING:UNIQUE_ID>");
+}
+function set<BINDING:UNIQUE_ID>Value(value) {
+	setValueOfTextField(value, "<BINDING:UNIQUE_ID>");
+}
+// -->
+</script>
+</BINDING_IF:SHOULD_ENABLE_CLIENT_SIDE_SCRIPTING>
+<script type="text/javascript">
+IF.setupFn['<BINDING:UNIQUE_ID>'] = function (controller) {
+	controller.setIsRequired(<BINDING:IS_REQUIRED>);
+	<BINDING_IF:HAS_REQUIRED_MESSAGE>controller.setRequiredErrorMessage("<BINDING:REQUIRED_MESSAGE>");</BINDING_IF:HAS_REQUIRED_MESSAGE>
+};	
+</script>
