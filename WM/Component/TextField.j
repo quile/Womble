@@ -53,6 +53,7 @@ var UTIL = require("util")
 	return name || [self queryKeyNameForPageAndLoopContexts];
 }
 
+// TODO make this a real escape.
 - (id) escapeDoubleQuotes:(id)str {
 	return str.replace(new RegExp('"', "g"), '&quot;');
 }

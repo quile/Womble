@@ -285,12 +285,15 @@ var BINDING_DISPATCH_TABLE = {
 - (void) loadBindings {
     var componentName = [self componentNameRelativeToSiteClassifier];
 
+    // FIXME: I've removed the site-classifier resolution of bindings
+    // for now; until we can come up with a namespace scheme, or something
+    // similar, we'll just do it via component inheritance.
     //_bindings = [[self _siteClassifier] bindingsForPath:componentName inContext:[self context]];
-    var _bindings = {};
+    var _bindings = [self _defaultBindings];
     if ([[self class] respondsToSelector:@SEL("Bindings")]) {
-        _bindings = [[self class] Bindings];
+        _bindings = UTIL.update(_bindings, [[self class] Bindings]);
     } else if ([self respondsToSelector:@SEL("Bindings")]) {
-        _bindings = [self Bindings];
+        _bindings = UTIL.update(_bindings, [self Bindings]);
     }
     if (![WMLog assert:_bindings message:"Loaded bindings for componentName"]) {
         return;
@@ -321,7 +324,7 @@ var BINDING_DISPATCH_TABLE = {
             // if the binding has an "overrides" property, it will be used
             // to replace any subcomponents in the tree matching the name
             // set in this property.
-            // eg.  overrides => "RIGHT_NAVIGATION_0",
+            // eg.  overrides: "RIGHT_NAVIGATION_0",
 
             if (binding['overrides']) {
                 _overrides[binding['overrides']] = binding;
@@ -1643,6 +1646,43 @@ var BINDING_DISPATCH_TABLE = {
     return tagAttribute;
 }
 
+// TODO: this is a stop-gap solution; these should be read from
+// the default bindings file, specified in the app config.
+- (id) _defaultBindings {
+    return {
+        TAG_ATTRIBUTES: {
+            type: "ATTRIBUTES",
+        },
+        JAVASCRIPT_ROOT: {
+            type: "STRING",
+            value: objj("[[self application] systemConfigurationValueForKey:'JAVASCRIPT_ROOT']"),
+        },
+        IS_FIRST_TIME_RENDERED: {
+            type: "BOOLEAN",
+            value: 'isFirstTimeRendered',
+        },
+        UNIQUE_ID: {
+            type: "STRING",
+            value: 'uniqueId',
+        },
+        PARENT_BINDING_NAME: {
+            type: "STRING",
+            value: 'nestedBindingPath',
+        },
+        HAS_REQUIRED_MESSAGE: {
+            type: "BOOLEAN",
+            value: 'isRequiredMessage',
+        },
+        IS_REQUIRED: {
+            type: "BOOLEAN",
+            value: 'isRequired',
+        },
+        REQUIRED_MESSAGE: {
+            type: "STRING",
+            value: 'isRequiredMessage',
+        },
+    };
+}
 
 // New conveniences; these are designed to help clean up the whole
 // life-cycle of components from instantiation through to rendering
