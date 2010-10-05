@@ -97,7 +97,7 @@
     var baz = "Popular Front";
 
     var groups = [foo, bar, baz].join(", ");
-   
+
     var bits = _p_2_split("Front", foo);
     [self assert:bits[0] equals:"People's " message:"a) first part ok"];
     [self assert:bits[1] equals:" of Judea" message:"a) second part ok"];
@@ -114,6 +114,16 @@
     var bits = _p_2_split("domus", "Romani ite domum");
     [self assert:bits[0] equals:"Romani ite domum" message:"d) first part ok"];
     [self assertTrue:(bits[1] == null) message:"d) second part ok"];
+}
+
+- (void) testNiceNames {
+    [self assert:_p_niceName("") equals:""];
+    [self assert:_p_niceName("NICE_NAME") equals:"niceName"];
+    [self assert:_p_niceName("FOO") equals:"foo"];
+    [self assert:_p_niceName("LONG_KEY_NAME_WITH_BITS") equals:"longKeyNameWithBits"];
+    [self assert:_p_keyNameFromNiceName("niceName") equals:"NICE_NAME"];
+    [self assert:_p_keyNameFromNiceName("WMNiceName") equals:"WM_NICE_NAME"];
+    [self assert:_p_keyNameFromNiceName("longKeyNameWithBits") equals:"LONG_KEY_NAME_WITH_BITS"];
 }
 
 @end

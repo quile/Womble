@@ -279,7 +279,7 @@ var QS = require("querystring");
 	return;
 }
 
-- (id) escapeQueryString:(id)string {
+- (id) escapeQueryStringValue:(id)string {
 	return QS.escape(string);
 	//if (Encode::is_utf8(string)) {
 	//	return URI::Escape::uri_escape_utf8(string);
@@ -337,9 +337,9 @@ var QS = require("querystring");
 					}
 					isFirst = false;
 
-					qs = qs + [self escapeQueryString:kvPair['NAME']];
+					qs = qs + [self escapeQueryStringValue:kvPair['NAME']];
 					qs = qs + "=";
-					qs = qs + [self escapeQueryString:kvPair['VALUE']];
+					qs = qs + [self escapeQueryStringValue:kvPair['VALUE']];
 				}
 				if (qs) {
 					html = html + "?" + qs;
@@ -418,12 +418,12 @@ var QS = require("querystring");
 		},
 		NAME: {
 			type: "STRING",
-			value: "aKeyValuePair.NAME",
+			value: objj("[self aKeyValuePair].NAME"),
 			filter: "escapeQueryStringValue",
 		},
 		VALUE: {
 			type: "STRING",
-			value: "aKeyValuePair.VALUE",
+			value: objj("[self aKeyValuePair].VALUE"),
 			filter: "escapeQueryStringValue",
 		},
 		DIRECT_ACTION: {

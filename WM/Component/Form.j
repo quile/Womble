@@ -61,6 +61,7 @@ var UTIL = require("util.js")
 				{ "NAME": "context-number",
 				  "VALUE": [[[self context] session] contextNumber],
 				}];
+
 	return [super appendToResponse:response inContext:context];
 }
 
@@ -94,14 +95,12 @@ var UTIL = require("util.js")
 
 - (id) Bindings {
 	var _bindings = [super Bindings];
-	return UTIL.update(_bindings,
-		{
-		inheritsFrom: "WMURL",
+	return UTIL.update(_bindings, {
 		HIDDEN_KEY_VALUE: {
 			type: "HiddenField",
 			bindings: {
-				name: 'aKeyValuePair.NAME',
-				value: 'aKeyValuePair.VALUE',
+				name: objj('[self aKeyValuePair].NAME'),
+				value: objj('[self aKeyValuePair].VALUE'),
 			},
 		},
 		TAG_ATTRIBUTES: {

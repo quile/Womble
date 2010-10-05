@@ -61,11 +61,9 @@ var UTIL = require("util")
 - (id) Bindings {
 	return {
 		// TODO implement binding inheritance
-		inheritsFrom: "IF::Component::_Default",
 		NAME: {
 			type: "STRING",
 			value: 'name',
-			filter: 'escapeDoubleQuotes',
 		},
 		SIZE: {
 			type: "STRING",

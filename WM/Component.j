@@ -97,7 +97,10 @@ var BINDING_DISPATCH_TABLE = {
         }
         if (binding['filter']) {
             var filterName = binding['filter'];
-            var filterExpression = "";
+            // TODO: this assumes a filter will be an instance method of this component,
+            // which is a bit bogus; there should be general filters that can be
+            // used anywhere.
+            var filterExpression = "objj_msgSend(self, filterName + ':', value)";
             var value;
             try {
                 value = eval(filterExpression);
@@ -712,7 +715,9 @@ var BINDING_DISPATCH_TABLE = {
                 var itemKey = loops[loopName]['itemKey'];
                 var indexKey = loops[loopName]['indexKey'];
                 if (itemKey) {
-                    [self setValue:null forKey:itemKey]; // clear it out?
+                    [WMLog debug:"Clearing loop key " + itemKey];
+                    [self setValue:nil forKey:itemKey]; // clear it out?
+                    [WMLog debug:"Setting loop key " + itemKey + " to " + loops[loopName]['list'][loopIndex]];
                     [self setValue:loops[loopName]['list'][loopIndex] forKey:itemKey];
                     //WM::Log::dump($loops->{$loopName}->{list}->[$loopIndex]);
                 }
