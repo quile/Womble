@@ -64,6 +64,9 @@ __valueForKey = function(self, key) {
 			return value;
 		}
 	}
+	if ([self respondsToSelector:@SEL("objectForKey:")]) {
+		return [self objectForKey:key];
+	}
 	if (self.hasOwnProperty(key)) {
 		return self[key];
 	}
