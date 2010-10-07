@@ -118,42 +118,42 @@ var OPEN_RE = new RegExp("[\[\{\(]");
 
 	var chars = chunk.split("");
 	for (var i = 0; i < chars.length; i++) {
-		var charAt = chars[i];
+		var chrAt = chars[i];
 
-		if (charAt == '\\') {
+		if (chrAt == '\\') {
 			extracted = extracted + chars[i] + chars[i+1];
 			i++;
 			continue;
 		}
-		if (charAt == terminator) {
+		if (chrAt == terminator) {
 			if ([WMUtility isBalanced:balanced]) {
 				return extracted;
 			}
 		}
 
 		if (!isQuoting) {
-			if (charAt.match(QUOTE_RE)) {
+			if (chrAt.match(QUOTE_RE)) {
 				isQuoting = true;
-				outerQuoteChar = charAt;
-				balanced[charAt]++;
-			} else if (charAt.match(OPEN_RE)) {
-				balanced[charAt]++;
-			} else if (charAt == ']') {
+				outerQuoteChar = chrAt;
+				balanced[chrAt]++;
+			} else if (chrAt.match(OPEN_RE)) {
+				balanced[chrAt]++;
+			} else if (chrAt == ']') {
 				balanced['[']--;
-			} else if (charAt == '}') {
+			} else if (chrAt == '}') {
 				balanced['{']--;
-			} else if (charAt == ')') {
+			} else if (chrAt == ')') {
 				balanced['(']--;
 			}
 		} else {
-			if (charAt == outerQuoteChar) {
+			if (chrAt == outerQuoteChar) {
 				isQuoting = false;
 				outerQuoteChar = '';
-				balanced[charAt] ++;
+				balanced[chrAt] ++;
 			}
 		}
 
-		extracted = extracted + charAt;
+		extracted = extracted + chrAt;
 	}
 	if ([WMUtility isBalanced:balanced]) {
 		return extracted;

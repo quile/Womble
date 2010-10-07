@@ -68,6 +68,7 @@
     d = [CPDictionary new];
     [d setObject:[CPDictionary new] forKey:"johnson"];
     [[d objectForKey:"johnson"] setObject:"ben" forKey:"ben"];
+    eval(_p_setTrace);
     [self assert:[d valueForKey:"johnson.ben"] equals:"ben"];
 }
 
