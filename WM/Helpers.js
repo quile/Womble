@@ -111,6 +111,21 @@ _p_isArray = function(a) {
     return false;
 };
 
+_p_isHash = function(a) {
+    // cheesy
+    if (!a) { return false }
+    if (a.isa) {
+        if (a.isa == "CPDictionary") {
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+    return typeof a == "object";
+}
+
 _p_2_split = function(re, st) {
     var bits = st.split(re);
     var first = bits.shift();

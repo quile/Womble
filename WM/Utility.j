@@ -125,7 +125,7 @@ var OPEN_RE = new RegExp("[\[\{\(]");
 			i++;
 			continue;
 		}
-		if (charAt === terminator) {
+		if (charAt == terminator) {
 			if ([WMUtility isBalanced:balanced]) {
 				return extracted;
 			}

@@ -30,13 +30,13 @@
 // to traverse arbitrary data structures, and to allow
 // key paths with argument lists (like "foo.bar(banana, apple)")
 
-- (id)valueForUndefinedKey:(CPString)aKey {
-    // DANGER!? could this loop?
-    if (aKey.indexOf(".") != -1) {
-        return [self valueForKeyPath:aKey];
-    }
-    // what about FOO_BAR?
-}
+//- (id)valueForUndefinedKey:(CPString)aKey {
+//    // DANGER!? could this loop?
+//    if (aKey.indexOf(".") != -1) {
+//        return [self valueForKeyPath:aKey];
+//    }
+//    // what about FOO_BAR?
+//}
 
 - (void) subclassResponsibility {
     [CPException raise:@"You must override this method"];
