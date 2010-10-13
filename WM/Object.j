@@ -43,3 +43,5 @@
 }
 
 @end
+
+@import <WM/Category/KeyValueCoding.j>

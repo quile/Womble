@@ -22,6 +22,7 @@
 @import <WM/Array.j>
 @import <WM/Helpers.js>
 @import <WM/Utility.j>
+@import <WM/Log.j>
 
 __setValue_forKey = function(self, value, key) {
 	if (key.match(/\./)) {
@@ -30,11 +31,14 @@ __setValue_forKey = function(self, value, key) {
 
 	var setMethodName = "set" + _p_ucfirst(_p_niceName(key)) + ":";
 	if ([self respondsToSelector:@SEL(setMethodName)]) {
-		[WMLog debug:"Object can " + setMethodName + ", using it to set value " + value];
+		//[WMLog debug:"Object can " + setMethodName + ", using it to set value " + value];
 		objj_msgSend(self, setMethodName, value);
 		return;
 	}
 
+	if ([self respondsToSelector:@SEL("setObject:forKey:")]) {
+		return [self setObject:value forKey:key];
+	}
 	//if ([self can:"setStoredValueForKey"]("setStoredValueForKey")) {
 	//	//IF::Log::warning("Defaulting to using setStoredValueForKey() for key $key");
 	//	[self setStoredValueForKey:niceName(key)](value, niceName(key));
@@ -43,9 +47,11 @@ __setValue_forKey = function(self, value, key) {
 	self[key] = value;
 }
 
+var DOT_OR_PARENTHESIS = new RegExp("[\.\(]");
+
 __valueForKey = function(self, key) {
-	[WMLog debug:"Checking vfk " + key];
-	if (key.match(/\./)) {
+	//[WMLog debug:"Checking vfk " + key];
+	if (key.match(DOT_OR_PARENTHESIS)) {
 		return [self valueForKeyPath:key];
 	}
 
@@ -75,6 +81,7 @@ __valueForKey = function(self, key) {
 }
 
 __valueForKeyPathElement_onObject = function(self, keyPathElement, obj) {
+	//[WMLog debug:"Looking for " + keyPathElement.toSource() + " on object " + obj];
 	var key = keyPathElement['key'];
 	if (!keyPathElement['arguments']) {
 		return __valueForKey_onObject(self, key, obj);
@@ -83,9 +90,14 @@ __valueForKeyPathElement_onObject = function(self, keyPathElement, obj) {
 
 	if (typeof obj != "object") { return nil }
 
-	if ([object respondsToSelector:@SEL(key)]) {
+	var sel = key;
+	for (var i=0; i<keyPathElement['argumentValues'].length; i++) {
+		sel = sel + ":";
+	}
+	if (obj.isa && [obj respondsToSelector:@SEL(sel)]) {
 		//IF::Log::debug("invoking method $key with arguments ".join(", ", @{$keyPathElement->{argumentValues}}));
-		return objj_msgSend(obj, key, keyPathElement.argumentValues);
+		//[WMLog debug:"invoking method " + sel + " with arguments " + keyPathElement.argumentValues.toSource()];
+		return objj_msgSend.apply(nil, [obj, sel].concat(keyPathElement.argumentValues));
 		// tricky to emulate this in objj
 		//return [object key:@{keyPathElement.argumentValues}]
 	}
@@ -102,13 +114,11 @@ __valueForKeyPathElement_onObject = function(self, keyPathElement, obj) {
 
 __valueForKey_onObject = function(self, key, obj) {
 	if (typeof obj != "object") { return nil }
-	if ([obj respondsToSelector:@SEL("valueForKey:")]) {
-		return __valueForKey(obj, key);
-	}
 	if (_p_isArray(obj)) {
 		if (key == "#") {
 			return obj.length;
 		}
+		//[WMLog debug:"array key is " + key];
 		var match = key.match(new RegExp("^\@([0-9]+)$"));
 		if (match) {
 			var element = match[1];
@@ -122,6 +132,10 @@ __valueForKey_onObject = function(self, key, obj) {
 			}
 			return values;
 		}
+	}
+	if (obj.isa && [obj respondsToSelector:@SEL("valueForKey:")]) {
+		//[WMLog debug:"... responds to valueForKey:, calling it now."]
+		return __valueForKey(obj, key);
 	}
 	return obj[key];
 	/*
@@ -147,7 +161,7 @@ __setValue_forKey_onObject = function(self, value, key, obj) {
 }
 
 __valueForKeyPath = function(self, keyPath) {
-	var bits = [self targetObjectAndKeyForKeyPath:keyPath];
+	var bits = __targetObjectAndKeyForKeyPath(self, keyPath);
 	var currentObject = bits[0],
 	    targetKeyPathElement = bits[1];
 
@@ -208,6 +222,7 @@ __targetObjectAndKeyForKeyPath = function(self, keyPath) {
 			return [nil, nil];
 		}
 	}
+	//[WMLog debug:"returning " + currentObject + " / " + keyPathElements[keyPathElements.length-1].toSource()];
 	return [currentObject, keyPathElements[keyPathElements.length-1]];
 }
 
@@ -326,7 +341,7 @@ __string_withEvaluatedKeyPathsInLanguage = function(self, str, language) {
 			value = eval(keyValuePath); // yikes, dangerous!
 		}
 
-		[WMLog debug:"Evaluating " + keyValuePath + " on self to value " + value];
+		//[WMLog debug:"Evaluating " + keyValuePath + " on self to value " + value];
 		//\Q and \E makes the regex ignore the inbetween values if they have regex special items which we probably will for the dots (.).
 		var re = new RegExp("\$\{" + _p_quotemeta(keyValuePath) + "\}", "g");
 		str = str.replace(re, value);
@@ -346,8 +361,8 @@ __string_withEvaluatedKeyPathsInLanguage = function(self, str, language) {
 + (id) _valueForKey:(id)key onObject:(id)obj { return __valueForKey_onObject(self, key, obj); }
 + (void) _setValue:(id)value forKey:(id)key onObject:(id)obj { return __setValue_forKey_onObject(self, value, key, obj); }
 + (id) _listOfPossibleKeyNames:(id)key { return __listOfPossibleKeyNames(self, key); }
-+ (id) evaluateExpression:(id)expression { 	return __evaluateExpression(self, expression); }
 
+- (id) evaluateExpression:(id)expression { 	return __evaluateExpression(self, expression); }
 - (id) targetObjectAndKeyForKeyPath:(id)keyPath { return __targetObjectAndKeyForKeyPath(self, keyPath); }
 - (void) setValue:(id)value forKey:(id)key { return __setValue_forKey(self, value, key); }
 - (id) valueForKey:(id)key { return __valueForKey(self, key); }
@@ -375,36 +390,8 @@ __string_withEvaluatedKeyPathsInLanguage = function(self, str, language) {
 + (id) _valueForKey:(id)key onObject:(id)obj { return __valueForKey_onObject(self, key, obj); }
 + (void) _setValue:(id)value forKey:(id)key onObject:(id)obj { return __setValue_forKey_onObject(self, value, key, obj); }
 + (id) _listOfPossibleKeyNames:(id)key { return __listOfPossibleKeyNames(self, key); }
-+ (id) evaluateExpression:(id)expression { 	return __evaluateExpression(self, expression); }
 
-- (id) targetObjectAndKeyForKeyPath:(id)keyPath { return __targetObjectAndKeyForKeyPath(self, keyPath); }
-- (void) setValue:(id)value forKey:(id)key { return __setValue_forKey(self, value, key); }
-- (id) valueForKey:(id)key { return __valueForKey(self, key); }
-- (id) valueForKeyPath:(id)keyPath { return __valueForKeyPath(self, keyPath); }
-- (void) setValue:(id)value forKeyPath:(id)keyPath { return __setValue_forKeyPath(self, value, keyPath); }
-- (id) int:(id)value { return __int(self, value); }
-- (id) length:(id)value { return __length(self, value); }
-- (id) keys:(id)value { return __keys(self, value); }
-- (id) reverse:(id)list { return __reverse(self, list); }
-- (id) sort:(id)list { return __sort(self, list); }
-- (id) truncateString:(id)str toLength:(id)length { return __truncateString_toLength(self, string, length); }
-- (id) commaSeparatedList:(id)list { return __commaSeparatedList(self, list); }
-- (id) or:(id)a :(id)b { return __or(self, a, b); }
-- (id) and:(id)a :(id)b { return __and(self, a, b); }
-- (id) not:(id)a { return __not(self, a); }
-- (id) eq:(id)a :(id)b { return __eq(self, a, b); }
-+ (id) string:(id)str withEvaluatedKeyPathsInLanguage:(id)language { return __string_withEvaluateKeyPathsInLanguage(self, str, language); }
-
-@end
-
-@implementation CPMutableDictionary (WMKeyValueCoding)
-
-+ (id) _valueForKeyPathElement:(id)element onObject:(id)obj { return __valueForKeyPathElement_onObject(self, element, obj); }
-+ (id) _valueForKey:(id)key onObject:(id)obj { return __valueForKey_onObject(self, key, obj); }
-+ (void) _setValue:(id)value forKey:(id)key onObject:(id)obj { return __setValue_forKey_onObject(self, value, key, obj); }
-+ (id) _listOfPossibleKeyNames:(id)key { return __listOfPossibleKeyNames(self, key); }
-+ (id) evaluateExpression:(id)expression { 	return __evaluateExpression(self, expression); }
-
+- (id) evaluateExpression:(id)expression { 	return __evaluateExpression(self, expression); }
 - (id) targetObjectAndKeyForKeyPath:(id)keyPath { return __targetObjectAndKeyForKeyPath(self, keyPath); }
 - (void) setValue:(id)value forKey:(id)key { return __setValue_forKey(self, value, key); }
 - (id) valueForKey:(id)key { return __valueForKey(self, key); }
@@ -431,36 +418,8 @@ __string_withEvaluatedKeyPathsInLanguage = function(self, str, language) {
 + (id) _valueForKey:(id)key onObject:(id)obj { return __valueForKey_onObject(self, key, obj); }
 + (void) _setValue:(id)value forKey:(id)key onObject:(id)obj { return __setValue_forKey_onObject(self, value, key, obj); }
 + (id) _listOfPossibleKeyNames:(id)key { return __listOfPossibleKeyNames(self, key); }
-+ (id) evaluateExpression:(id)expression { 	return __evaluateExpression(self, expression); }
 
-- (id) targetObjectAndKeyForKeyPath:(id)keyPath { return __targetObjectAndKeyForKeyPath(self, keyPath); }
-- (void) setValue:(id)value forKey:(id)key { return __setValue_forKey(self, value, key); }
-- (id) valueForKey:(id)key { return __valueForKey(self, key); }
-- (id) valueForKeyPath:(id)keyPath { return __valueForKeyPath(self, keyPath); }
-- (void) setValue:(id)value forKeyPath:(id)keyPath { return __setValue_forKeyPath(self, value, keyPath); }
-- (id) int:(id)value { return __int(self, value); }
-- (id) length:(id)value { return __length(self, value); }
-- (id) keys:(id)value { return __keys(self, value); }
-- (id) reverse:(id)list { return __reverse(self, list); }
-- (id) sort:(id)list { return __sort(self, list); }
-- (id) truncateString:(id)str toLength:(id)length { return __truncateString_toLength(self, string, length); }
-- (id) commaSeparatedList:(id)list { return __commaSeparatedList(self, list); }
-- (id) or:(id)a :(id)b { return __or(self, a, b); }
-- (id) and:(id)a :(id)b { return __and(self, a, b); }
-- (id) not:(id)a { return __not(self, a); }
-- (id) eq:(id)a :(id)b { return __eq(self, a, b); }
-+ (id) string:(id)str withEvaluatedKeyPathsInLanguage:(id)language { return __string_withEvaluateKeyPathsInLanguage(self, str, language); }
-
-@end
-
-@implementation CPMutableArray (WMKeyValueCoding)
-
-+ (id) _valueForKeyPathElement:(id)element onObject:(id)obj { return __valueForKeyPathElement_onObject(self, element, obj); }
-+ (id) _valueForKey:(id)key onObject:(id)obj { return __valueForKey_onObject(self, key, obj); }
-+ (void) _setValue:(id)value forKey:(id)key onObject:(id)obj { return __setValue_forKey_onObject(self, value, key, obj); }
-+ (id) _listOfPossibleKeyNames:(id)key { return __listOfPossibleKeyNames(self, key); }
-+ (id) evaluateExpression:(id)expression { 	return __evaluateExpression(self, expression); }
-
+- (id) evaluateExpression:(id)expression { 	return __evaluateExpression(self, expression); }
 - (id) targetObjectAndKeyForKeyPath:(id)keyPath { return __targetObjectAndKeyForKeyPath(self, keyPath); }
 - (void) setValue:(id)value forKey:(id)key { return __setValue_forKey(self, value, key); }
 - (id) valueForKey:(id)key { return __valueForKey(self, key); }

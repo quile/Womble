@@ -260,7 +260,7 @@ var QS = require("querystring");
 
 - (id) setValue:(id)value forKey:(id)key {
 	var match = key.match(/^(\^|\+|\-)(.*)$/);
-	if (match) {
+	if (!match) {
 		return [super setValue:value forKey:key];
 	}
 	var action = match[1];
@@ -281,11 +281,6 @@ var QS = require("querystring");
 
 - (id) escapeQueryStringValue:(id)string {
 	return QS.escape(string);
-	//if (Encode::is_utf8(string)) {
-	//	return URI::Escape::uri_escape_utf8(string);
-	//} else {
-	//	return URI::Escape::uri_escape(string);
-	//}
 }
 
 - (id) hasCompiledResponse {

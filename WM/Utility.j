@@ -46,9 +46,7 @@ var OPEN_RE = new RegExp("[\[\{\(]");
         }
     }
 
-    [WMLog debug:"Checking if " + expression + " is key path"];
     if ([WMUtility expressionIsKeyPath:expression]) {
-        [WMLog debug:"expression " + expression + " is key path"];
         return [component valueForKeyPath:expression];
     }
 
@@ -79,6 +77,8 @@ var OPEN_RE = new RegExp("[\[\{\(]");
         var bits = _p_2_split(".", path);
 		var firstElement = bits[0],
             rest = bits[1];
+        if (!firstElement) { break; }
+        //[WMLog debug:"Split path into " + firstElement + " and " + rest];
 		var match = firstElement.match(KEY_RE);
         if (match) {
 			var key = match[1];
@@ -96,6 +96,7 @@ var OPEN_RE = new RegExp("[\[\{\(]");
 				argumentString = argumentString.replace(new RegExp(quotedArgument), "");
 			}
 			keyPathElements.push({ key: key, arguments: arguments });
+            //[WMLog debug:"Arguments = " + arguments];
             path = path.replace(new RegExp(quotedArguments), "");
 		} else {
             if (firstElement) {
@@ -106,6 +107,7 @@ var OPEN_RE = new RegExp("[\[\{\(]");
 		//IF::Log::debug("Left to process: <$path>");
         if (!rest) { break }
 	}
+    //[WMLog debug:keyPathElements.toSource()];
 	return keyPathElements;
 }
 

@@ -390,7 +390,6 @@ var BINDING_DISPATCH_TABLE = {
     var legacyLoops = [];
     for (var i=0; i<[template contentElementCount];) {
         var contentElement = [template contentElementAtIndex:i];
-        [WMLog debug:i + " " + contentElement];
         if (pregeneratedContent[i]) {
             [response appendContentString:pregeneratedContent[i]];
             delete pregeneratedContent[i];
@@ -412,91 +411,68 @@ var BINDING_DISPATCH_TABLE = {
                     i += 1;
                 }
 
-                // var match;
-                // if (match = contentElement['BINDING_NAME'].match(/^__LEGACY__(.*)$/)) {
-                //     var varName = match[1];
-                //     // fish through current loops
-                //     // FIXME: rewrite this rubbish using a stacked context
-                //     var highestMatchedLoop = 0;
-                //     for (var loopName in loops) {
-                //         var item = [self valueForKey:[loops[loopName]['itemKey']];
-                //         if (item && highestMatchedLoop <= loops[loopName]['depth']) {
-                //             if (item.isa) {
-                //                 value = [item valueForKey:varName];
-                //             } else if ([WMDictionary isHash:item]) {
-                //                 value = item[varName];
-                //             }
-                //             highestMatchedLoop = loops[loopName]['depth'];
-                //         }
-                //     }
-                //     if (!value) {
-                //         value = [response param:varName];
-                //     }
-                // } else {
+                var binding = [self bindingForKey:contentElement['BINDING_NAME']] ||
+                               contentElement['BINDING'];
+                if (!binding) {
+                    i += 1;
+                    // TODO only enable this in development:
+                    //  [self _appendErrorStringToResponse(
+                    //    "Binding $contentElement->{BINDING_NAME} not found", $response);
+                    continue;
+                }
+
+                // HACK WARNING: TODO Fix this!
+                // This grabs any attributes that were specified in the
+                // template, and sets them on the binding that's being
+                // used to generate the subcomponent.  That way, the
+                // subcomponent can grab attributes directly
+                // and access them if need be
                 //
-                    var binding = [self bindingForKey:contentElement['BINDING_NAME']] ||
-                                   contentElement['BINDING'];
-                    if (!binding) {
-                        i += 1;
-                        // TODO only enable this in development:
-                        //  [self _appendErrorStringToResponse(
-                        //    "Binding $contentElement->{BINDING_NAME} not found", $response);
-                        continue;
+                binding['__private'] = binding['__private'] || {};
+                binding['__private']['ATTRIBUTES'] = contentElement['ATTRIBUTE_HASH'];
+                value = [self evaluateBinding:binding inContext:context];
+                delete binding['__private']['ATTRIBUTES'];
+                // add it to the list of components to flush on an
+                // iteration, if it's inside a loop
+                //
+                if (binding['type'] == "SUBCOMPONENT_REGION") {
+                    if (currentLoopDepth > 0) {
+                        var sortedLoops = UTIL.values(loops).sort(function (a, b) { b['depth'] - a['depth'] });
+                        var highestLoop = sortedLoops[0];
+                        highestLoop['flushOnExit'][binding['binding']] = true;
+                        //WM::Log::debug("Adding $binding->{binding} to the flush queue");
                     }
-                    //WM::Log::debug("evaluating binding ".$binding->{_NAME});
-
-                    // HACK WARNING: TODO Fix this!
-                    // This grabs any attributes that were specified in the
-                    // template, and sets them on the binding that's being
-                    // used to generate the subcomponent.  That way, the
-                    // subcomponent can grab attributes directly
-                    // and access them if need be
-                    //
-                    binding['__private'] = binding['__private'] || {};
-                    binding['__private']['ATTRIBUTES'] = contentElement['ATTRIBUTE_HASH'];
-                    value = [self evaluateBinding:binding inContext:context];
-                    delete binding['__private']['ATTRIBUTES'];
-                    // add it to the list of components to flush on an
-                    // iteration, if it's inside a loop
-                    //
-                    if (binding['type'] == "SUBCOMPONENT_REGION") {
-                        if (currentLoopDepth > 0) {
-                            var sortedLoops = UTIL.values(loops).sort(function (a, b) { b['depth'] - a['depth'] });
-                            var highestLoop = sortedLoops[0];
-                            highestLoop['flushOnExit'][binding['binding']] = true;
-                            //WM::Log::debug("Adding $binding->{binding} to the flush queue");
+                }
+                if ([self bindingIsComponent:binding] || binding['type'] == "REGION" || binding['type'] == "SUBCOMPONENT_REGION") {
+                    if (contentElement['END_TAG_INDEX']) {
+                        if (value.match(COMPONENT_CONTENT_MARKER_RE)) {
+                            var bits = value.split(cre);
+                            var openTagReplacement = bits[0];
+                            var closeTagReplacement = bits[1];
+                            value = openTagReplacement;
+                            pregeneratedContent[contentElement['END_TAG_INDEX']] = closeTagReplacement;
+                        } else {
+                            [response appendContentString:value];
+                            i = contentElement['END_TAG_INDEX'] + 1;
+                            continue;
                         }
                     }
-                    if ([self bindingIsComponent:binding] || binding['type'] == "REGION" || binding['type'] == "SUBCOMPONENT_REGION") {
-                        if (contentElement['END_TAG_INDEX']) {
-                            if (value.match(COMPONENT_CONTENT_MARKER_RE)) {
-                                var bits = value.split(cre);
-                                var openTagReplacement = bits[0];
-                                var closeTagReplacement = bits[1];
-                                value = openTagReplacement;
-                                pregeneratedContent[contentElement['END_TAG_INDEX']] = closeTagReplacement;
-                            } else {
-                                [response appendContentString:value];
-                                i = contentElement['END_TAG_INDEX'] + 1;
-                                continue;
-                            }
-                        }
 
-                        // this is bent because it needs to be evaluated one level lower in
-                        // the component tree.  here, the including component evaluates the
-                        // attributes for the included component.
-                        //
-                        var tagAttributes = contentElement['ATTRIBUTE'];
-                        // process it using craig's cleverness, but first set the parent up
-                        // so the hierarchy is preserved - this is a temporary hack
-                        //
-                        var c = [self subcomponentForBindingNamed:binding['_NAME']];
-                        if ([WMLog assert:c message:"Subcomponent for binding " + binding['_NAME'] + " exists"]) {
-                            [c setParent:self];
-                            tagAttributes = [self _evaluateKeyPathsInTagAttributes:tagAttributes onComponent:c];
-                            [c setParent:nil];
-                        }
-                        //WM::Log::debug("Tag attribute string is $tagAttributes for binding $binding->{NAME}");
+                    // this is bent because it needs to be evaluated one level lower in
+                    // the component tree.  here, the including component evaluates the
+                    // attributes for the included component.
+                    //
+                    var tagAttributes = contentElement['ATTRIBUTE'];
+                    // process it using craig's cleverness, but first set the parent up
+                    // so the hierarchy is preserved - this is a temporary hack
+                    //
+                    var c = [self subcomponentForBindingNamed:binding['_NAME']];
+                    if ([WMLog assert:c message:"Subcomponent for binding " + binding['_NAME'] + " exists"]) {
+                        [c setParent:self];
+                        tagAttributes = [self _evaluateKeyPathsInTagAttributes:tagAttributes onComponent:c];
+                        [c setParent:nil];
+                    }
+                    //WM::Log::debug("Tag attribute string is $tagAttributes for binding $binding->{NAME}");
 
 
                         value.replace(TAG_ATTRIBUTE_MARKER_RE, tagAttributes);
@@ -525,60 +501,12 @@ var BINDING_DISPATCH_TABLE = {
                     }
                 }
                 var condition;
-                // if (contentElement['BINDING_NAME'] =~ /^__LEGACY__(.*$)/) {
-                //     var varName = 1;
-                //     //WM::Log::debug("Found legacy tag $varName");
-                //     var upperCaseVarName = uc(varName);
-                //     var highestMatchedLoop = 0;
-                //     foreach var loopName (keys %loops) {
-                //         if (loopContextVariables[upperCaseVarName]) {
-                //             if (upperCaseVarName == "__ODD__" &&
-                //                 loops[loopName]->{index} % 2 == 1 &&
-                //                 highestMatchedLoop <= loops[loopName]->{depth}) {
-                //                 condition = 1;
-                //                 highestMatchedLoop = loops[loopName]->{depth};
-                //             } elsif (upperCaseVarName == "__EVEN__" &&
-                //                 loops[loopName]->{index} % 2 == 0 &&
-                //                 highestMatchedLoop <= loops[loopName]->{depth}) {
-                //                 condition = 1;
-                //                 highestMatchedLoop = loops[loopName]->{depth};
-                //             } elsif (upperCaseVarName == "__LAST__" &&
-                //                 loops[loopName]->{index} == ($#{loops[loopName]->{list}}+1) &&
-                //                 highestMatchedLoop <= loops[loopName]->{depth}) {
-                //                 condition = 1;
-                //                 highestMatchedLoop = loops[loopName]->{depth};
-                //             } elsif (upperCaseVarName == "__FIRST__" &&
-                //                 loops[loopName]->{index} == 0 &&
-                //                 highestMatchedLoop <= loops[loopName]->{depth}) {
-                //                 condition = 1;
-                //                 highestMatchedLoop = loops[loopName]->{depth};
-                //             } else {
-                //                 condition = 0;
-                //             }
-                //         } else {
-                //             var item = [self valueForKey:loops[loopName]->{itemKey}];
-                //             if (item && highestMatchedLoop <= loops[loopName]->{depth}) {
-                //                 if (UNIVERSAL::can(item, "valueForKey")) {
-                //                     condition = [item valueForKey:varName];
-                //                 } elsif (WMDictionary.isHash(item)) {
-                //                     condition = item[varName];
-                //                 }
-                //                 highestMatchedLoop = loops[loopName]->{depth};
-                //             }
-                //         }
-                //     }
-                //     unless (condition) {
-                //         condition = [response paramkey :varName];
-                //     }
-                // } else {
-                //
-                    var binding = [self bindingForKey:contentElement['BINDING_NAME']];
-                    if (!binding) {
-                        i++;
-                        continue;
-                    }
-                    condition = [self evaluateBinding:binding inContext:context];
-                //} __LEGACY__
+                var binding = [self bindingForKey:contentElement['BINDING_NAME']];
+                if (!binding) {
+                    i++;
+                    continue;
+                }
+                condition = [self evaluateBinding:binding inContext:context];
                 if (condition.isa && [condition isKindOfClass:"CPArray"]) {
                         condition = condition.length;
                 }
@@ -624,66 +552,29 @@ var BINDING_DISPATCH_TABLE = {
                     }
                 }
                 var loopName;
-                // if (contentElement['BINDING_NAME'] =~ /^__LEGACY__( + *)$/) {
-                //     var loopLabel = 1;
-                //     loopName = loopLabel + "_" + i;
-                //     //WM::Log::debug("processing loop $loopName");
-                //     unless (loops[loopName]) {
-                //         var list = [];
-                //         if (scalar legacyLoops == 0 && currentLoopDepth == 0) {
-                //             list = [response paramkey :loopLabel];
-                //         } else {
-                //             var highestMatchedLoop = 0;
-                //             foreach var key (keys %loops) {
-                //                 var item = [self valueForKey:loops[key]->{itemKey}];
-                //                 if (item && highestMatchedLoop <= loops[key]->{depth}) {
-                //                     if (UNIVERSAL::can(item, "valueForKey")) {
-                //                         list = [item valueForKey:loopLabel];
-                //                     } elsif (WMDictionary.isHash(item)) {
-                //                         list = item[loopLabel];
-                //                     }
-                //                     highestMatchedLoop = loops[key]->{depth};
-                //                 }
-                //             }
-                //         }
-                //         loops[loopName] = {
-                //             list: list,
-                //             index: 0,
-                //             itemKey: "LOOP_" + loopName + "_ITEM",
-                //             indexKey: "LOOP_" + loopName + "_INDEX",
-                //             depth: currentLoopDepth,
-                //             isLegacy: 1,
-                //             flushOnExit: {},
-                //         };
-                //         currentLoopDepth++;
-                //         [renderState increaseLoopContextDepth];
-                //         push (legacyLoops, loopName);
-                //     }
-                // } else {
-                    var binding = [self bindingForKey:contentElement['BINDING_NAME']];
-                    if (!binding) {
-                        if (contentElement['END_TAG_INDEX']) {
-                            i = contentElement['END_TAG_INDEX'] + 1;
-                        } else {
-                            i += 1;
-                        }
-                        continue;
+                var binding = [self bindingForKey:contentElement['BINDING_NAME']];
+                if (!binding) {
+                    if (contentElement['END_TAG_INDEX']) {
+                        i = contentElement['END_TAG_INDEX'] + 1;
+                    } else {
+                        i += 1;
                     }
-                    loopName = contentElement['BINDING_NAME'];
-                    if (!loops[loopName]) {
-                        loops[loopName] = {
-                            list: [self evaluateBinding:binding inContext:context],
-                            index: 0,
-                            itemKey: binding['item'] || binding['ITEM'],
-                            indexKey: binding['index'] || binding['INDEX'],
-                            depth: currentLoopDepth,
-                            isLegacy: 0,
-                            flushOnExit: {},
-                        };
-                        currentLoopDepth++;
-                        [renderState increaseLoopContextDepth];
-                    }
-                //} __LEGACY__
+                    continue;
+                }
+                loopName = contentElement['BINDING_NAME'];
+                if (!loops[loopName]) {
+                    loops[loopName] = {
+                        list: [self evaluateBinding:binding inContext:context],
+                        index: 0,
+                        itemKey: binding['item'] || binding['ITEM'],
+                        indexKey: binding['index'] || binding['INDEX'],
+                        depth: currentLoopDepth,
+                        isLegacy: 0,
+                        flushOnExit: {},
+                    };
+                    currentLoopDepth++;
+                    [renderState increaseLoopContextDepth];
+                }
 
                 // decide if we want to skip
                 var listSize = 0;
@@ -715,9 +606,7 @@ var BINDING_DISPATCH_TABLE = {
                 var itemKey = loops[loopName]['itemKey'];
                 var indexKey = loops[loopName]['indexKey'];
                 if (itemKey) {
-                    [WMLog debug:"Clearing loop key " + itemKey];
                     [self setValue:nil forKey:itemKey]; // clear it out?
-                    [WMLog debug:"Setting loop key " + itemKey + " to " + loops[loopName]['list'][loopIndex]];
                     [self setValue:loops[loopName]['list'][loopIndex] forKey:itemKey];
                     //WM::Log::dump($loops->{$loopName}->{list}->[$loopIndex]);
                 }
@@ -728,7 +617,6 @@ var BINDING_DISPATCH_TABLE = {
                 i++;
                 continue;
             } else if (contentElement['BINDING_TYPE'] == "KEY_PATH") {
-                //[WMLog debug:"Rendering key path " + contentElement['KEY_PATH']];
                 [response appendContentString:[self valueForKey:contentElement['KEY_PATH']]];
             }
         } else {

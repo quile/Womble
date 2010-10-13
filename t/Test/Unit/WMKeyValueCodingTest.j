@@ -45,6 +45,16 @@
     bacon = value;
 }
 
+- (id) _s:(id)value {
+    return value.toUpperCase();
+}
+
+- (id) donne {
+    return {
+        "john": 'jonny',
+        "bruce": 'brucey'
+    };
+}
 @end
 
 @implementation WMKeyValueCodingTest : OJTestCase
@@ -62,13 +72,29 @@
     [self assert:[obj valueForKey:"shakespeare"] equals:"william"];
     [self assert:[obj valueForKey:"marlowe"] equals:"christopher"];
     [self assert:[obj valueForKey:"bacon"] equals:"francis"];
+
+    [self assert:[obj valueForKey:"_s('donne')"] equals:"DONNE"];
+    [self assert:[obj valueForKey:"donne.john"] equals:"jonny"];
+    [self assert:[obj valueForKey:"_s(donne.john)"] equals:"JONNY"];
 }
 
 - (void) testDictionary {
-    d = [CPDictionary new];
-    [d setObject:[CPDictionary new] forKey:"johnson"];
-    [[d objectForKey:"johnson"] setObject:"ben" forKey:"ben"];
-    [self assert:[d valueForKey:"johnson.ben"] equals:"ben"];
+    var d = [CPDictionary new];
+    [d setObject:[CPDictionary new] forKey:"shelley"];
+    [[d objectForKey:"shelley"] setObject:"percy" forKey:"bysshe"];
+    [self assert:[d valueForKey:"shelley.bysshe"] equals:"percy"];
+}
+
+- (void) testArray {
+    var a = [];
+    a[0] = [CPDictionary dictionaryWithJSObject:{ 'wordsworth': 'william', 'keats': ['phil', 'bruce', 'andy', 'john'] }];
+    a[1] = ["samuel", "pepys", [ 1633, 1703 ]];
+
+    [self assert:[a valueForKey:"@0.wordsworth"] equals:"william"];
+    [self assert:[a valueForKey:"@0.keats.@3"] equals:"john"];
+    [self assert:[a valueForKey:"@1.@2.@0"] equals:1633];
+    [self assert:[a valueForKey:"@0.keats.#"] equals:4];
+    [self assert:[a valueForKey:"@1.@2.#"] equals:2];
 }
 
 @end

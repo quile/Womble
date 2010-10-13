@@ -20,7 +20,6 @@
 @import <WM/Component.j>
 @import <WM/Component/URL.j>
 
-
 @implementation WMHyperlink : WMURL
 {
 	id shouldIncludeSID @accessors;

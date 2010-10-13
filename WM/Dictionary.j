@@ -37,7 +37,7 @@ var QS = require("querystring")
     }
 
     if (typeof object != "string" && typeof object.length != "number") {
-        var n = [WMDictionary new];
+        var n = [CPDictionary new];
         var k;
         for (k in object) {
             [n setObject:object[k] forKey:k];
@@ -49,3 +49,5 @@ var QS = require("querystring")
 }
 
 @end
+
+@import <WM/Category/KeyValueCoding.j>
