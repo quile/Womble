@@ -1,0 +1,9 @@
+<input type="checkbox" name="<BINDING:NAME>" value="1" id="<BINDING:UNIQUE_ID>" title="<BINDING:PARENT_BINDING_NAME>" <BINDING_IF:IS_CHECKED>checked="checked"</BINDING_IF:IS_CHECKED> <BINDING:TAG_ATTRIBUTES> /><span id="<BINDING:UNIQUE_ID>-error" class="error" style="display:none;"></span>
+<script type="text/javascript">
+IF.setupFn['<BINDING:UNIQUE_ID>'] = function (controller) { 
+	controller.setIsRequired(<BINDING:IS_REQUIRED>);
+	<BINDING_IF:HAS_REQUIRED_MESSAGE>
+		controller.setRequiredErrorMessage("<BINDING:REQUIRED_MESSAGE>");
+	</BINDING_IF:HAS_REQUIRED_MESSAGE>
+};
+</script>

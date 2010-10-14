@@ -1,0 +1,11 @@
+<span id="<BINDING:UNIQUE_ID>"><BINDING:SELECTION %_TAG_ATTRIBUTES_%></span><span id="<BINDING:UNIQUE_ID>-error" class="error" style="display: none;"></span><BINDING_IF:DOES_ALLOW_OTHER>
+<div id="OTHER_<BINDING:UNIQUE_ID />" style="display:none;" class="popUpMenuOther">
+	<label><BINDING:OTHER_LABEL /></label><BINDING:OTHER_FIELD />
+</div></BINDING_IF:DOES_ALLOW_OTHER><script type="text/javascript">
+jQuery(function() {
+	IF.controllers.<BINDING:UNIQUE_ID> = new IFPopUpMenu("<BINDING:UNIQUE_ID>", "<BINDING:PARENT_BINDING_NAME>");
+	IF.controllers.<BINDING:UNIQUE_ID>.setIsRequired(<BINDING:IS_REQUIRED>);
+	<BINDING_IF:HAS_REQUIRED_MESSAGE>IF.controllers.<BINDING:UNIQUE_ID>.setErrorMessageForKey('<BINDING:REQUIRED_MESSAGE>', "IS_REQUIRED");</BINDING_IF:HAS_REQUIRED_MESSAGE>	
+});<BINDING_IF:DOES_ALLOW_OTHER>
+	IF.controllers.<BINDING:UNIQUE_ID>.initializeOtherHandlingWithValueAndOtherValue('<BINDING:VALUE />', '<BINDING:OTHER_VALUE />');</BINDING_IF:DOES_ALLOW_OTHER>
+</script>

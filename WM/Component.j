@@ -1075,7 +1075,7 @@ var BINDING_DISPATCH_TABLE = {
     return;
 }
 
-- invokeMethodWithArguments:(id)methodName {
+- invokeMethodWithArguments:(id)methodName, ... {
     if (![self respondsToSelector:@SEL(methodName)]) { return }
     //return [self methodName:_](_);
 }

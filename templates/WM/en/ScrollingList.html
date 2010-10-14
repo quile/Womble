@@ -1,0 +1,12 @@
+<span id="<BINDING:UNIQUE_ID>"><BINDING:SELECTION %_TAG_ATTRIBUTES_%>
+<script type="text/javascript">
+jQuery(function () {
+	console.log('Setting up scrolling list: <BINDING:UNIQUE_ID>');
+	var c = new IFScrollingList("<BINDING:UNIQUE_ID>", "<BINDING:PARENT_BINDING_NAME>", "<BINDING:NAME>");
+	c.setIsRequired(<BINDING:IS_REQUIRED>);
+	<BINDING_IF:HAS_REQUIRED_MESSAGE>
+		c.setErrorMessageForKey("<BINDING:REQUIRED_MESSAGE>", "IS_REQUIRED");
+	</BINDING_IF:HAS_REQUIRED_MESSAGE>
+});
+</script>
+</span>
