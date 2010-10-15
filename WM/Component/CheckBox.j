@@ -47,4 +47,26 @@
 	return [self value];
 }
 
+- (id) Bindings {
+	var _bindings = [super Bindings];
+	return UTIL.update(_bindings, {
+		NAME: {
+			type: "STRING",
+			value: 'name',
+		},
+		VALUE: {
+			type: "STRING",
+			value: 'value',
+		},
+		IS_CHECKED: {
+			type: "BOOLEAN",
+			value: 'isChecked',
+		},
+		IS_REQUIRED: {
+			type: "BOOLEAN",
+			value: 'isRequired',
+		},
+	});
+}
+
 @end

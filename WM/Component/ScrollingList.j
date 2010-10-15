@@ -62,4 +62,24 @@
 	return name || [self queryKeyNameForPageAndLoopContexts];
 }
 
+- (id) Bindings {
+	var _bindings = [super Bindings];
+	return UTIL.update(_bindings, {
+		SELECTION => {
+			type => "Selection",
+			bindings => {
+				LIST => 'list',
+				VALUE => 'value',
+				DISPLAY_STRING => 'displayString',
+				SELECTED_VALUES => objj('[WMArray arrayFromObject:[self selection]]'),
+				NAME => 'name',
+				SIZE => 'size',
+				IS_MULTIPLE => 'isMultiple',
+				ANY_STRING => 'anyString',
+				ANY_VALUE => 'anyValue',
+			},
+		}
+	});
+}
+
 @end

@@ -70,4 +70,38 @@
 	return shouldValidateForm || [self tagAttributeForKey:"shouldValidateForm"];
 }
 
+- (id) Bindings {
+	var _bindings = [super Bindings];
+	return UTIL.update(_bindings, {
+		BUTTON_NAME: {
+			type: "STRING",
+			value: 'name',
+		},
+		HAS_BUTTON_VALUE: {
+			type: "BOOLEAN",
+			value: 'value',
+		},
+		BUTTON_VALUE: {
+			type: "STRING",
+			value: 'value',
+		},
+		CONTENT: {
+			type: "CONTENT",
+		},
+		IS_SINGLE_CLICK: {
+			type: "BOOLEAN",
+			value: 'canOnlyBeClickedOnce',
+		},
+		ALTERNATE_VALUE: {
+			type: "STRING",
+			value: '_alternateValue',
+		},
+		SHOULD_VALIDATE_FORM: {
+			type: "BOOLEAN",
+			value: 'shouldValidateForm',
+		},
+	});
+}
+
+
 @end

@@ -1,0 +1,21 @@
+<select name="<BINDING:NAME>" id="<BINDING:UNIQUE_ID>" size="<BINDING:SIZE>" <TMPL_IF BINDING:IS_MULTIPLE>multiple</TMPL_IF> <BINDING:TAG_ATTRIBUTES>>
+<TMPL_LOOP NAME=BINDING:LIST><option VALUE="<BINDING:VALUE>"<TMPL_IF NAME=BINDING:IS_SELECTED> selected="selected"</TMPL_IF>><BINDING:DISPLAY_STRING></option>
+</TMPL_LOOP>
+</select><BINDING_IF:SHOULD_ENABLE_CLIENT_SIDE_SCRIPTING>
+<script type="text/javascript">
+<!--
+function <BINDING:UNIQUE_ID>Value() {
+	return valueOfSelect("<BINDING:UNIQUE_ID>");
+}
+function <BINDING:UNIQUE_ID>Values() {
+	return valuesOfSelect("<BINDING:UNIQUE_ID>");
+}
+function set<BINDING:UNIQUE_ID>Value(value) {
+	setValueOfSelect(value, "<BINDING:UNIQUE_ID>");
+}
+function set<BINDING:UNIQUE_ID>Values(values) {
+	setValuesOfSelect(values, "<BINDING:UNIQUE_ID>");
+}
+// -->
+</script>
+</BINDING_IF:SHOULD_ENABLE_CLIENT_SIDE_SCRIPTING>

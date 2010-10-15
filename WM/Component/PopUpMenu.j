@@ -161,13 +161,57 @@
 }
 
 - (id) otherLabel {
-	return otherLabel || "Other";
+	return otherLabel || "Other"; // TODO: i18n
 }
-
-// An alternate key can be used to store the text value instead of the selection
 
 - (id) escapeJavascript:(id)string {
 	return string.replace(new RegExp("'", "g"), "\\'");
+}
+
+- (id) Bindings {
+	var _bindings = [super Bindings];
+	return UTIL.update(_bindings, {
+		SELECTION: {
+			type: "Selection",
+			bindings: {
+				LIST: 'list',
+				VALUE: 'value',
+				DISPLAY_STRING: 'displayString',
+				SELECTED_VALUES: objj('[WMArray arrayFromObject:[self selection]]'),
+				NAME: 'name',
+				shouldIgnoreCase: 'shouldIgnoreCase',
+				shouldIgnoreAccents: 'shouldIgnoreAccents',
+			},
+		},
+		IS_REQUIRED: {
+			type: "BOOLEAN",
+			value: 'isRequired',
+		},
+		DOES_ALLOW_OTHER: {
+			type: "BOOLEAN",
+			value: 'allowsOther',
+		},
+		OTHER_FIELD: {
+			type: "TextField",
+			bindings: {
+				value: 'otherText',
+			},
+		},
+		OTHER_LABEL: {
+			type: "STRING",
+			value: 'otherLabel',
+		},
+		OTHER_VALUE: {
+			type: "STRING",
+			value: 'otherValue',
+			filter: 'escapeJavascript',
+		},
+		VALUE: {
+			type: "STRING",
+			value: 'selection',
+			filter: 'escapeJavascript',
+		},
+	});
 }
 
 @end

@@ -110,4 +110,55 @@
 	return name || [self pageContextNumber];
 }
 
+- (id) Bindings {
+	var _bindings = [super Bindings];
+	return UTIL.update(_bindings, {
+		NAME: {
+			type: "STRING",
+			value: 'name',
+		},
+		LIST: {
+			type: "LOOP",
+			list: 'list',
+			item: "anItem",
+		},
+		VALUE: {
+			type: "STRING",
+			value: objj('[self valueForItem:[self anItem]]'),
+		},
+		IS_SELECTED: {
+			type: "BOOLEAN",
+			value: objj('[self itemIsSelected:[self anItem]]'),
+		},
+		DISPLAY_STRING: {
+			type: "STRING",
+			value: objj('[self displayStringForItem:[self anItem]]'),
+		},
+		SHOULD_ENABLE_CLIENT_SIDE_SCRIPTING: {
+			type: "BOOLEAN",
+			value: 'shouldEnableClientSideScripting',
+		},
+		SHOULD_RENDER_IN_TABLE: {
+			type: "BOOLEAN",
+			value: 'shouldRenderInTable',
+		},
+		INIT_CODE: {
+			type: "STRING",
+			value: objj('[self tagAttributeForKey:"init"]'),
+		},
+		HAS_INIT_CODE: {
+			type: "BOOLEAN",
+			value: objj('[self tagAttributeForKey:"init"]'),
+		},
+		CHECKBOXES: {
+			type: "REGION",
+			name: "checkboxes",
+		},
+		LABELS: {
+			type: "REGION",
+			name: "labels",
+		},
+	});
+}
+
 @end
