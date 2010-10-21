@@ -22,6 +22,7 @@
 
 @implementation WMFormComponent : WMComponent
 {
+	id name @accessors;
 	id isRequired @accessors;
 	id validationFailureMessage @accessors;
 	id validator @accessors;

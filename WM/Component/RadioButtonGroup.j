@@ -20,6 +20,7 @@
 @import <WM/Component/PopUpMenu.j>
 @import <WM/PageResource.j>
 
+var UTIL = require("util");
 
 @implementation WMRadioButtonGroup : WMPopUpMenu
 {
@@ -124,7 +125,7 @@
 		},
 		SHOULD_RENDER_IN_TABLE: {
 			type: "BOOLEAN",
-			value: q'shouldRenderInTable',
+			value: 'shouldRenderInTable',
 		},
 		IS_VERTICAL_LAYOUT: {
 			type: "BOOLEAN",

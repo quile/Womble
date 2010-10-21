@@ -341,6 +341,10 @@ var BINDING_DISPATCH_TABLE = {
     delete _bindings['inheritsFrom'];
 }
 
+- (id) Bindings {
+    return {};
+}
+
 // Man, a state machine.  Weird.  This needs to be unwound into
 // a real state machine as it's essentially a huge switch statement
 // right now
@@ -446,7 +450,7 @@ var BINDING_DISPATCH_TABLE = {
                 if ([self bindingIsComponent:binding] || binding['type'] == "REGION" || binding['type'] == "SUBCOMPONENT_REGION") {
                     if (contentElement['END_TAG_INDEX']) {
                         if (value.match(COMPONENT_CONTENT_MARKER_RE)) {
-                            var bits = value.split(cre);
+                            var bits = value.split(COMPONENT_CONTENT_MARKER_RE);
                             var openTagReplacement = bits[0];
                             var closeTagReplacement = bits[1];
                             value = openTagReplacement;
@@ -474,9 +478,9 @@ var BINDING_DISPATCH_TABLE = {
                     }
                     //WM::Log::debug("Tag attribute string is $tagAttributes for binding $binding->{NAME}");
 
-
-                        value.replace(TAG_ATTRIBUTE_MARKER_RE, tagAttributes);
-                    }
+                    [WMLog debug:binding['_NAME'] + " " + value];
+                    value.replace(TAG_ATTRIBUTE_MARKER_RE, tagAttributes);
+                }
                 //} // __LEGACY__
                 [response appendContentString:value];
                 i++;
@@ -709,7 +713,7 @@ var BINDING_DISPATCH_TABLE = {
 
 - (id) bindingForKey:(id)key {
     // automatically try the uppercase binding name if we can't find the one passed in.
-    // It's a legacy thing; all the old binding names used to caps.
+    // It's a legacy thing; all the old binding names used to be in caps.
     //
     var bs = [self bindings];
     var b = bs[key] || bs[key.toUpperCase()];
@@ -737,6 +741,7 @@ var BINDING_DISPATCH_TABLE = {
         }
         //WM::Log::debug("Couldn't find binding with name $key");
         var error = [WMTemplate errorForKey:"BINDING_NOT_FOUND", key];
+        eval(_p_setTrace);
         return {
             type: "STRING",
             value: "\'" + error + "\'",

@@ -20,6 +20,8 @@
 @import <WM/Component/FormComponent.j>
 @import <WM/PageResource.j>
 
+var UTIL = require("util");
+
 @implementation WMPopUpMenu : WMFormComponent
 {
 	id objectInflatorMethod @accessors;

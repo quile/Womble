@@ -21,7 +21,17 @@
 @import <WM/Classes.j>
 @import <WM/Component/Form.j>
 @import <WM/Component/HiddenField.j>
+@import <WM/Component/RadioButtonGroup.j>
+@import <WM/Component/CheckBoxGroup.j>
+@import <WM/Component/TextField.j>
+@import <WM/Component/Text.j>
+@import <WM/Component/HiddenField.j>
+@import <WM/Component/PopUpMenu.j>
+@import <WM/Component/ScrollingList.j>
+@import <WM/Component/Selection.j>
+@import <WM/Component/SubmitButton.j>
 
+@import "../../Component/WMTest/Form.j"
 @import "../../Application.j"
 
 var application = [WMApplication applicationInstanceWithName:"WMTest"];
@@ -39,8 +49,13 @@ var application = [WMApplication applicationInstanceWithName:"WMTest"];
     [component setLanguage:"fr"];
     [component setTargetComponentName:"FooBar"];
     var content = [component render];
-    [WMLog debug:content];
     [self assertTrue:content.match("http://www.zig.zag/WMTest/root/fr/FooBar/default")];
+}
+
+- (void) testElements {
+    var component = [WMTestForm new];
+    var content = [component render];
+    [WMLog debug:content];
 }
 
 @end

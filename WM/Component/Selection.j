@@ -166,7 +166,7 @@
 }
 
 - (id) listFromLabelsAndValues {
-	if (!values or !labels) { return [] }
+	if (!values || !labels) { return [] }
 
 	var l = [];
 	for (var i=0; i<values.length; i++) {

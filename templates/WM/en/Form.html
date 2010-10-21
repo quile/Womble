@@ -1,13 +1,13 @@
-<form id="<BINDING:UNIQUE_ID>" name="<BINDING:FORM_NAME>" method="<BINDING:METHOD>" title="<BINDING:PARENT_BINDING_NAME>" <BINDING_IF:HAS_ENC_TYPE>enctype="<BINDING:ENC_TYPE>" </BINDING_IF:HAS_ENC_TYPE>action="<BINDING_IF:HAS_URL><BINDING:URL><BINDING_ELSE:HAS_URL><BINDING_IF:HAS_SERVER><BINDING_IF:HAS_PROTOCOL><BINDING:PROTOCOL>://</BINDING_IF:HAS_PROTOCOL><BINDING:SERVER></BINDING_IF:HAS_SERVER><BINDING:ACTION><BINDING_IF:HAS_ANCHOR>#<BINDING:ANCHOR></BINDING_IF:HAS_ANCHOR></BINDING_IF:HAS_URL>"  <BINDING:TAG_ATTRIBUTES>>
+<form id="<binding:unique_id>" name="<binding:form_name>" method="<binding:method>" title="<binding:parent_binding_name>" <binding_if:has_enc_type>enctype="<binding:enc_type>" </binding_if:has_enc_type>action="<binding_if:has_url><binding:url><binding_else:has_url><binding_if:has_server><binding_if:has_protocol><binding:protocol>://</binding_if:has_protocol><binding:server></binding_if:has_server><binding:action><binding_if:has_anchor>#<binding:anchor></binding_if:has_anchor></binding_if:has_url>"  <binding:tag_attributes>>
 <script type="text/javascript">
-	IF.setupFn['<BINDING:UNIQUE_ID>'] = function(controller) { 
-	<BINDING_IF:CAN_ONLY_BE_SUBMITTED_ONCE>controller.setCanOnlyBeSubmittedOnce(1);</BINDING_IF:CAN_ONLY_BE_SUBMITTED_ONCE>
-	<BINDING_IF:HAS_VALIDATION_ERROR_MESSAGES><BINDING_LOOP:VALIDATION_ERROR_MESSAGES>
-		controller.setErrorMessageForKey(<BINDING:A_VALIDATION_ERROR_MESSAGE_TEXT />, <BINDING:A_VALIDATION_ERROR_MESSAGE_KEY />);	
-	</BINDING_LOOP:VALIDATION_ERROR_MESSAGES></BINDING_IF:HAS_VALIDATION_ERROR_MESSAGES>
+	IF.setupFn['<binding:unique_id>'] = function(controller) {
+	<binding_if:can_only_be_submitted_once>controller.setCanOnlyBeSubmittedOnce(1);</binding_if:can_only_be_submitted_once>
+	<binding_if:has_validation_error_messages><binding_loop:validation_error_messages>
+		controller.setErrorMessageForKey(<binding:a_validation_error_message_text />, <binding:a_validation_error_message_key />);
+	</binding_loop:validation_error_messages></binding_if:has_validation_error_messages>
 	};
 </script>
-<BINDING_IF:HAS_QUERY_DICTIONARY><BINDING_LOOP:QUERY_DICTIONARY><BINDING:HIDDEN_KEY_VALUE>
-	</BINDING_LOOP:QUERY_DICTIONARY></BINDING_IF:HAS_QUERY_DICTIONARY>
-	<BINDING:CONTENT>
+<binding_if:has_query_dictionary><binding_loop:query_dictionary><binding:hidden_key_value>
+	</binding_loop:query_dictionary></binding_if:has_query_dictionary>
+	<binding:content>
 </form>

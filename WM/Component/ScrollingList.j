@@ -20,6 +20,8 @@
 @import <WM/Component/FormComponent.j>
 @import <WM/PageResource.j>
 
+var UTIL = require("util");
+
 @implementation WMScrollingList : WMFormComponent
 {
 	id name @accessors;
@@ -65,18 +67,18 @@
 - (id) Bindings {
 	var _bindings = [super Bindings];
 	return UTIL.update(_bindings, {
-		SELECTION => {
-			type => "Selection",
-			bindings => {
-				LIST => 'list',
-				VALUE => 'value',
-				DISPLAY_STRING => 'displayString',
-				SELECTED_VALUES => objj('[WMArray arrayFromObject:[self selection]]'),
-				NAME => 'name',
-				SIZE => 'size',
-				IS_MULTIPLE => 'isMultiple',
-				ANY_STRING => 'anyString',
-				ANY_VALUE => 'anyValue',
+		SELECTION: {
+			type: "Selection",
+			bindings: {
+				LIST: 'list',
+				VALUE: 'value',
+				DISPLAY_STRING: 'displayString',
+				SELECTED_VALUES: objj('[WMArray arrayFromObject:[self selection]]'),
+				NAME: 'name',
+				SIZE: 'size',
+				IS_MULTIPLE: 'isMultiple',
+				ANY_STRING: 'anyString',
+				ANY_VALUE: 'anyValue',
 			},
 		}
 	});

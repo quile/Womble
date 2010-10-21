@@ -509,14 +509,16 @@ sub locationAsString {
 	// type => bindingClass
 	var bindingClass = binding.value || binding.type;
 	// Locate the component and the template
-	var componentName = [WMUtility evaluateExpression:bindingClass inComponent:self context:context] || bindingClass;
+	var cn = [WMUtility evaluateExpression:bindingClass inComponent:self context:context] || bindingClass;
+	[WMLog debug:"component name is " + bindingClass + " / " + binding.toSource()];
 
-    if (![WMLog assert:componentName message:"Component path exists for binding " + binding._NAME]) { return nil }
+    if (![WMLog assert:cn message:"Component path exists for binding " + binding._NAME]) { return nil }
 
 	// we need full classname of component here.
-	var fullComponentClassName = [self _bestComponentNameForName:componentName inContext:context];
+	var fullComponentClassName = [self _bestComponentNameForName:cn inContext:context];
 	if (fullComponentClassName) {
         var cls = objj_getClass(fullComponentClassName);
+		[WMLog debug:"Instantiating " + cls];
 	    return [cls newWithBinding:binding];
 	}
 	return nil;
@@ -577,6 +579,7 @@ sub locationAsString {
 - (CPString) _bestComponentNameForName:(id)componentName inContext:(id)context {
 	var application = context ? [context application] : [WMApplication defaultApplication];
 	var componentNamespaces = [application configurationValueForKey:"COMPONENT_SEARCH_PATH"];
+	[WMLog debug:componentNamespaces.toSource()];
 	var bestComponentPath;
 
     // Generate a list of names to try

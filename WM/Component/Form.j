@@ -96,74 +96,74 @@ var UTIL = require("util.js")
 - (id) Bindings {
 	var _bindings = [super Bindings];
 	return UTIL.update(_bindings, {
-		HIDDEN_KEY_VALUE: {
+		hidden_key_value: {
 			type: "HiddenField",
 			bindings: {
 				name: objj('[self aKeyValuePair].NAME'),
 				value: objj('[self aKeyValuePair].VALUE'),
 			},
 		},
-		TAG_ATTRIBUTES: {
+		tag_attributes: {
 			type: "ATTRIBUTES",
 		},
-		CONTENT: {
+		content: {
 			type: "CONTENT",
 		},
-		METHOD: {
+		method: {
 			type: "STRING",
 			value: 'method',
 		},
-		ENC_TYPE: {
+		enc_type: {
 			type: "STRING",
 			value: 'encType',
 		},
-		HAS_ENC_TYPE: {
+		has_enc_type: {
 			type: "BOOLEAN",
 			value: 'encType',
 		},
-		SHOULD_ENABLE_CLIENT_SIDE_SCRIPTING: {
+		should_enable_client_side_scripting: {
 			type: "BOOLEAN",
 			value: 'shouldEnableClientSideScripting',
 		},
-		IS_FIRST_TIME_RENDERED: {
+		is_first_time_rendered: {
 			type: "BOOLEAN",
 			value: 'isFirstTimeRendered',
 		},
-		FORM_NAME: {
+		form_name: {
 			type: "STRING",
 			value: 'formName',
 		},
-		UNIQUE_ID: {
+		unique_id: {
 			type: "STRING",
 			value: 'uniqueId',
 		},
-		JAVASCRIPT_ROOT: {
+		javascript_root: {
 			type: "STRING",
 			value: 'application.systemConfigurationValueForKey("JAVASCRIPT_ROOT")',
 		},
-		PARENT_BINDING_NAME: {
+		parent_binding_name: {
 			type: "STRING",
 			value: 'nestedBindingPath',
 		},
-		CAN_ONLY_BE_SUBMITTED_ONCE: {
+		can_only_be_submitted_once: {
 			type: "BOOLEAN",
 			value: 'canOnlyBeSubmittedOnce',
 		},
-		HAS_VALIDATION_ERROR_MESSAGES: {
+		has_validation_error_messages: {
 			type: "BOOLEAN",
 			//value: 'validationErrorMessages.keys.length',
 			value: '"0"',
 		},
-		VALIDATION_ERROR_MESSAGES: {
+		validation_error_messages: {
 			type: "LOOP",
 			list: 'validationErrorMessagesArray',
 			item: "aMessage",
 		},
-		A_VALIDATION_ERROR_MESSAGE_TEXT: {
+		a_validation_error_message_text: {
 			type: "STRING",
 			value: 'aMessage.value',
 		},
-		A_VALIDATION_ERROR_MESSAGE_KEY: {
+		a_validation_error_message_key: {
 			type: "STRING",
 			value: 'aMessage.key',
 		},

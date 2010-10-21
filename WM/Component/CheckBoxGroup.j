@@ -20,6 +20,8 @@
 @import <WM/Component/ScrollingList.j>
 @import <WM/PageResource.j>
 
+var UTIL = require("util");
+
 @implementation WMCheckBoxGroup : WMScrollingList
 {
 	id shouldRenderInTable @accessors;
