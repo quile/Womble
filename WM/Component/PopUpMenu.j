@@ -26,6 +26,7 @@ var UTIL = require("util");
 {
 	id objectInflatorMethod @accessors;
 	id anyString @accessors;
+	id anyValue @accessors;
 	id value @accessors;
 	id displayString @accessors;
 	id values @accessors;
@@ -99,8 +100,9 @@ var UTIL = require("util");
 			l.push(entry);
 		}
 	} else {
-		for (var i=0; i<LIST.length; i++) {
-			var item = LIST[i];
+		var cl = LIST || [];
+		for (var i=0; i<cl.length; i++) {
+			var item = cl[i];
 			l.push(item);
 		}
 	}

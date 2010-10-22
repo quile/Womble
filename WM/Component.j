@@ -433,7 +433,7 @@ var BINDING_DISPATCH_TABLE = {
                 // and access them if need be
                 //
                 binding['__private'] = binding['__private'] || {};
-                binding['__private']['ATTRIBUTES'] = contentElement['ATTRIBUTE_HASH'];
+                binding['__private']['ATTRIBUTES'] = contentElement['ATTRIBUTE_HASH'] || {};
                 value = [self evaluateBinding:binding inContext:context];
                 delete binding['__private']['ATTRIBUTES'];
                 // add it to the list of components to flush on an
@@ -450,7 +450,7 @@ var BINDING_DISPATCH_TABLE = {
                 if ([self bindingIsComponent:binding] || binding['type'] == "REGION" || binding['type'] == "SUBCOMPONENT_REGION") {
                     if (contentElement['END_TAG_INDEX']) {
                         if (value.match(COMPONENT_CONTENT_MARKER_RE)) {
-                            var bits = value.split(COMPONENT_CONTENT_MARKER_RE);
+                            var bits = _p_2_split(COMPONENT_CONTENT_MARKER_RE, value);
                             var openTagReplacement = bits[0];
                             var closeTagReplacement = bits[1];
                             value = openTagReplacement;
@@ -466,7 +466,7 @@ var BINDING_DISPATCH_TABLE = {
                     // the component tree.  here, the including component evaluates the
                     // attributes for the included component.
                     //
-                    var tagAttributes = contentElement['ATTRIBUTE'];
+                    var tagAttributes = contentElement['ATTRIBUTES'];
                     // process it using craig's cleverness, but first set the parent up
                     // so the hierarchy is preserved - this is a temporary hack
                     //
@@ -715,6 +715,7 @@ var BINDING_DISPATCH_TABLE = {
     // automatically try the uppercase binding name if we can't find the one passed in.
     // It's a legacy thing; all the old binding names used to be in caps.
     //
+    if (![WMLog assert:key message:"bindingForKey: called with no key name"]) { return nil }
     var bs = [self bindings];
     var b = bs[key] || bs[key.toUpperCase()];
     // Allow overrides
@@ -741,7 +742,6 @@ var BINDING_DISPATCH_TABLE = {
         }
         //WM::Log::debug("Couldn't find binding with name $key");
         var error = [WMTemplate errorForKey:"BINDING_NOT_FOUND", key];
-        eval(_p_setTrace);
         return {
             type: "STRING",
             value: "\'" + error + "\'",
@@ -766,6 +766,7 @@ var BINDING_DISPATCH_TABLE = {
 }
 
 - (id) componentResponseForBindingNamed:(id)bindingKey {
+    [WMLog debug:"componentResponseForBindingNamed:" + bindingKey];
     var binding = [self bindingForKey:bindingKey];
     return [self componentResponseForBinding:binding];
 }
@@ -1520,23 +1521,24 @@ var BINDING_DISPATCH_TABLE = {
 - (void) setTagAttributes:(id)value { _tagAttributes = value }
 
 - (id) tagAttributeForKey:(id)key {
+    // [WMLog debug:"checking for tag attribute " + key + " in " + _tagAttributes];
+    if (!_tagAttributes) { return nil }
     var tagAttribute = _tagAttributes[key];
+    if (!tagAttribute) { return nil }
     return [self _evaluateKeyPathsInTagAttributes:tagAttribute onComponent:self];
 }
 
 - (id) _evaluateKeyPathsInTagAttributes:(id)tagAttribute onComponent:(id)component {
-    if (!tagAttribute || !component) { return }
+    if (!tagAttribute || !component) { return nil }
     var count = 0;
     var match;
     var ekpre = new RegExp("\$\{([^}]+)\}");
     while (match = tagAttribute.match(ekpre)) {
         var keyValuePath = match[1];
         var value = [component valueForKeyPath:keyValuePath] || [component valueForKeyPath:'parent.' + keyValuePath];
-        //WM::Log::debug("tagAttributeForKey - Found keyValuePath of $keyValuePath and that returned $value");
-        //WM::Log::debug("parent is ".$component->parent());
-        //\Q and \E makes the regex ignore the inbetween values if they have regex special items which we probably will for the dots (.).
-        //
-        var rr = new RegExp("\$\{\Q" + keyValuePath + "\E\}");
+        [WMLog debug:"tagAttributeForKey - Found keyValuePath of " + keyValuePath + " and that returned " + value];
+        [WMLog debug:"parent is " + [component parent]];
+        var rr = new RegExp("\$\{" + _p_quotemeta(keyValuePath) + "\}");
         tagAttribute.replace(rr, value);
         //Avoiding the infinite loop...just in case
         if (count++ > 100) { break }

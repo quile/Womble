@@ -20,6 +20,8 @@
 @import <WM/Component.j>
 @import <WM/PageResource.j>
 
+var UTIL = require("util");
+
 @implementation WMSelection : WMComponent {
 {
 	id _list;
