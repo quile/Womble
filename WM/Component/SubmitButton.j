@@ -17,6 +17,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+var UTIL = require("util.js");
+
 @import <WM/Component/FormComponent.j>
 @import <WM/PageResource.j>
 

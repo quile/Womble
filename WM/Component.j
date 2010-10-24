@@ -261,6 +261,7 @@ var BINDING_DISPATCH_TABLE = {
     _componentName = nil;
     _componentNameRelativeToSiteClassifier = nil;
     _hierarchy = "";
+    //[WMLog debug:"Initialising " + self + ", _subcomponents = " + _subcomponents];
     return self;
 }
 
@@ -462,24 +463,26 @@ var BINDING_DISPATCH_TABLE = {
                         }
                     }
 
-                    // this is bent because it needs to be evaluated one level lower in
-                    // the component tree.  here, the including component evaluates the
-                    // attributes for the included component.
-                    //
-                    var tagAttributes = contentElement['ATTRIBUTES'];
-                    // process it using craig's cleverness, but first set the parent up
-                    // so the hierarchy is preserved - this is a temporary hack
-                    //
-                    var c = [self subcomponentForBindingNamed:binding['_NAME']];
-                    if ([WMLog assert:c message:"Subcomponent for binding " + binding['_NAME'] + " exists"]) {
-                        [c setParent:self];
-                        tagAttributes = [self _evaluateKeyPathsInTagAttributes:tagAttributes onComponent:c];
-                        [c setParent:nil];
-                    }
-                    //WM::Log::debug("Tag attribute string is $tagAttributes for binding $binding->{NAME}");
+                    if (binding['type'] != "REGION") {
+                        // this is bent because it needs to be evaluated one level lower in
+                        // the component tree.  here, the including component evaluates the
+                        // attributes for the included component.
+                        //
+                        var tagAttributes = contentElement['ATTRIBUTES'];
+                        // process it using craig's cleverness, but first set the parent up
+                        // so the hierarchy is preserved - this is a temporary hack
+                        //
+                        var c = [self subcomponentForBindingNamed:binding['_NAME']];
+                        if ([WMLog assert:c message:"Subcomponent for binding " + binding['_NAME'] + " exists"]) {
+                            [c setParent:self];
+                            tagAttributes = [self _evaluateKeyPathsInTagAttributes:tagAttributes onComponent:c];
+                            [c setParent:nil];
+                        }
+                        //WM::Log::debug("Tag attribute string is $tagAttributes for binding $binding->{NAME}");
 
-                    [WMLog debug:binding['_NAME'] + " " + value];
-                    value.replace(TAG_ATTRIBUTE_MARKER_RE, tagAttributes);
+                        [WMLog debug:binding['_NAME'] + " " + value];
+                        value.replace(TAG_ATTRIBUTE_MARKER_RE, tagAttributes);
+                    }
                 }
                 //} // __LEGACY__
                 [response appendContentString:value];
@@ -750,7 +753,7 @@ var BINDING_DISPATCH_TABLE = {
     return b;
 }
 
-- evaluateExpression:(id)expression {
+- (id) evaluateExpression:(id)expression {
     var context = [self context];
     return eval(expression);
 }
@@ -761,12 +764,14 @@ var BINDING_DISPATCH_TABLE = {
     var bindingType = [self bindingIsComponent:binding] ? "COMPONENT" : binding['type'];
     var dispatch = BINDING_DISPATCH_TABLE[bindingType];
     //[WMLog debug:"evaluateBinding: " + bindingType + " binding is " + binding.toSource()];
+    [WMLog debug:"  ----------> start dispatching (" + binding['_NAME']+ ")"];
     var rv = dispatch(self, binding, context);
+    [WMLog debug:"  <---------- end dispatching (" + binding['_NAME']+ ")"];
     return rv;
 }
 
 - (id) componentResponseForBindingNamed:(id)bindingKey {
-    [WMLog debug:"componentResponseForBindingNamed:" + bindingKey];
+    //[WMLog debug:"componentResponseForBindingNamed:" + bindingKey];
     var binding = [self bindingForKey:bindingKey];
     return [self componentResponseForBinding:binding];
 }
@@ -926,18 +931,22 @@ var BINDING_DISPATCH_TABLE = {
     }
 }
 
-- pullValuesFromParent {
+- (void) pullValuesFromParent {
     if (![self parent] || ![[self parent] synchronizesBindingsWithChildren]
         || ![self synchronizesBindingsWithParent]) { return }
     [[self parent] pushValuesToComponent:self];
 }
 
-- pushValuesToComponent:(id)component {
+- (void) pushValuesToComponent:(id)component {
     var binding = [self bindingForKey:[component parentBindingName]];
-    return [self pushValuesToComponent:component usingBindings:binding['bindings']];
+    if (!binding) {
+        [WMLog debug:"parent binding name " + [component parentBindingName] + " returned no binding"];
+        return;
+    }
+    [self pushValuesToComponent:component usingBindings:binding['bindings']];
 }
 
-- pushValuesToComponent:(id)component usingBindings:(id)bindings {
+- (void) pushValuesToComponent:(id)component usingBindings:(id)bindings {
     // set the bindings
     var bs = bindings || {};
     for (var key in bs) {
@@ -952,7 +961,7 @@ var BINDING_DISPATCH_TABLE = {
     [[self parent] pullValuesFromComponent:self];
 }
 
-- pullValuesFromComponent:(id)component {
+- (void) pullValuesFromComponent:(id)component {
     var binding = [self bindingForKey:[component parentBindingName]];
 
     // set the bindings
@@ -973,6 +982,7 @@ var BINDING_DISPATCH_TABLE = {
 // only when they're requested for the first time.
 //
 - (WMComponent) subcomponentForBindingNamed:(id)bindingName {
+    //[WMLog debug:"subcomponentForBindingNamed: " + bindingName + " / " + _subcomponents];
     if (_subcomponents[bindingName]) {
         return _subcomponents[bindingName]
     }
@@ -1291,10 +1301,10 @@ var BINDING_DISPATCH_TABLE = {
     for (var i=0; i < sortedKeys.length; i++) {
         var bindingName = sortedKeys[i];
         var subcomponent = _subcomponents[bindingName];
-        [WMLog debug:subcomponent];
-        if (subcomponent.isa != "WMComponent") {
-            [WMLog dump:_subcomponents];
-        }
+        //[WMLog debug:subcomponent];
+        //if (subcomponent.isa != "WMComponent") {
+        //    [WMLog dump:_subcomponents];
+        //}
         [subcomponent setContext:context];
     }
 }
@@ -1521,7 +1531,6 @@ var BINDING_DISPATCH_TABLE = {
 - (void) setTagAttributes:(id)value { _tagAttributes = value }
 
 - (id) tagAttributeForKey:(id)key {
-    // [WMLog debug:"checking for tag attribute " + key + " in " + _tagAttributes];
     if (!_tagAttributes) { return nil }
     var tagAttribute = _tagAttributes[key];
     if (!tagAttribute) { return nil }
@@ -1536,8 +1545,8 @@ var BINDING_DISPATCH_TABLE = {
     while (match = tagAttribute.match(ekpre)) {
         var keyValuePath = match[1];
         var value = [component valueForKeyPath:keyValuePath] || [component valueForKeyPath:'parent.' + keyValuePath];
-        [WMLog debug:"tagAttributeForKey - Found keyValuePath of " + keyValuePath + " and that returned " + value];
-        [WMLog debug:"parent is " + [component parent]];
+        //[WMLog debug:"tagAttributeForKey - Found keyValuePath of " + keyValuePath + " and that returned " + value];
+        //[WMLog debug:"parent is " + [component parent]];
         var rr = new RegExp("\$\{" + _p_quotemeta(keyValuePath) + "\}");
         tagAttribute.replace(rr, value);
         //Avoiding the infinite loop...just in case

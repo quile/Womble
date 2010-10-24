@@ -55,6 +55,7 @@ var UTIL = require("util")
 
 // TODO make this a real escape.
 - (id) escapeDoubleQuotes:(id)str {
+	if (!str) { return nil }
 	return str.replace(new RegExp('"', "g"), '&quot;');
 }
 

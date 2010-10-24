@@ -43,6 +43,7 @@ var UTIL = require("util");
 }
 
 - (id) init {
+	[super init];
 	anyValue = "";
 	return self;
 }

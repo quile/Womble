@@ -132,6 +132,9 @@
                 displayString: 'displayString',
             },
         },
+        submit_button: {
+            type: 'SubmitButton',
+        },
     };
 }
 
