@@ -85,7 +85,6 @@ var application = [WMApplication applicationInstanceWithName:"WMTest"];
 - (void) testBasicLanguageResolution {
     var component = [WMTestHome new];
     var o = [component renderWithParameters:{ language: "es" }];
-
     [self assertTrue:o.match(/Vamos/) message:"Nested subcomponent rendered in correct language"];
 }
 

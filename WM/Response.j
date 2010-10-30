@@ -19,31 +19,24 @@
 
 @import "Object.j"
 @import "RenderState.j"
-//@import "Template.j"
 
 @implementation WMResponse : WMObject
 {
     // This is for old-skool compat
     id _params;
-
     id _contentList;
-    WMTemplate _template;
     WMRenderState _renderState;
 }
 
 - init {
     _params = {};
-    _template = nil;
     _contentList = ['',];
     _renderState = nil; // [WMRenderState new],
     [self setContent:""];
     return self;
 }
 
-- (void)setTemplate:(WMTemplate)t { _template = t; }
-- (WMTemplate) template { return _template; }
-
-- appendContentString:(id)s {
+- (void) appendContentString:(id)s {
     _contentList[_contentList.length] = s;
 }
 

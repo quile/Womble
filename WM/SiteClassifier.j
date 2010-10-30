@@ -238,6 +238,7 @@ sub locationAsString {
 	    languageToken = [context preferredLanguagesForTransactionAsToken];
 	    preferredLanguages = [context preferredLanguagesForTransaction];
 	} else {
+		[WMLog debug:"No context passed into bestTemplateForPath:"];
 	    application = [WMApplication defaultApplication];
 	    languageToken = [application configurationValueForKey:"DEFAULT_LANGUAGE"];
 	    preferredLanguages = [languageToken];

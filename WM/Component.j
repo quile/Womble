@@ -223,6 +223,7 @@ var BINDING_DISPATCH_TABLE = {
     id _directActionDispatchTable;
     id _overrides;
     id _templateName;
+    id _template;
     id _renderState;
     //id _siteClassifier;
     id _componentName;
@@ -258,6 +259,7 @@ var BINDING_DISPATCH_TABLE = {
     _directActionDispatchTable = nil;
     _overrides = {};
     _templateName = nil;
+    _template = nil;
     _componentName = nil;
     _componentNameRelativeToSiteClassifier = nil;
     _hierarchy = "";
@@ -272,8 +274,8 @@ var BINDING_DISPATCH_TABLE = {
 }
 
 // the template name for this component.
-// you could override this, conceivably.
-- templateName {
+// You could override this, conceivably.
+- (id) templateName {
     if (!_templateName) {
         _templateName = [WMComponent __templateNameFromComponentName:[self componentNameRelativeToSiteClassifier]];
     }
@@ -282,7 +284,7 @@ var BINDING_DISPATCH_TABLE = {
 
 // You can override this to map a template name to another
 // template at render time.
-- mappedTemplateNameFromTemplateName:(id)templateName inContext:(id)context {
+- (id) mappedTemplateNameFromTemplateName:(id)templateName inContext:(id)context {
     return templateName;
 }
 
@@ -370,8 +372,7 @@ var BINDING_DISPATCH_TABLE = {
         }
     }
 
-    // this is now guaranteed to exist if we got this far (checked in responseFromContext)
-    var template = [response template];
+    var template = [self template];
 
     if (!template) {
         // what to do here?
@@ -787,13 +788,14 @@ var BINDING_DISPATCH_TABLE = {
     var response = [WMResponse new];
     [response setRenderState:renderState];
     var component = [self subcomponentForBindingNamed:bindingKey];
-    var template;
+    /*
     if (component && [component hasCompiledResponse]) {
-        //$template = bestTemplateForNameAndContext($templateName, $context);
+        // ?
     } else {
         template = [[self _siteClassifier] bestTemplateForPath:templateName andContext:context];
     }
     [response setTemplate:template];
+    */
 
     if (!component) {
         component = [self pageWithName:componentName];
@@ -811,13 +813,10 @@ var BINDING_DISPATCH_TABLE = {
         // so stash the component object that we just created in there.
         //
     }
-    if (!response) {
-        return [WMLog error:"no template - " + templateName];
-    }
-
     if (![component context]) {
         [component setContext:context];
     }
+    var template = [component template];
     [component _setRenderState:renderState];
     [component setTagAttributes:binding['__private']['ATTRIBUTES']];
     [component setParent:self];
@@ -1607,19 +1606,20 @@ var BINDING_DISPATCH_TABLE = {
     return component;
 }
 
-// This helper just makes a default response and sets the template with
-// the appropriate goop
-//
-- (WMResponse) response {
-    // make a response object, set it up and return it
-    var templateName = [self templateName];
-    var template = [[self _siteClassifier] bestTemplateForPath:templateName andContext:[self context]];
-    var response = [WMResponse new];
-    [response setTemplate:template];
-    return response;
+// Helpers to assist in the porting of this stuff to objj
+// FIXME:kd  This caches the template!
+- (WMTemplate) template {
+    if (_template) { return _template }
+    _template = [[self _siteClassifier] bestTemplateForPath:[self templateName] andContext:[self context]];
+    return _template;
 }
 
-- render {
+// This helper just makes a default response
+- (WMResponse) response {
+    return [WMResponse new];
+}
+
+- (id) render {
     return [self renderWithParameters:nil];
 }
 
