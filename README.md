@@ -4,12 +4,10 @@ Wombling: "Making good use of bad rubbish"
 
 [Latest info](http://wiki.github.com/quile/Womble/)
 
-
-> Don't use this unless you're very brave and/or
-> want to help!
+> Feel free to help out!  There's a lot of work to be done...
 
 This code is under heavy development as of right now,
-August 29, 2010.  It is being ported at a fairly rapid rate
+November 2, 2010.  It is being ported at a fairly rapid rate
 from a Perl framework that is stable.  This port can
 not be considered stable in any way at all.  However,
 hopefully this will change soon.
@@ -28,6 +26,12 @@ Status
   the port) which will slow it down needlessly.  There's
   also a fair amount of unoptimised code, mainly due to the
   nature of the port.  Fixing that will come later.
+* I'm slowly but surely removing code that was needed in the Perl
+  version, but is obviated by something the Cocoa-esque
+  Cappuccino/Objective-J frameworks.  A good example of this
+  is that we can now use Cocoa-style bundles to load app resources,
+  so we can do away with a lot of the complicated search/resolution
+  paths that were required in the perl version.
 
 
 What is WM?
@@ -145,3 +149,4 @@ optimisation, etc. etc.
 
 
 -kd may 2010
+* Updated Nov 2, 2010
