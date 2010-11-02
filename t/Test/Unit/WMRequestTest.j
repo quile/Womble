@@ -1,5 +1,5 @@
 @import <OJUnit/OJTestCase.j>
-@import <WM/Request.j>
+@import <WM/WMRequest.j>
 
 // just use this to mock the env.
 var MOCK = require("jack/mock");
@@ -30,7 +30,7 @@ var REQUEST = require("jack/request");
 - (void) testCreateWithQueryString {
     var env = MOCK.MockRequest.envFor("GET", "/fee/fi/fo/fum?favouriteColour=Blue%20No%20Red&airspeedVelocityOfUnladenSwallow=Unknown");
     [self assert:env['PATH_INFO'] equals:"/fee/fi/fo/fum"];
-    
+
     var wmreq = [[WMRequest alloc] initWithEnv:env];
     [self assert:[wmreq uri] equals:"/fee/fi/fo/fum" message:"url is still ok"];
     [self assert:[wmreq formValueForKey:"favouriteColour"] equals:"Blue No Red" message:"qd value is ok"];

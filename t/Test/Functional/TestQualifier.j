@@ -1,11 +1,11 @@
 @import "../../Application.j"
 @import "Type/DataSource.j"
-@import <WM/Log.j>
-@import <WM/Model.j>
-@import <WM/FetchSpecification.j>
-@import <WM/Qualifier.j>
-@import <WM/Array.j>
-@import <WM/ObjectContext.j>
+@import <WM/WMLog.j>
+@import <WM/WMModel.j>
+@import <WM/WMFetchSpecification.j>
+@import <WM/WMQualifier.j>
+@import <WM/WMArray.j>
+@import <WM/WMObjectContext.j>
 @import <WM/Helpers.js>
 
 @implementation TestQualifier : WMDataSourceTest
@@ -48,7 +48,7 @@
 }
 
 - (void) testSingleRelationshipTraversal {
-    var t3qualifier = [WMKeyValueQualifier key:"branches.length = %@", 3]; 
+    var t3qualifier = [WMKeyValueQualifier key:"branches.length = %@", 3];
     var t3fs = [WMFetchSpecification new:"WMTestTrunk" :t3qualifier];
     var t3results = [oc entitiesMatchingFetchSpecification:t3fs];
     [self assert:[t3results count] equals:1 message:"Exactly one trunk with a branch whose length is 3"];
@@ -90,7 +90,7 @@
 }
 
 - (void) testPrefetchOfToOne {
-    var t7qualifier1 = [WMKeyValueQualifier key:"title = %@", 'Root']; 
+    var t7qualifier1 = [WMKeyValueQualifier key:"title = %@", 'Root'];
     var t7fs = [WMFetchSpecification new:"WMTestRoot" :t7qualifier1];
     [t7fs setPrefetchingRelationships:["trunk"]];
     var t7results = [oc entitiesMatchingFetchSpecification:t7fs];

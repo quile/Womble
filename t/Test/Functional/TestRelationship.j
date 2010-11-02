@@ -1,8 +1,8 @@
 @import <OJUnit/OJTestCase.j>
 @import "../../DBTestCase.j"
 @import "../../Application.j"
-@import <WM/ObjectContext.j>
-@import <WM/Log.j>
+@import <WM/WMObjectContext.j>
+@import <WM/WMLog.j>
 
 @implementation TestRelationship : DBTestCase
 {
@@ -111,7 +111,7 @@
 
     [rr setTrunk:nil];
     [rr save];
-    [self assertNull:[rr trunk] message:"Trunk no longer related"]; 
+    [self assertNull:[rr trunk] message:"Trunk no longer related"];
 
     var rt = [oc entity:"WMTestTrunk" withPrimaryKey:[trunk id]];
     [self assertTrue:(rt == null) message:"Trunk has been deleted"];

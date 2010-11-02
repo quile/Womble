@@ -1,6 +1,6 @@
-@import <WM/Query.j>
-@import <WM/Log.j>
-@import <WM/ObjectContext.j>
+@import <WM/WMQuery.j>
+@import <WM/WMLog.j>
+@import <WM/WMObjectContext.j>
 @import <OJUnit/OJTestCase.j>
 @import "../../Classes.j"
 @import "../../Application.j"
@@ -95,16 +95,16 @@ var application = [WMApplication applicationInstanceWithName:"WMTest"];
     // they're the right objects.
     var query = [[WMQuery new:"WMTestRoot"] filter:"trunk.thickness > 10"];
     [self assertTrue:([query next] && ![query next]) message:"Found one object when qualifying via a join"];
-     
+
     var query = [[WMQuery new:"WMTestRoot"] filter:"trunk.branches.leafCount > 5"];
     [self assertTrue:([query next] && ![query next]) message:"Found one object via two joins"];
-     
+
 }
 
 - (void) testLimit {
     var query = [[WMQuery new:"WMTestBranch"] filter:"leafCount > 2"];
     [self assert:[query count] equals:4 message:"Counted 4 branches"];
-    
+
     [[query reset] limit:2];
     [self assertTrue:([query next] && [query next] && ![query next]) message:"Limited fetch that matches 4 to 2 results"];
 }

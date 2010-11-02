@@ -19,9 +19,9 @@
 
 @import <OJUnit/OJTestCase.j>
 @import <Foundation/Foundation.j>
-@import <WM/Application.j>
+@import <WM/WMApplication.j>
 @import "../../Application.j"
-@import <WM/Component/URL.j>
+@import <WM/Component/WMURL.j>
 
 var application = [WMApplication applicationInstanceWithName:"WMTest"];
 

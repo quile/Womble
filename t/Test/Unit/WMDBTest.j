@@ -18,8 +18,8 @@
  */
 
 @import <OJUnit/OJTestCase.j>
-@import <WM/DB.j>
-@import <WM/Application.j>
+@import <WM/WMDB.j>
+@import <WM/WMApplication.j>
 @import "../../Application.j"
 @import "../../Entity/Ground.j"
 

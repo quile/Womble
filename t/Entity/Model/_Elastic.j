@@ -1,4 +1,5 @@
-@import <WM/Entity/Persistent.j>
+@import <WM/Entity/WMPersistentEntity.j>
+
 @implementation _WMTestElasticModel : WMPersistentEntity
 
 - (id) pling    { return [self storedValueForKey:"pling"] }

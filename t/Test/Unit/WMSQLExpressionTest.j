@@ -1,8 +1,8 @@
 @import <OJUnit/OJTestCase.j>
-@import <WM/Application.j>
-@import <WM/Model.j>
-@import <WM/EntityClassDescription.j>
-@import <WM/SQLExpression.j>
+@import <WM/WMApplication.j>
+@import <WM/WMModel.j>
+@import <WM/WMEntityClassDescription.j>
+@import <WM/WMSQLExpression.j>
 @import "../../Application.j"
 
 var UTIL = require("util");

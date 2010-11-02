@@ -17,8 +17,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-@import <WM/Component.j>
-@import <WM/PageResource.j>
+@import <WM/WMComponent.j>
+@import <WM/WMPageResource.j>
 
 @implementation WMTestBinding : WMComponent
 {

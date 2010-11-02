@@ -1,5 +1,5 @@
-@import <WM/ObjectContext.j>
-@import <WM/Log.j>
+@import <WM/WMObjectContext.j>
+@import <WM/WMLog.j>
 @import "../../../Application.j"
 @import "../../../DBTestCase.j"
 
@@ -25,8 +25,8 @@ var application = [WMApplication applicationInstanceWithName:"WMTest"];
     [super setUp];
 
     oc = [WMObjectContext new];
-    
-    var es = []; 
+
+    var es = [];
     var ground = [WMTestGround new];
     [ground setColour:"Earthy brown"];
     es[es.length] = ground;
@@ -35,45 +35,45 @@ var application = [WMApplication applicationInstanceWithName:"WMTest"];
     [root setTitle:"Root"];
     [root setGround:ground];
     es[es.length] = root;
-    
+
     trunk = [WMTestTrunk new];
     [trunk setThickness:20];
     es[es.length] = trunk;
 
     [root setTrunk:trunk];
-    
+
     var globules = [];
     var branches = [];
-    
+
     for (var len = 0; len < 6; len++ ) {
         var branch = [WMTestBranch new];
         [branch setLength:len];
         [branch setLeafCount:(6-len)];
         branches[branches.length] = branch;
-        
+
         var globule = [WMTestGlobule new];
         [globule setName:"Globule-" + len];
         globules[globules.length] = globule;
-        
+
         es = es.concat(branches);
         es = es.concat(globules);
-        
+
         // add it to the trunk
         [trunk addObjectToBranches:branch];
     }
-    
+
     for (var len = 0; len < 6; len++) {
         var b = branches[len];
         var g1 = globules[len];
         var g2 = globules[(len+1)%6];
-        
+
         [b addObjectToGlobules:g1];
         [b addObjectToGlobules:g2];
-        
+
         // i hate that this currently necessary
         [b save];
     }
-    
+
     var isOk = true;
     var count = 0;
     for (var i=0; i < [[trunk branches] count]; i++) {
@@ -82,11 +82,11 @@ var application = [WMApplication applicationInstanceWithName:"WMTest"];
         isOk = false;
     }
     [self assertTrue:(isOk && count == 6) message:"All branches have 2 globules"];
-    
+
     [root save];
-    [self assertNotNull:[root id] message:"Root has an id now"]; 
-    [self assertNotNull:[trunk id] message:"Trunk has an id now"]; 
-    [self assertNotNull:[ground id] message:"Ground has an id now"]; 
+    [self assertNotNull:[root id] message:"Root has an id now"];
+    [self assertNotNull:[trunk id] message:"Trunk has an id now"];
+    [self assertNotNull:[ground id] message:"Ground has an id now"];
 
     [self assert:[[ground roots] count] equals:1 message:"Ground has one root"];
     [self assertTrue:([root trunk] && [[root trunk] is:trunk]) message:"Trunk and root connected"];
@@ -100,7 +100,7 @@ var application = [WMApplication applicationInstanceWithName:"WMTest"];
         isOk = false;
     }
     [self assertTrue:isOk message:"All branches have 2 globules"];
-    
+
     // check that they are still that way by refetching them
     var rr = [oc entity:"WMTestRoot" withPrimaryKey:[root id]];
     var rtr = [rr trunk];
@@ -131,7 +131,7 @@ var application = [WMApplication applicationInstanceWithName:"WMTest"];
     [self assertFalse:found message:"Successfully deleted objects"];
 }
 
-- (void)trackEntity:(id)entity { 
+- (void)trackEntity:(id)entity {
     entities = entities || [];
     entities[entities.length] = entity;
 }

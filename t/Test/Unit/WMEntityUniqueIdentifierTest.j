@@ -1,5 +1,5 @@
 @import <OJUnit/OJTestCase.j>
-@import <WM/Entity/UniqueIdentifier.j>
+@import <WM/Entity/WMEntityUniqueIdentifier.j>
 
 @implementation WMEntityUniqueIdentifierTest : OJTestCase
 

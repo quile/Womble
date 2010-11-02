@@ -1,8 +1,8 @@
 @import <OJUnit/OJTestCase.j>
-@import <WM/Template.j>
+@import <WM/WMTemplate.j>
 
 // Normally this comes from the application config
-// but 
+// but
 var TEMPLATE_ROOT = "t/templates";
 
 @implementation WMTemplateTest : OJTestCase

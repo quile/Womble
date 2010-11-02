@@ -1,4 +1,4 @@
-@import <WM/Entity/Persistent.j>
+@import <WM/Entity/WMPersistentEntity.j>
 
 @implementation _WMTestBranchModel : WMPersistentEntity
 {

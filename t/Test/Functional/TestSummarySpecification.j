@@ -1,7 +1,7 @@
-@import <WM/SummarySpecification.j>
-@import <WM/SummaryAttribute.j>
-@import <WM/ObjectContext.j>
-@import <WM/Qualifier.j>
+@import <WM/WMSummarySpecification.j>
+@import <WM/WMSummaryAttribute.j>
+@import <WM/WMObjectContext.j>
+@import <WM/WMQualifier.j>
 @import "Type/DataSource.j"
 
 @implementation TestSummarySpecification : WMDataSourceTest
@@ -12,7 +12,7 @@
 
     var ss = [WMSummarySpecification new:"WMTestBranch" :qualifier];
     [self assertNotNull:ss message:"Constructed summary spec"];
-	
+
     [ss restrictFetchToAttributes:"globuleCount"];
     var results = [oc resultsForSummarySpecification:[ss initWithSummaryAttributes:[WMSummaryAttribute new:"globuleCount" :"COUNT(distinct %@)", "id"]]];
     var count = [[results objectAtIndex:0] objectForKey:"globuleCount"];
@@ -23,7 +23,7 @@
 - (void) testGroupingSummary {
     var ss = [WMSummarySpecification new:"WMTestGlobule" :[WMKeyValueQualifier key:"branches.length > %@", 0]];
     [ss setGroupBy:"attributeSum"];
-    
+
     [ss restrictFetchToAttributes:["attributeSum", "globuleCount"]];
     var results = [oc resultsForSummarySpecification:[ss initWithSummaryAttributes:[
             [WMSummaryAttribute new:"attributeSum" :"(LENGTH + LEAF_COUNT)"],

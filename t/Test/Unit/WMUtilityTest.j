@@ -18,8 +18,8 @@
  */
 
 @import <OJUnit/OJTestCase.j>
-@import <WM/Utility.j>
-@import <WM/Log.j>
+@import <WM/WMUtility.j>
+@import <WM/WMLog.j>
 
 @implementation WMUtilityTest : OJTestCase
 

@@ -1,5 +1,5 @@
 @import <OJUnit/OJTestCase.j>
-@import <WM/Array.j>
+@import <WM/WMArray.j>
 
 @implementation WMArrayTest : OJTestCase
 {

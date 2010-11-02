@@ -1,7 +1,7 @@
-@import <WM/Application.j>
-@import <WM/Default/Application.j>
-@import <WM/Log.j>
-@import <WM/Object.j>
+@import <WM/WMApplication.j>
+@import <WM/Default/WMDefaultApplication.j>
+@import <WM/WMLog.j>
+@import <WM/WMObject.j>
 
 @import "Model.j"
 

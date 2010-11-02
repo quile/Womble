@@ -1,6 +1,6 @@
 @import <OJUnit/OJTestCase.j>
 @import "../../Application.j"
-@import <WM/Model.j>
+@import <WM/WMModel.j>
 
 // fire up the app
 [WMLog setLogMask:0x0000];

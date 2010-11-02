@@ -1,5 +1,5 @@
 @import <OJUnit/OJTestCase.j>
-@import <WM/Entity.j>
+@import <WM/WMEntity.j>
 
 @implementation FooEntity : WMEntity
 {

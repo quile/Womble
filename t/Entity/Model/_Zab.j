@@ -1,4 +1,5 @@
-@import <WM/Entity/Persistent.j>
+@import <WM/Entity/WMPersistentEntity.j>
+
 @implementation _WMTestZabModel : WMPersistentEntity
 
 - (id) title         { return [self storedValueForKey:"title"] }

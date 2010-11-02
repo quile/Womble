@@ -18,18 +18,18 @@
  */
 
 @import <OJUnit/OJTestCase.j>
-@import <WM/Classes.j>
-@import <WM/Component/Form.j>
-@import <WM/Component/HiddenField.j>
-@import <WM/Component/RadioButtonGroup.j>
-@import <WM/Component/CheckBoxGroup.j>
-@import <WM/Component/TextField.j>
-@import <WM/Component/Text.j>
-@import <WM/Component/HiddenField.j>
-@import <WM/Component/PopUpMenu.j>
-@import <WM/Component/ScrollingList.j>
-@import <WM/Component/Selection.j>
-@import <WM/Component/SubmitButton.j>
+@import <WM/WMClasses.j>
+@import <WM/Component/WMForm.j>
+@import <WM/Component/WMHiddenField.j>
+@import <WM/Component/WMRadioButtonGroup.j>
+@import <WM/Component/WMCheckBoxGroup.j>
+@import <WM/Component/WMTextField.j>
+@import <WM/Component/WMText.j>
+@import <WM/Component/WMHiddenField.j>
+@import <WM/Component/WMPopUpMenu.j>
+@import <WM/Component/WMScrollingList.j>
+@import <WM/Component/WMSelection.j>
+@import <WM/Component/WMSubmitButton.j>
 
 @import "../../Component/WMTest/Form.j"
 @import "../../Application.j"

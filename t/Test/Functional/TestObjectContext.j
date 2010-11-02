@@ -1,5 +1,5 @@
-@import <WM/ObjectContext.j>
-@import <WM/Query.j>
+@import <WM/WMObjectContext.j>
+@import <WM/WMQuery.j>
 @import "Type/DataSource.j"
 
 var UTIL = require("util");
@@ -89,7 +89,7 @@ var UTIL = require("util");
     [self assert:[[t relatedEntities] count] equals:4 message:"Trunk has four related entities in memory"];
 
     // FIXME: this shouldn't be necessary because
-    // it's related to objects in the OC. 
+    // it's related to objects in the OC.
     [oc trackEntity:t];
 
     [self assert:[[oc trackedEntities] count] equals:5 message:"correct # tracked entities now"];
@@ -132,7 +132,7 @@ var UTIL = require("util");
     [t addObjectToBranches:e];
     [self assert:[[t branches] count] equals:1 message:"One branch connected"];
     [self assert:[[t _cachedEntitiesForRelationshipNamed:"branches"] count] equals:1 message:"One cached connected"];
-    
+
     // add same one again
     [t addObjectToBranches:e];
     [self assert:[[t branches] count] equals:1 message:"One branch connected still"];
@@ -163,7 +163,7 @@ var UTIL = require("util");
     [oc trackEntity:root];
     [root setTrunk:trunk];
     [trunk addObjectToBranches:branch];
-    
+
     [self assertNotNull:[root trunk] message:"in-memory connection made"];
     [self assert:[[trunk branches] count] equals:1];
     [self assert:[[oc addedEntities] count] equals:3 message:"oc has correct number of added entities"];
@@ -179,13 +179,13 @@ var UTIL = require("util");
     [root setTrunk:trunk];
     [trunk addObjectToBranches:branch];
     [oc saveChanges];
-    [oc clearTrackedEntities]; 
+    [oc clearTrackedEntities];
 
     branch = nil;
     trunk = nil;
     root = nil;
     // TODO: ensure garbage is collected here?
-    
+
     var rr = [oc entity:"WMTestRoot" matchingQualifier:[WMKeyValueQualifier key:"title = %@", "Big Tree!"]];
     [self assertNotNull:rr message:"Refetch root"];
     var rt = [oc entity:"WMTestTrunk" matchingQualifier:[WMKeyValueQualifier key:"thickness = %@", 888]];

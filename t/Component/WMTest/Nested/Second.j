@@ -1,4 +1,4 @@
-@import <WM/Component.j>
+@import <WM/WMComponent.j>
 
 @implementation WMTestNestedSecond : WMComponent
 {

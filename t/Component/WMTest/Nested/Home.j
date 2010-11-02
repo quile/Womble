@@ -1,5 +1,5 @@
-@import <WM/Component.j>
-@import <WM/PageResource.j>
+@import <WM/WMComponent.j>
+@import <WM/WMPageResource.j>
 
 @import "../Footer.j"
 @import "First.j"

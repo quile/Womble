@@ -1,5 +1,5 @@
 @import <OJUnit/OJTestCase.j>
-@import <WM/PageResource.j>
+@import <WM/WMPageResource.j>
 
 
 @implementation WMPageResourceTest : OJTestCase

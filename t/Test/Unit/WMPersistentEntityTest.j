@@ -1,4 +1,4 @@
-@import <WM/Entity/Persistent.j>
+@import <WM/Entity/WMPersistentEntity.j>
 @import "../../DBTestCase.j"
 @import "../../Application.j"
 @import "../../Entity/Ground.j"

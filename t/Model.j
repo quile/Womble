@@ -1,5 +1,5 @@
-@import <WM/Model.j>
-@import <WM/DB.j>
+@import <WM/WMModel.j>
+@import <WM/WMDB.j>
 
 @implementation WMTestModel : WMModel
 

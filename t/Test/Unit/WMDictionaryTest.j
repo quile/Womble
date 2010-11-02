@@ -1,5 +1,5 @@
 @import <OJUnit/OJTestCase.j>
-@import <WM/Dictionary.j>
+@import <WM/WMDictionary.j>
 @import <Foundation/CPDictionary.j>
 @import <Foundation/CPKeyValueCoding.j>
 

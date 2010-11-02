@@ -18,9 +18,9 @@
  */
 
 @import <OJUnit/OJTestCase.j>
-@import <WM/Object.j>
-@import <WM/Log.j>
-@import <WM/Category/KeyValueCoding.j>
+@import <WM/WMObject.j>
+@import <WM/WMLog.j>
+@import <WM/Category/WMKeyValueCoding.j>
 
 @implementation _WMTestThing : WMObject
 {

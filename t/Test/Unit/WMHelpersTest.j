@@ -1,6 +1,6 @@
 @import <OJUnit/OJTestCase.j>
-@import <WM/Array.j>
-@import <WM/Dictionary.j>
+@import <WM/WMArray.j>
+@import <WM/WMDictionary.j>
 @import <WM/Helpers.js>
 
 @implementation WMHelpersTest : OJTestCase

@@ -1,4 +1,4 @@
-@import <WM/Log.j>
+@import <WM/WMLog.j>
 
 @implementation WMLogTest : OJTestCase
 {
