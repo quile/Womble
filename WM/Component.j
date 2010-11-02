@@ -1435,6 +1435,7 @@ var BINDING_DISPATCH_TABLE = {
     return componentName + ".html";
 }
 
+/*
 + (id) __templateNameFromContext:(id)context {
     var templateName = [WMComponent __templateNameFromComponentName:[context targetComponentName]];
     [WMLog info:"template name is " + templateName];
@@ -1449,12 +1450,12 @@ var BINDING_DISPATCH_TABLE = {
     [response setTemplate:template];
     return response;
 }
+*/
 
 // FIXME!  What should this be without perl namespacing!?
 - (id) componentName {
     if (!_componentName) {
         var className = [self className];
-        //className =~ s/.+::Component:://go;
         // freaky hack
         if (!className.match(/^WMTest/)) {
             className = className.replace(/^WM/, "");
@@ -1608,10 +1609,15 @@ var BINDING_DISPATCH_TABLE = {
 
 // Helpers to assist in the porting of this stuff to objj
 // FIXME:kd  This caches the template!
+/*
 - (WMTemplate) template {
     if (_template) { return _template }
     _template = [[self _siteClassifier] bestTemplateForPath:[self templateName] andContext:[self context]];
     return _template;
+}
+*/
+- (WMTemplate) template {
+    return [[self _siteClassifier] bestTemplateForClass:[self class] inContext:[self context]];
 }
 
 // This helper just makes a default response

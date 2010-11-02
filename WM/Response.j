@@ -22,16 +22,13 @@
 
 @implementation WMResponse : WMObject
 {
-    // This is for old-skool compat
-    id _params;
     id _contentList;
     WMRenderState _renderState;
 }
 
 - init {
-    _params = {};
     _contentList = ['',];
-    _renderState = nil; // [WMRenderState new],
+    _renderState = nil;
     [self setContent:""];
     return self;
 }
@@ -61,7 +58,7 @@
 - (void) setContentIsBuffered:(Boolean)foo { _contentIsBuffered = foo; }
 - (Boolean) contentIsBuffered { return _contentIsBuffered; }
 
-/* how dumb is it that this wasn't on the response? */
+// TODO:kd - Turn these into real response headers
 - (id) contentType    { return _contentType }
 - (void) setContentType:(id)ct { _contentType = ct }
 

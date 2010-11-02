@@ -49,9 +49,12 @@ var SITE_CLASSIFIERS_BY_ID = {};
     id name @accessors;
     id languages @accessors;
     id defaultLanguage @accessors;
+	// This goop is useful for skinning based on location... it's probably not
+	// really supposed to be here, and could be moved into a subclass, but, oh well.
     id city @accessors;
     id state @accessors;
     id country @accessors;
+
     id _languages;
     id _languageMap;
     id _defaultBindings @accessors(property=defaultBindings);
@@ -228,7 +231,66 @@ sub locationAsString {
 	return componentName;
 }
 
-- (id) bestTemplateForPath:(id)path andContext:(id)context {
+/* Searches the site classifier tree, then the class itself, then the app
+  and framework for the specified resource
+*/
+
+- (id) pathForResource:(id)n forClass:(id)c inApplication:(id)a {
+	// First try to load it from its own bundle
+	var bundle = [CPBundle bundleForClass:c];
+	if (bundle) {
+		var resource = [bundle pathForResource:n];
+		if (resource) { return resource }
+	}
+
+	// No go, so try to load it from the app bundle
+	bundle = [CPBundle bundleForClass:[a class]];
+	if (bundle) {
+		var resource = [bundle pathForResource:n];
+		if (resource) { return resource }
+	}
+
+	// What about the framework?
+	bundle = [CPBundle bundleForClass:"WMApplication"];
+	if (bundle) {
+		var resource = [bundle pathForResource:n];
+		if (resource) { return resource }
+	}
+	return nil;
+}
+
+
+- (id) bestTemplateForClass:(id)c inContext:(id)context {
+    // TODO:kd - avoid re-doing this for every template.
+	var languageToken;
+	var application;
+	var preferredLanguages;
+
+	if (context) {
+	    application = [context application];
+	    languageToken = [context preferredLanguagesForTransactionAsToken];
+	    preferredLanguages = [context preferredLanguagesForTransaction];
+	} else {
+		[WMLog debug:"No context passed into bestTemplateForClass:"];
+	    application = [WMApplication defaultApplication];
+	    languageToken = [application configurationValueForKey:"DEFAULT_LANGUAGE"];
+	    preferredLanguages = [languageToken];
+	}
+
+	for (var i=0; i<preferredLanguages.length; i++) {
+		var lang = preferredLanguages[i];
+		// cheesy
+		var n = "templates/" + lang + "/" + c + ".html";
+		var fullPath = [self pathForResource:n forClass:c inApplication:application];
+		if (fullPath) {
+			var t = [WMTemplate newWithName:fullPath andPaths:nil shouldCache:false];
+			if (t) return t;
+		}
+	}
+	return nil;
+}
+
+- (id) _deprecated_bestTemplateForPath:(id)path andContext:(id)context {
 	var languageToken;
 	var application;
 	var preferredLanguages;
