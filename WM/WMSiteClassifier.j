@@ -231,32 +231,29 @@ sub locationAsString {
 	return componentName;
 }
 
-/* Searches the site classifier tree, then the class itself, then the app
-  and framework for the specified resource
+/* Searches the site classifier, then the class itself, then the app
+  and framework for the specified resource.
+  TODO: Search the site classifier *tree*
 */
 
 - (id) pathForResource:(id)n forClass:(id)c inApplication:(id)a {
-	// First try to load it from its own bundle
-	var bundle = [CPBundle bundleForClass:c];
-	if (bundle) {
-		var resource = [bundle pathForResource:n];
-		if (resource) { return resource }
+	var bundles = [[self class], c, a, objj_getClass("WMApplication")];
+    var seen = {};
+    for (var i=0; i<bundles.length; i++) {
+        var bundleClass = bundles[i];
+        if (seen[bundleClass]) { continue };
+        var bundle = [CPBundle bundleForClass:bundleClass];
+        if (bundle) {
+            var resourcePath = [bundle pathForResource:n];
+            resourcePath = resourcePath.replace(/^file:/, "");
+            [WMLog debug:"Checking " + resourcePath + " for " + bundle + " ... "];
+            if (FILE.exists(resourcePath)) {
+                return resourcePath;
+            }
+        }
+        seen[bundleClass] = true;
 	}
-
-	// No go, so try to load it from the app bundle
-	bundle = [CPBundle bundleForClass:[a class]];
-	if (bundle) {
-		var resource = [bundle pathForResource:n];
-		if (resource) { return resource }
-	}
-
-	// What about the framework?
-	bundle = [CPBundle bundleForClass:"WMApplication"];
-	if (bundle) {
-		var resource = [bundle pathForResource:n];
-		if (resource) { return resource }
-	}
-	return nil;
+    return nil;
 }
 
 
@@ -290,6 +287,7 @@ sub locationAsString {
 	return nil;
 }
 
+/*
 - (id) _deprecated_bestTemplateForPath:(id)path andContext:(id)context {
 	var languageToken;
 	var application;
@@ -390,6 +388,7 @@ sub locationAsString {
 
 	return template;
 }
+*/
 
 // This inheritance context stuff is bogus; plus, the whole variable # of args
 // in Perl thing is killing me... I'm glad we didn't use it much.

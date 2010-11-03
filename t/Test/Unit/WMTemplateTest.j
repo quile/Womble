@@ -3,7 +3,7 @@
 
 // Normally this comes from the application config
 // but
-var TEMPLATE_ROOT = "t/templates";
+var TEMPLATE_ROOT = "t/Resources/templates";
 
 @implementation WMTemplateTest : OJTestCase
 

@@ -181,8 +181,8 @@ var BINDING_DISPATCH_TABLE = {
         var subcomponentBinding = [self bindingForKey:bindingName];
         if (subcomponentBinding) {
             if (!_regionCache[bindingName]) {
-                [WMLog debug:"Adding " + bindingName + " to region cache"];
-                 [self evaluateBinding:subcomponentBinding inContext:context];
+                //[WMLog debug:"Adding " + bindingName + " to region cache"];
+                [self evaluateBinding:subcomponentBinding inContext:context];
                 _regionCache[bindingName] = [self subcomponentForBindingNamed:bindingName];
             }
             return [_regionCache[bindingName] nextRegionForKey:regionName];
@@ -378,7 +378,7 @@ var BINDING_DISPATCH_TABLE = {
         // what to do here?
         _context = nil;
         [self _setRenderState:nil];
-        throw [CPException raise:"CPException" message:"Couldn't find template for response"];
+        throw [CPException raise:"CPException" reason:"Couldn't find template for response"];
     }
 
     var pregeneratedContent = {};
@@ -481,7 +481,7 @@ var BINDING_DISPATCH_TABLE = {
                         }
                         //WM::Log::debug("Tag attribute string is $tagAttributes for binding $binding->{NAME}");
 
-                        [WMLog debug:binding['_NAME'] + " " + value];
+                        //WMLog debug:binding['_NAME'] + " " + value];
                         value.replace(TAG_ATTRIBUTE_MARKER_RE, tagAttributes);
                     }
                 }
@@ -1119,21 +1119,21 @@ var BINDING_DISPATCH_TABLE = {
 }
 
 - (id) regionsForKey:(id)key {
-    [WMLog debug:"Req for regionsForKey(" + key + ")"];
+    //[WMLog debug:"Req for regionsForKey(" + key + ")"];
     if (![self hasRegionsForKey:key]) { return [] }
     return _regions[key];
 }
 
 - (id) regionsOfSubcomponentForKey:(id)key {
     var subcomponent = [self subcomponentForBindingNamed:subcomponentName];
-    [WMLog debug:"Req for subc " + subcomponentName + " for key " + key];
+    //[WMLog debug:"Req for subc " + subcomponentName + " for key " + key];
     var binding = [self bindingForKey:subcomponentName];
     if (![WMLog assert:subcomponent message:"Found subcomponent named " + subcomponentName]) { return }
 
     // TODO ungarble this... why does it re-fetch the binding and subcomponent
     if (!_regionCache[subcomponentName]) {
         var subcomponentBinding = [self bindingForKey:subcomponentName];
-        [WMLog debug:"Adding " + subcomponentName + " to region cache"];
+        //[WMLog debug:"Adding " + subcomponentName + " to region cache"];
         [self evaluateBinding:subcomponentBinding inContext:[self context]];
         _regionCache[subcomponentName] = [self subcomponentForBindingNamed:subcomponentName];
     }
@@ -1162,7 +1162,7 @@ var BINDING_DISPATCH_TABLE = {
 }
 
 - (void) parseRegionsFromResponse:(id)response {
-    [WMLog debug:"Regions found in component " + self];
+    //[WMLog debug:"Regions found in component " + self];
     var content = [response content];
     var rre = new RegExp('<REGION NAME="([^"]*)">(.*?)<\/REGION>');
     var match;
@@ -1313,13 +1313,13 @@ var BINDING_DISPATCH_TABLE = {
 // we return the default
 //
 - (id) _siteClassifier {
-    [WMLog debug:"_siteClassifier called"];
+    //[WMLog debug:"_siteClassifier called"];
     if ([self context] && [[self context] siteClassifier]) {
         return [[self context] siteClassifier];
     }
-    [WMLog debug:"Getting default site classifier from application"];
+    //[WMLog debug:"Getting default site classifier from application"];
     var sc = [[WMApplication defaultApplication] defaultSiteClassifier];
-    [WMLog debug:sc];
+    //[WMLog debug:sc];
     return sc;
 }
 
@@ -1397,7 +1397,6 @@ var BINDING_DISPATCH_TABLE = {
 // out some shitty browsers.
 - (Boolean) isUnsupportedBrowser {
     var userAgent = [[self context] userAgent];
-    [WMLog debug:"User agent is userAgent"];
     if ([self isMacIE:userAgent]) { return true }
     var match = userAgent.match(/^([^\/]+)\/([0-9\.]+)/);
     if (!match) { return true }

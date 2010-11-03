@@ -477,19 +477,24 @@ var ERRORS = {
 }
 
 - (id) languageFromPath:(id)fullPath {
-    var sls = [self paths].sort(function (a, b) { b.length - a.length });
+    var ps = paths;
+    if (!ps || ps.length == 0) {
+        ps = [fullPath];
+    }
+    var sls = ps.sort(function (a, b) { b.length - a.length });
     for (var i=0; i<sls.length; i++) {
         var path = sls[i];
         var re = new RegExp("^" + path);
         if (fullPath.match(re)) {
             var lre = new RegExp(".*\/([A-Za-z][A-Za-z])$");
             var match = path.match(lre);
-            if (match[1]) { return match[1] }
+            if (match) { return match[1] }
         }
     }
     return null;
 }
 
+// This is pretty cheesy, but it works 99.9999% of the time...
 - (id) mimeTypeFromPath:(id)fullPath {
     var type;
     if (fullPath.match(/\.html?$/)) { return 'text/html' }
