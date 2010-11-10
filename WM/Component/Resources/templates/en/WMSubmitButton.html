@@ -1,8 +1,8 @@
-<input type="submit" id="<BINDING:UNIQUE_ID>" name="<BINDING:BUTTON_NAME>" title="<BINDING:PARENT_BINDING_NAME>" <BINDING_IF:HAS_BUTTON_VALUE>value="<BINDING:BUTTON_VALUE>"</BINDING_IF:HAS_BUTTON_VALUE> <BINDING:TAG_ATTRIBUTES>>
+<input type="submit" id="<binding:unique_id />" name="<binding:button_name />" title="<binding:parent_binding_name />" <binding_if:has_button_value>value="<binding:button_value />"</binding_if:has_button_value> <binding:tag_attributes>>
 <script type="text/javascript">
-IF.setupFn['<BINDING:UNIQUE_ID>'] = function (controller) { 
-	controller.setAlternateValue("<BINDING:ALTERNATE_VALUE>");
-	controller.setCanOnlyBeClickedOnce(<BINDING:IS_SINGLE_CLICK>);
-	<BINDING_IF:SHOULD_VALIDATE_FORM>controller.setShouldValidateForm(<BINDING:SHOULD_VALIDATE_FORM>);</BINDING_IF:SHOULD_VALIDATE_FORM>
+IF.setupFn['<binding:unique_id />'] = function (controller) {
+	controller.setAlternateValue("<binding:alternate_value />");
+	controller.setCanOnlyBeClickedOnce(<binding:is_single_click />);
+	<binding_if:should_validate_form>controller.setShouldValidateForm(<binding:should_validate_form />);</binding_if:should_validate_form>
 };
 </script>

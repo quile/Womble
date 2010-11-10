@@ -62,24 +62,24 @@ var UTIL = require("util")
 - (id) Bindings {
 	return {
 		// TODO implement binding inheritance
-		NAME: {
+		name: {
 			type: "STRING",
 			value: 'name',
 		},
-		SIZE: {
+		size: {
 			type: "STRING",
 			value: 'size',
 		},
-		MAX_LENGTH: {
+		max_length: {
 			type: "STRING",
 			value: 'maxLength',
 		},
-		VALUE: {
+		value: {
 			type: "STRING",
 			value: 'value',
 			filter: 'escapeDoubleQuotes',
 		},
-		SHOULD_ENABLE_CLIENT_SIDE_SCRIPTING: {
+		should_enable_client_side_scripting: {
 			type: "BOOLEAN",
 			value: 'shouldEnableClientSideScripting',
 		},

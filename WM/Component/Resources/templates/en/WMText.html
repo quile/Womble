@@ -1,7 +1,7 @@
-<textarea name="<BINDING:NAME>" id="<BINDING:UNIQUE_ID>" title="<BINDING:PARENT_BINDING_NAME>" <BINDING:TAG_ATTRIBUTES> <TMPL_IF BINDING:ROWS>rows="<BINDING:ROWS>"</TMPL_IF> <TMPL_IF BINDING:COLUMNS>cols="<BINDING:COLUMNS>"</TMPL_IF>><BINDING:VALUE></textarea><span id="<BINDING:UNIQUE_ID>-error" class="error" style="display:none;"></span>
+<textarea name="<binding:name />" id="<binding:unique_id />" title="<binding:parent_binding_name />" <binding:tag_attributes /> <binding_if:rows>rows="<binding:rows />"</binding_if:rows> <binding_if:columns>cols="<binding:columns />"</binding_if:columns>><binding:value /></textarea><span id="<binding:unique_id />-error" class="error" style="display:none;"></span>
 <script type="text/javascript">
-IF.setupFn['<BINDING:UNIQUE_ID>'] = function (controller) { 
-	controller.setIsRequired(<BINDING:IS_REQUIRED>);<BINDING_IF:HAS_REQUIRED_MESSAGE>
-		controller.setRequiredErrorMessage("<BINDING:REQUIRED_MESSAGE>");</BINDING_IF:HAS_REQUIRED_MESSAGE>
+IF.setupFn['<binding:unique_id />'] = function (controller) {
+	controller.setIsRequired(<binding:is_required />);<binding_if:has_required_message>
+	controller.setRequiredErrorMessage("<binding:required_message />");</binding_if:has_required_message>
 };
 </script>

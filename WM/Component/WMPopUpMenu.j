@@ -175,7 +175,7 @@ var UTIL = require("util");
 - (id) Bindings {
 	var _bindings = [super Bindings];
 	return UTIL.update(_bindings, {
-		SELECTION: {
+		selection: {
 			type: "Selection",
 			bindings: {
 				LIST: 'list',
@@ -187,30 +187,30 @@ var UTIL = require("util");
 				shouldIgnoreAccents: 'shouldIgnoreAccents',
 			},
 		},
-		IS_REQUIRED: {
+		is_required: {
 			type: "BOOLEAN",
 			value: 'isRequired',
 		},
-		DOES_ALLOW_OTHER: {
+		does_allow_other: {
 			type: "BOOLEAN",
 			value: 'allowsOther',
 		},
-		OTHER_FIELD: {
+		other_field: {
 			type: "TextField",
 			bindings: {
 				value: 'otherText',
 			},
 		},
-		OTHER_LABEL: {
+		other_label: {
 			type: "STRING",
 			value: 'otherLabel',
 		},
-		OTHER_VALUE: {
+		other_value: {
 			type: "STRING",
 			value: 'otherValue',
 			filter: 'escapeJavascript',
 		},
-		VALUE: {
+		value: {
 			type: "STRING",
 			value: 'selection',
 			filter: 'escapeJavascript',

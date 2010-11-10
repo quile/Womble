@@ -33,6 +33,7 @@ var UTIL = require("util");
 	id shouldIgnoreCase @accessors;
 	id shouldIgnoreAccents @accessors;
 	id size @accessors;
+    id allowsNoSelection @accessors;
 }
 
 - (id) init {
@@ -51,7 +52,7 @@ var UTIL = require("util");
 	if ([self listType] == "RAW") {
 		list = [self rawList];
 	} else {
-		list = LIST || [];
+		list = _list || [];
 	}
 	if ([self allowsNoSelection]) {
 		if ([self value] && [self displayString]) {
@@ -181,43 +182,43 @@ var UTIL = require("util");
 - (id) Bindings {
 	var _bindings = [super Bindings];
 	return UTIL.update(_bindings, {
-		NAME: {
+		name: {
 			type: "STRING",
 			value: 'name',
 		},
-		SIZE: {
+		size: {
 			type: "STRING",
 			value: 'size',
 		},
-		IS_MULTIPLE: {
+		is_multiple: {
 			type: "BOOLEAN",
 			value: objj('[self size] > 1'),
 		},
-		LIST: {
+		list: {
 			type: "LOOP",
 			list: 'list',
 			item: "anItem",
 		},
-		VALUE: {
+		value: {
 			type: "STRING",
 			value: 'valueForItem(anItem)',
 		},
-		IS_SELECTED: {
+		is_selected: {
 			type: "BOOLEAN",
 			value: 'itemIsSelected(anItem)',
 		},
-		DISPLAY_STRING: {
+		display_string: {
 			type: "STRING",
 			value: 'displayStringForItem(anItem)',
 		},
-		TAG_ATTRIBUTES: {
+		tag_attributes: {
 			type: "ATTRIBUTES",
 		},
-		SHOULD_ENABLE_CLIENT_SIDE_SCRIPTING: {
+		should_enable_client_side_scripting: {
 			type: "BOOLEAN",
 			value: 'shouldEnableClientSideScripting',
 		},
-		UNIQUE_ID: {
+		unique_id: {
 			type: "STRING",
 			value: 'uniqueId',
 		},

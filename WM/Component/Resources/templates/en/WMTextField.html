@@ -1,18 +1,19 @@
-<input name="<binding:NAME>" id="<binding:UNIQUE_ID>" title="<binding:PARENT_BINDING_NAME>" <binding:TAG_ATTRIBUTES> <TMPL_IF BINDING:SIZE>size="<BINDING:SIZE>"</TMPL_IF> <TMPL_IF BINDING:MAX_LENGTH>maxlength="<BINDING:MAX_LENGTH>"</TMPL_IF> value="<BINDING:VALUE>" /><span id="<BINDING:UNIQUE_ID>-error" class="error" style="display: none;"></span><BINDING_IF:SHOULD_ENABLE_CLIENT_SIDE_SCRIPTING>
+<input name="<binding:name />" id="<binding:unique_id />" title="<binding:parent_binding_name />" <binding:tag_attributes> <binding_if:size>size="<binding:size />"</binding_if:size>
+<binding:foo /><binding_if:max_length>maxlength="<binding:max_length />"</binding_if:max_length> value="<binding:value />" /><span id="<binding:unique_id />-error" class="error" style="display: none;"></span><binding_if:should_enable_client_side_scripting>
 <script type="text/javascript">
 <!--
-function <BINDING:UNIQUE_ID>Value() {
-	return valueOfTextField("<BINDING:UNIQUE_ID>");
+function <binding:unique_id />Value() {
+	return valueOfTextField("<binding:unique_id />");
 }
-function set<BINDING:UNIQUE_ID>Value(value) {
-	setValueOfTextField(value, "<BINDING:UNIQUE_ID>");
+function set<binding:unique_id />Value(value) {
+	setValueOfTextField(value, "<binding:unique_id />");
 }
 // -->
 </script>
-</BINDING_IF:SHOULD_ENABLE_CLIENT_SIDE_SCRIPTING>
+</binding_if:should_enable_client_side_scripting>
 <script type="text/javascript">
-IF.setupFn['<BINDING:UNIQUE_ID>'] = function (controller) {
-	controller.setIsRequired(<BINDING:IS_REQUIRED>);
-	<BINDING_IF:HAS_REQUIRED_MESSAGE>controller.setRequiredErrorMessage("<BINDING:REQUIRED_MESSAGE>");</BINDING_IF:HAS_REQUIRED_MESSAGE>
+IF.setupFn['<binding:unique_id />'] = function (controller) {
+	controller.setIsRequired(<binding:is_required />);
+	<binding_if:has_required_message>controller.setRequiredErrorMessage("<binding:required_message />");</binding_if:has_required_message>
 };
 </script>

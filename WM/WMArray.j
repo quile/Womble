@@ -43,6 +43,7 @@
 }
 
 + (Boolean) isArray:(id)foo {
+    if (!foo) { return false }
     if (typeof foo != "object") {
         return false;
     }

@@ -98,44 +98,44 @@ var UTIL = require("util");
 - (id) Bindings {
 	var _bindings = [super Bindings];
 	return UTIL.update(_bindings, {
-		NAME: {
+		name: {
 			type: "STRING",
 			value: 'name',
 		},
-		LIST: {
+		list: {
 			type: "LOOP",
 			list: 'list',
 			item: "anItem",
 		},
-		VALUE: {
+		value: {
 			type: "STRING",
 			value: objj('[self valueForItem:[self anItem]]'),
 		},
-		IS_SELECTED: {
+		is_selected: {
 			type: "BOOLEAN",
 			value: objj('[self itemIsSelected:[self anItem]]'),
 		},
-		DISPLAY_STRING: {
+		display_string: {
 			type: "STRING",
 			value: objj('[self displayStringForItem:[self anItem]]'),
 		},
-		SHOULD_ENABLE_CLIENT_SIDE_SCRIPTING: {
+		should_enable_client_side_scripting: {
 			type: "BOOLEAN",
 			value: 'shouldEnableClientSideScripting',
 		},
-		SHOULD_RENDER_IN_TABLE: {
+		should_render_in_table: {
 			type: "BOOLEAN",
 			value: 'shouldRenderInTable',
 		},
-		IS_VERTICAL_LAYOUT: {
+		is_vertical_layout: {
 			type: "BOOLEAN",
 			value: 'isVerticalLayout',
 		},
-		BUTTONS: {
+		buttons: {
 			type: "REGION",
 			name: 'buttons',
 		},
-		LABELS: {
+		labels: {
 			type: "REGION",
 			name: 'labels',
 		},

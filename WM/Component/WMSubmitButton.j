@@ -75,30 +75,30 @@ var UTIL = require("util.js");
 - (id) Bindings {
 	var _bindings = [super Bindings];
 	return UTIL.update(_bindings, {
-		BUTTON_NAME: {
+		button_name: {
 			type: "STRING",
 			value: 'name',
 		},
-		HAS_BUTTON_VALUE: {
+		has_button_value: {
 			type: "BOOLEAN",
 			value: 'value',
 		},
-		BUTTON_VALUE: {
+		button_value: {
 			type: "STRING",
 			value: 'value',
 		},
-		CONTENT: {
+		content: {
 			type: "CONTENT",
 		},
-		IS_SINGLE_CLICK: {
+		is_single_click: {
 			type: "BOOLEAN",
 			value: 'canOnlyBeClickedOnce',
 		},
-		ALTERNATE_VALUE: {
+		alternate_value: {
 			type: "STRING",
 			value: '_alternateValue',
 		},
-		SHOULD_VALIDATE_FORM: {
+		should_validate_form: {
 			type: "BOOLEAN",
 			value: 'shouldValidateForm',
 		},

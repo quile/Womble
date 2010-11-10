@@ -366,62 +366,62 @@ var QS = require("querystring");
 
 - (id) Bindings {
 	return {
-		HAS_PROTOCOL: {
+		has_protocol: {
 			type: "BOOLEAN",
 			value: "protocol",
 		},
-		PROTOCOL: {
+		protocol: {
 			type: "STRING",
 			value: "protocol",
 		},
-		HAS_SERVER: {
+		has_server: {
 			type: "BOOLEAN",
 			value: "server",
 		},
-		SERVER: {
+		server: {
 			type: "STRING",
 			value: "server",
 		},
-		ACTION: {
+		action: {
 			type: "STRING",
 			value: "action",
 		},
-		HAS_URL: {
+		has_url: {
 			type: "BOOLEAN",
 			value: "url"
 		},
-		URL: {
+		url: {
 			type: "STRING",
 			value: "url",
 		},
-		ANCHOR: {
+		anchor: {
 			type: "STRING",
 			value: "anchor",
 		},
-		HAS_ANCHOR: {
+		has_anchor: {
 			type: "BOOLEAN",
 			value: "anchor",
 		},
-		HAS_QUERY_DICTIONARY: {
+		has_query_dictionary: {
 			type: "BOOLEAN",
 			value: "hasQueryDictionary",
 		},
-		QUERY_DICTIONARY: {
+		query_dictionary: {
 			type: "LOOP",
 			list: "queryDictionaryKeyValuePairs",
 			item: "aKeyValuePair",
 		},
-		NAME: {
+		name: {
 			type: "STRING",
 			value: objj("[self aKeyValuePair].NAME"),
 			filter: "escapeQueryStringValue",
 		},
-		VALUE: {
+		value: {
 			type: "STRING",
 			value: objj("[self aKeyValuePair].VALUE"),
 			filter: "escapeQueryStringValue",
 		},
-		DIRECT_ACTION: {
+		direct_action: {
 			type: "STRING",
 			value: "directAction",
 		},

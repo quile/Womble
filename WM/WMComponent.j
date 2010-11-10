@@ -396,6 +396,7 @@ var BINDING_DISPATCH_TABLE = {
     var legacyLoops = [];
     for (var i=0; i<[template contentElementCount];) {
         var contentElement = [template contentElementAtIndex:i];
+        [WMLog debug:contentElement];
         if (pregeneratedContent[i]) {
             [response appendContentString:pregeneratedContent[i]];
             delete pregeneratedContent[i];
@@ -1558,34 +1559,34 @@ var BINDING_DISPATCH_TABLE = {
 // the default bindings file, specified in the app config.
 - (id) _defaultBindings {
     return {
-        TAG_ATTRIBUTES: {
+        tag_attributes: {
             type: "ATTRIBUTES",
         },
-        JAVASCRIPT_ROOT: {
+        javascript_root: {
             type: "STRING",
             value: objj("[[self application] systemConfigurationValueForKey:'JAVASCRIPT_ROOT']"),
         },
-        IS_FIRST_TIME_RENDERED: {
+        is_first_time_rendered: {
             type: "BOOLEAN",
             value: 'isFirstTimeRendered',
         },
-        UNIQUE_ID: {
+        unique_id: {
             type: "STRING",
             value: 'uniqueId',
         },
-        PARENT_BINDING_NAME: {
+        parent_binding_name: {
             type: "STRING",
             value: 'nestedBindingPath',
         },
-        HAS_REQUIRED_MESSAGE: {
+        has_required_message: {
             type: "BOOLEAN",
             value: 'isRequiredMessage',
         },
-        IS_REQUIRED: {
+        is_required: {
             type: "BOOLEAN",
             value: 'isRequired',
         },
-        REQUIRED_MESSAGE: {
+        required_message: {
             type: "STRING",
             value: 'isRequiredMessage',
         },

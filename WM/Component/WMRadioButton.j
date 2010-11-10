@@ -48,19 +48,19 @@
 - (id) Bindings {
 	var _bindings = [super Bindings];
 	return UTIL.update(_bindings, {
-		NAME: {
+		name: {
 			type: "STRING",
 			value: 'name',
 		},
-		VALUE: {
+		value: {
 			type: "STRING",
 			value: 'value',
 		},
-		IS_CHECKED: {
+		is_checked: {
 			type: "BOOLEAN",
 			value: 'isChecked',
 		},
-		TAG_ATTRIBUTES: {
+		tag_attributes: {
 			type: "ATTRIBUTES",
 		},
 	});

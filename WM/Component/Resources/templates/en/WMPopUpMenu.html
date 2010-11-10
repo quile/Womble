@@ -1,11 +1,11 @@
-<span id="<BINDING:UNIQUE_ID>"><BINDING:SELECTION %_TAG_ATTRIBUTES_%></span><span id="<BINDING:UNIQUE_ID>-error" class="error" style="display: none;"></span><BINDING_IF:DOES_ALLOW_OTHER>
-<div id="OTHER_<BINDING:UNIQUE_ID />" style="display:none;" class="popUpMenuOther">
-	<label><BINDING:OTHER_LABEL /></label><BINDING:OTHER_FIELD />
-</div></BINDING_IF:DOES_ALLOW_OTHER><script type="text/javascript">
+<span id="<binding:unique_id />"><binding:selection %_TAG_ATTRIBUTES_%></span><span id="<binding:unique_id>-error" class="error" style="display: none;"></span><binding_if:does_allow_other>
+<div id="OTHER_<binding:unique_id />" style="display:none;" class="popUpMenuOther">
+	<label><binding:other_label /></label><binding:other_field />
+</div></binding_if:does_allow_other><script type="text/javascript">
 jQuery(function() {
-	IF.controllers.<BINDING:UNIQUE_ID> = new IFPopUpMenu("<BINDING:UNIQUE_ID>", "<BINDING:PARENT_BINDING_NAME>");
-	IF.controllers.<BINDING:UNIQUE_ID>.setIsRequired(<BINDING:IS_REQUIRED>);
-	<BINDING_IF:HAS_REQUIRED_MESSAGE>IF.controllers.<BINDING:UNIQUE_ID>.setErrorMessageForKey('<BINDING:REQUIRED_MESSAGE>', "IS_REQUIRED");</BINDING_IF:HAS_REQUIRED_MESSAGE>	
-});<BINDING_IF:DOES_ALLOW_OTHER>
-	IF.controllers.<BINDING:UNIQUE_ID>.initializeOtherHandlingWithValueAndOtherValue('<BINDING:VALUE />', '<BINDING:OTHER_VALUE />');</BINDING_IF:DOES_ALLOW_OTHER>
+	IF.controllers.<binding:unique_id> = new IFPopUpMenu("<binding:unique_id>", "<binding:parent_binding_name>");
+	IF.controllers.<binding:unique_id>.setIsRequired(<binding:is_required>);
+	<binding_if:has_required_message>IF.controllers.<binding:unique_id>.setErrorMessageForKey('<binding:required_message>', "IS_REQUIRED");</binding_if:has_required_message>
+});<binding_if:does_allow_other>
+	IF.controllers.<binding:unique_id>.initializeOtherHandlingWithValueAndOtherValue('<binding:value />', '<binding:other_value />');</binding_if:does_allow_other>
 </script>

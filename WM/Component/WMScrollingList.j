@@ -68,7 +68,7 @@ var UTIL = require("util");
 - (id) Bindings {
 	var _bindings = [super Bindings];
 	return UTIL.update(_bindings, {
-		SELECTION: {
+		selection: {
 			type: "Selection",
 			bindings: {
 				LIST: 'list',

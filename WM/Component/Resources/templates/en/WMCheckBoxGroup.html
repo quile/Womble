@@ -1,28 +1,28 @@
-<span id="<BINDING:UNIQUE_ID>">
-<BINDING_IF:SHOULD_RENDER_IN_TABLE>
+<span id="<binding:unique_id>">
+<binding_if:should_render_in_table>
 <table>
-	<TMPL_LOOP name=BINDING:LIST>
+	<binding_loop:list>
 		<tr><td>
-		<BINDING:CHECKBOXES><input type="checkbox" name="<BINDING:NAME>" value="<BINDING:VALUE>" <BINDING_IF:IS_SELECTED> CHECKED</BINDING_IF:IS_SELECTED> %_TAG_ATTRIBUTES_% /></BINDING:CHECKBOXES>
-		</td><td><BINDING:LABELS><BINDING:DISPLAY_STRING></BINDING:LABELS>
+		<binding:checkboxes><input type="checkbox" name="<binding:name>" value="<binding:value>" <binding_if:is_selected> CHECKED</binding_if:is_selected> %_TAG_ATTRIBUTES_% /></binding:checkboxes>
+		</td><td><binding:labels><binding:display_string></binding:labels>
 		</td></tr>
-	</TMPL_LOOP>
+	</binding_loop:list>
 </table>
-<BINDING_ELSE:SHOULD_RENDER_IN_TABLE>
-	<TMPL_LOOP name=BINDING:LIST>
-		<BINDING:CHECKBOXES><input type="checkbox" name="<BINDING:NAME>" value="<BINDING:VALUE>" <BINDING_IF:IS_SELECTED> CHECKED</BINDING_IF:IS_SELECTED> %_TAG_ATTRIBUTES_% /></BINDING:CHECKBOXES>  <BINDING:LABELS><BINDING:DISPLAY_STRING></BINDING:LABELS><br>
-	</TMPL_LOOP>
-</BINDING_IF:SHOULD_RENDER_IN_TABLE>
+<binding_else:should_render_in_table>
+	<binding_loop:list>
+		<binding:checkboxes><input type="checkbox" name="<binding:name>" value="<binding:value>" <binding_if:is_selected> CHECKED</binding_if:is_selected> %_TAG_ATTRIBUTES_% /></binding:checkboxes>  <binding:labels><binding:display_string></binding:labels><br>
+	</binding_loop:list>
+</binding_if:should_render_in_table>
 </span><script type="text/javascript">
 	jQuery(function () {
-		console.log('Setting up check box group: <BINDING:UNIQUE_ID>');
-		var c = new IFCheckBoxGroup("<BINDING:UNIQUE_ID>", "<BINDING:PARENT_BINDING_NAME>", "<BINDING:NAME>");
-		c.setIsRequired(<BINDING:IS_REQUIRED>);
-		<BINDING_IF:HAS_REQUIRED_MESSAGE>
-			c.setErrorMessageForKey("<BINDING:REQUIRED_MESSAGE>", "IS_REQUIRED");
-		</BINDING_IF:HAS_REQUIRED_MESSAGE>
-		<BINDING_IF:HAS_INIT_CODE>
-			<BINDING:INIT_CODE>(c);
-		</BINDING_IF:HAS_INIT_CODE>
+		console.log('Setting up check box group: <binding:unique_id>');
+		var c = new IFCheckBoxGroup("<binding:unique_id>", "<binding:parent_binding_name>", "<binding:name>");
+		c.setIsRequired(<binding:is_required />);
+		<binding_if:has_required_message>
+			c.setErrorMessageForKey("<binding:required_message>", "IS_REQUIRED");
+		</binding_if:has_required_message>
+		<binding_if:has_init_code>
+			<binding:init_code>(c);
+		</binding_if:has_init_code>
 	});
 </script>

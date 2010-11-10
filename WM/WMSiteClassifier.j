@@ -163,15 +163,15 @@ sub locationAsString {
 	return "Default";
 }
 
-- path {
+- (id) path {
 	return [self componentClassName];
 }
 
-- componentPath {
+- (id) componentPath {
 	return [self componentClassName];
 }
 
-- languages {
+- (id) languages {
 	return _languages.split(":");
 }
 
@@ -241,7 +241,7 @@ sub locationAsString {
     var seen = {};
     for (var i=0; i<bundles.length; i++) {
         var bundleClass = bundles[i];
-        if (seen[bundleClass]) { continue };
+        if (seen[bundleClass]) { continue }
         var bundle = [CPBundle bundleForClass:bundleClass];
         if (bundle) {
             var resourcePath = [bundle pathForResource:n];
