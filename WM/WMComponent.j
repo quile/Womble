@@ -396,7 +396,6 @@ var BINDING_DISPATCH_TABLE = {
     var legacyLoops = [];
     for (var i=0; i<[template contentElementCount];) {
         var contentElement = [template contentElementAtIndex:i];
-        [WMLog debug:contentElement];
         if (pregeneratedContent[i]) {
             [response appendContentString:pregeneratedContent[i]];
             delete pregeneratedContent[i];
@@ -483,7 +482,7 @@ var BINDING_DISPATCH_TABLE = {
                         //WM::Log::debug("Tag attribute string is $tagAttributes for binding $binding->{NAME}");
 
                         //WMLog debug:binding['_NAME'] + " " + value];
-                        value.replace(TAG_ATTRIBUTE_MARKER_RE, tagAttributes);
+                        value = value.replace(TAG_ATTRIBUTE_MARKER_RE, tagAttributes);
                     }
                 }
                 //} // __LEGACY__
@@ -516,7 +515,8 @@ var BINDING_DISPATCH_TABLE = {
                     continue;
                 }
                 condition = [self evaluateBinding:binding inContext:context];
-                if (condition.isa && [condition isKindOfClass:"CPArray"]) {
+
+                if (condition && condition.isa && [condition isKindOfClass:"CPArray"]) {
                         condition = condition.length;
                 }
                 if (contentElement['BINDING_TYPE'] == "BINDING_UNLESS") {

@@ -1,16 +1,11 @@
-<input name="<binding:name />" id="<binding:unique_id />" title="<binding:parent_binding_name />" <binding:tag_attributes> <binding_if:size>size="<binding:size />"</binding_if:size>
-<binding:foo /><binding_if:max_length>maxlength="<binding:max_length />"</binding_if:max_length> value="<binding:value />" /><span id="<binding:unique_id />-error" class="error" style="display: none;"></span><binding_if:should_enable_client_side_scripting>
-<script type="text/javascript">
-<!--
-function <binding:unique_id />Value() {
-	return valueOfTextField("<binding:unique_id />");
-}
-function set<binding:unique_id />Value(value) {
-	setValueOfTextField(value, "<binding:unique_id />");
-}
-// -->
-</script>
-</binding_if:should_enable_client_side_scripting>
+<input name="<binding:name />"
+    id="<binding:unique_id />"
+    title="<binding:parent_binding_name />"
+    <binding:tag_attributes />
+    <binding_if:size>size="<binding:size />"</binding_if:size>
+    <binding_if:max_length>maxlength="<binding:max_length />"</binding_if:max_length>
+    value="<binding:value />" />
+<span id="<binding:unique_id />-error" class="error" style="display: none;"></span>
 <script type="text/javascript">
 IF.setupFn['<binding:unique_id />'] = function (controller) {
 	controller.setIsRequired(<binding:is_required />);

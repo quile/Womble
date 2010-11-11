@@ -54,7 +54,7 @@ var application = [WMApplication applicationInstanceWithName:"WMTest"];
 }
 */
 
-- (void) testElements {
+- (void) testTextField {
     var component = [WMTestForm new];
     var content = [component render];
     [WMLog debug:content];
