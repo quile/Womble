@@ -26,7 +26,7 @@ var UTIL = require("util");
 {
 	id name @accessors;
 	id objectInflatorMethod @accessors;
-	id list @accessors;
+	id _list;
 	id value @accessors;
 	id displayString @accessors;
 	id selection @accessors;
@@ -34,6 +34,7 @@ var UTIL = require("util");
 	id anyString @accessors;
 	id anyValue @accessors;
 	id size @accessors;
+    id anItem @accessors;
 }
 
 - (id) requiredPageResources {
@@ -65,21 +66,30 @@ var UTIL = require("util");
 	return name || [self queryKeyNameForPageAndLoopContexts];
 }
 
+- (id) list {
+    return _list;
+}
+
+- (void) setList:(id)v {
+    [WMLog debug:"Setting list to " + v];
+    _list = v;
+}
+
 - (id) Bindings {
 	var _bindings = [super Bindings];
 	return UTIL.update(_bindings, {
 		selection: {
 			type: "Selection",
 			bindings: {
-				LIST: 'list',
-				VALUE: 'value',
-				DISPLAY_STRING: 'displayString',
-				SELECTED_VALUES: objj('[WMArray arrayFromObject:[self selection]]'),
-				NAME: 'name',
-				SIZE: 'size',
-				IS_MULTIPLE: 'isMultiple',
-				ANY_STRING: 'anyString',
-				ANY_VALUE: 'anyValue',
+				list: 'list',
+				value: 'value',
+				displayString: 'displayString',
+				selectedValues: objj('[WMArray arrayFromObject:[self selection]]'),
+				name: 'name',
+				size: 'size',
+				isMultiple: 'isMultiple',
+				anyString: 'anyString',
+				anyValue: 'anyValue',
 			},
 		}
 	});

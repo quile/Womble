@@ -24,27 +24,27 @@
 @import <WM/WMUtility.j>
 @import <WM/WMLog.j>
 
-__setValue_forKey = function(self, value, key) {
+__setValue_forKey = function(self, v, key) {
 	if (key.match(/\./)) {
-		return [self setValue:value forKeyPath:key];
+		return [self setValue:v forKeyPath:key];
 	}
 
 	var setMethodName = "set" + _p_ucfirst(_p_niceName(key)) + ":";
 	if ([self respondsToSelector:@SEL(setMethodName)]) {
 		//[WMLog debug:"Object can " + setMethodName + ", using it to set value " + value];
-		objj_msgSend(self, setMethodName, value);
+		objj_msgSend(self, setMethodName, v);
 		return;
 	}
 
 	if ([self respondsToSelector:@SEL("setObject:forKey:")]) {
-		return [self setObject:value forKey:key];
+		return [self setObject:v forKey:key];
 	}
 	//if ([self can:"setStoredValueForKey"]("setStoredValueForKey")) {
 	//	//IF::Log::warning("Defaulting to using setStoredValueForKey() for key $key");
 	//	[self setStoredValueForKey:niceName(key)](value, niceName(key));
 	//	return;
 	//}
-	self[key] = value;
+	self[key] = v;
 }
 
 var DOT_OR_PARENTHESIS = new RegExp("[\.\(]");
@@ -65,9 +65,9 @@ __valueForKey = function(self, key) {
 		//IF::Log::debug("valueForKey called for key $key, get method should be $getMethodName");
 		if ([self respondsToSelector:@SEL(getMethodName)]) {
 			//IF::Log::debug("Object can $getMethodName, using it");
-			var value = objj_msgSend(self, getMethodName);
+			var v = objj_msgSend(self, getMethodName);
 			//IF::Log::debug("Value for key $testKey : $value");
-			return value;
+			return v;
 		}
 	}
 	if ([self respondsToSelector:@SEL("objectForKey:")]) {
@@ -150,14 +150,14 @@ __valueForKey_onObject = function(self, key, obj) {
 	*/
 }
 
-__setValue_forKey_onObject = function(self, value, key, obj) {
+__setValue_forKey_onObject = function(self, v, key, obj) {
 	if (typeof obj != 'object') { return }
 	if ([obj respondsToSelector:@SEL("setValueForKey:")]) {
-		return __setValue_forKey(obj, value, key);
+		return __setValue_forKey(obj, v, key);
 		//return [obj setValue:value forKey:key];
 	}
 	if (!_p_isHash(obj)) { return }
-	obj[key] = value;
+	obj[key] = v;
 }
 
 __valueForKeyPath = function(self, keyPath) {
@@ -171,7 +171,7 @@ __valueForKeyPath = function(self, keyPath) {
 	return nil;
 }
 
-__setValue_forKeyPath = function(self, value, keyPath) {
+__setValue_forKeyPath = function(self, v, keyPath) {
 	//my $readableValue = length($value) > 255? substr($value, 0, 255)."..." : $value;
 	//IF::Log::debug("Setting value $readableValue for key path: $keyPath");
 	var bits = [self targetObjectAndKeyForKeyPath:keyPath];
@@ -179,7 +179,7 @@ __setValue_forKeyPath = function(self, value, keyPath) {
 	    targetKeyPathElement = bits[1];
 
 	if (currentObject && targetKeyPathElement) {
-		[self _setValue:value forKey:key onObject:currentObject];
+		[self _setValue:v forKey:key onObject:currentObject];
 	}
 }
 
@@ -240,20 +240,20 @@ __evaluateExpression = function(self, expression) {
 // implement kv coding get these methods for free but will
 // probably have to override them.  They can be used in keypaths.
 
-__int = function(self, value) {
-	return value;
+__int = function(self, v) {
+	return v;
 }
 
-__length = function(self, value) {
-	if (_p_isArray(value)) {
-		return value.length;
+__length = function(self, v) {
+	if (_p_isArray(v)) {
+		return v.length;
 	}
-	return value.length;
+	return v.length;
 }
 
-__keys = function(self, value) {
-	if (typeof value == "object") {
-		return value.keys();
+__keys = function(self, v) {
+	if (typeof v == "object") {
+		return v.keys();
 	}
 	return [];
 }
@@ -268,10 +268,10 @@ __sort = function(self, list) {
 
 __truncateStringToLength = function(self, length) {
     // this is a cheesy truncator
-    if (value.length > length) {
-        return value.substring(0, length) + "...";
+    if (v.length > length) {
+        return v.substring(0, length) + "...";
     }
-    return value;
+    return v;
 }
 
 /*
@@ -333,18 +333,18 @@ __string_withEvaluatedKeyPathsInLanguage = function(self, str, language) {
 	var match = str.match(TEMPLATE_RE);
 	while (match) {
 		var keyValuePath = match[1];
-		var value = "";
+		var v = "";
 
 		if ([WMUtility expressionIsKeyPath:keyValuePath]) {
-			value = [[self class] valueForKeyPath:keyValuePath];
+			v = [[self class] valueForKeyPath:keyValuePath];
 		} else {
-			value = eval(keyValuePath); // yikes, dangerous!
+			v = eval(keyValuePath); // yikes, dangerous!
 		}
 
 		//[WMLog debug:"Evaluating " + keyValuePath + " on self to value " + value];
 		//\Q and \E makes the regex ignore the inbetween values if they have regex special items which we probably will for the dots (.).
 		var re = new RegExp("\$\{" + _p_quotemeta(keyValuePath) + "\}", "g");
-		str = str.replace(re, value);
+		str = str.replace(re, v);
 		//Avoiding the infinite loop...just in case
 		if (count++ > 100) { break }
 		match = str.match(TEMPLATE_RE);
@@ -359,18 +359,18 @@ __string_withEvaluatedKeyPathsInLanguage = function(self, str, language) {
 
 + (id) _valueForKeyPathElement:(id)element onObject:(id)obj { return __valueForKeyPathElement_onObject(self, element, obj); }
 + (id) _valueForKey:(id)key onObject:(id)obj { return __valueForKey_onObject(self, key, obj); }
-+ (void) _setValue:(id)value forKey:(id)key onObject:(id)obj { return __setValue_forKey_onObject(self, value, key, obj); }
++ (void) _setValue:(id)v forKey:(id)key onObject:(id)obj { return __setValue_forKey_onObject(self, v, key, obj); }
 + (id) _listOfPossibleKeyNames:(id)key { return __listOfPossibleKeyNames(self, key); }
 
 - (id) evaluateExpression:(id)expression { 	return __evaluateExpression(self, expression); }
 - (id) targetObjectAndKeyForKeyPath:(id)keyPath { return __targetObjectAndKeyForKeyPath(self, keyPath); }
-- (void) setValue:(id)value forKey:(id)key { return __setValue_forKey(self, value, key); }
+- (void) setValue:(id)v forKey:(id)key { return __setValue_forKey(self, v, key); }
 - (id) valueForKey:(id)key { return __valueForKey(self, key); }
 - (id) valueForKeyPath:(id)keyPath { return __valueForKeyPath(self, keyPath); }
-- (void) setValue:(id)value forKeyPath:(id)keyPath { return __setValue_forKeyPath(self, value, keyPath); }
-- (id) int:(id)value { return __int(self, value); }
-- (id) length:(id)value { return __length(self, value); }
-- (id) keys:(id)value { return __keys(self, value); }
+- (void) setValue:(id)v forKeyPath:(id)keyPath { return __setValue_forKeyPath(self, v, keyPath); }
+- (id) int:(id)v { return __int(self, v); }
+- (id) length:(id)v { return __length(self, v); }
+- (id) keys:(id)v { return __keys(self, v); }
 - (id) reverse:(id)list { return __reverse(self, list); }
 - (id) sort:(id)list { return __sort(self, list); }
 - (id) truncateString:(id)str toLength:(id)length { return __truncateString_toLength(self, string, length); }
@@ -388,18 +388,18 @@ __string_withEvaluatedKeyPathsInLanguage = function(self, str, language) {
 
 + (id) _valueForKeyPathElement:(id)element onObject:(id)obj { return __valueForKeyPathElement_onObject(self, element, obj); }
 + (id) _valueForKey:(id)key onObject:(id)obj { return __valueForKey_onObject(self, key, obj); }
-+ (void) _setValue:(id)value forKey:(id)key onObject:(id)obj { return __setValue_forKey_onObject(self, value, key, obj); }
++ (void) _setValue:(id)v forKey:(id)key onObject:(id)obj { return __setValue_forKey_onObject(self, v, key, obj); }
 + (id) _listOfPossibleKeyNames:(id)key { return __listOfPossibleKeyNames(self, key); }
 
 - (id) evaluateExpression:(id)expression { 	return __evaluateExpression(self, expression); }
 - (id) targetObjectAndKeyForKeyPath:(id)keyPath { return __targetObjectAndKeyForKeyPath(self, keyPath); }
-- (void) setValue:(id)value forKey:(id)key { return __setValue_forKey(self, value, key); }
+- (void) setValue:(id)v forKey:(id)key { return __setValue_forKey(self, v, key); }
 - (id) valueForKey:(id)key { return __valueForKey(self, key); }
 - (id) valueForKeyPath:(id)keyPath { return __valueForKeyPath(self, keyPath); }
-- (void) setValue:(id)value forKeyPath:(id)keyPath { return __setValue_forKeyPath(self, value, keyPath); }
-- (id) int:(id)value { return __int(self, value); }
-- (id) length:(id)value { return __length(self, value); }
-- (id) keys:(id)value { return __keys(self, value); }
+- (void) setValue:(id)v forKeyPath:(id)keyPath { return __setValue_forKeyPath(self, v, keyPath); }
+- (id) int:(id)v { return __int(self, v); }
+- (id) length:(id)v { return __length(self, v); }
+- (id) keys:(id)v { return __keys(self, v); }
 - (id) reverse:(id)list { return __reverse(self, list); }
 - (id) sort:(id)list { return __sort(self, list); }
 - (id) truncateString:(id)str toLength:(id)length { return __truncateString_toLength(self, string, length); }
@@ -416,18 +416,18 @@ __string_withEvaluatedKeyPathsInLanguage = function(self, str, language) {
 
 + (id) _valueForKeyPathElement:(id)element onObject:(id)obj { return __valueForKeyPathElement_onObject(self, element, obj); }
 + (id) _valueForKey:(id)key onObject:(id)obj { return __valueForKey_onObject(self, key, obj); }
-+ (void) _setValue:(id)value forKey:(id)key onObject:(id)obj { return __setValue_forKey_onObject(self, value, key, obj); }
++ (void) _setValue:(id)v forKey:(id)key onObject:(id)obj { return __setValue_forKey_onObject(self, v, key, obj); }
 + (id) _listOfPossibleKeyNames:(id)key { return __listOfPossibleKeyNames(self, key); }
 
 - (id) evaluateExpression:(id)expression { 	return __evaluateExpression(self, expression); }
 - (id) targetObjectAndKeyForKeyPath:(id)keyPath { return __targetObjectAndKeyForKeyPath(self, keyPath); }
-- (void) setValue:(id)value forKey:(id)key { return __setValue_forKey(self, value, key); }
+- (void) setValue:(id)v forKey:(id)key { return __setValue_forKey(self, v, key); }
 - (id) valueForKey:(id)key { return __valueForKey(self, key); }
 - (id) valueForKeyPath:(id)keyPath { return __valueForKeyPath(self, keyPath); }
-- (void) setValue:(id)value forKeyPath:(id)keyPath { return __setValue_forKeyPath(self, value, keyPath); }
-- (id) int:(id)value { return __int(self, value); }
-- (id) length:(id)value { return __length(self, value); }
-- (id) keys:(id)value { return __keys(self, value); }
+- (void) setValue:(id)v forKeyPath:(id)keyPath { return __setValue_forKeyPath(self, v, keyPath); }
+- (id) int:(id)v { return __int(self, v); }
+- (id) length:(id)v { return __length(self, v); }
+- (id) keys:(id)v { return __keys(self, v); }
 - (id) reverse:(id)list { return __reverse(self, list); }
 - (id) sort:(id)list { return __sort(self, list); }
 - (id) truncateString:(id)str toLength:(id)length { return __truncateString_toLength(self, string, length); }

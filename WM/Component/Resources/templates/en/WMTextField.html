@@ -6,9 +6,3 @@
     <binding_if:max_length>maxlength="<binding:max_length />"</binding_if:max_length>
     value="<binding:value />" />
 <span id="<binding:unique_id />-error" class="error" style="display: none;"></span>
-<script type="text/javascript">
-IF.setupFn['<binding:unique_id />'] = function (controller) {
-	controller.setIsRequired(<binding:is_required />);
-	<binding_if:has_required_message>controller.setRequiredErrorMessage("<binding:required_message />");</binding_if:has_required_message>
-};
-</script>

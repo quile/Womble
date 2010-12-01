@@ -46,6 +46,12 @@ var OPEN_RE = new RegExp("[\[\{\(]");
         }
     }
 
+    // if it's already an object, just return it.  This is for the case
+    // where bindings are hardcoded as arrays or dictionaries
+    if (typeof expression == "object") {
+        return expression;
+    }
+
     if ([WMUtility expressionIsKeyPath:expression]) {
         return [component valueForKeyPath:expression];
     }

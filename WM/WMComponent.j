@@ -81,85 +81,85 @@ var BINDING_DISPATCH_TABLE = {
     // },
     STRING: function(self, binding, context) {
         //[WMLog debug:"Evaluating " + binding + " in " + self];
-        var value = [WMUtility evaluateExpression:binding['value'] inComponent:self context:context];
+        var _value = [WMUtility evaluateExpression:binding['value'] inComponent:self context:context];
         if (binding['maxLength']) {
             var ml = binding['maxLength'];
             var maxLength = parseInt(ml) || [WMUtility evaluateExpression:ml inComponent:self context:context];
-            if (maxLength && length(value) > maxLength) {
-                value = value.substring(0, (maxLength - 3)) + "...";
+            if (maxLength && length(_value) > maxLength) {
+                _value = _value.substring(0, (maxLength - 3)) + "...";
             }
         }
         if (binding['escapeHTML']) {
-            value = [WMUtility escapeHtml:value];
+            _value = [WMUtility escapeHtml:_value];
         }
         if (binding['outgoingTextToHTML'] == "YES") {
-            value = [WMUtility formattedHtmlFromText:value];
+            _value = [WMUtility formattedHtmlFromText:_value];
         }
         if (binding['filter']) {
             var filterName = binding['filter'];
             // TODO: this assumes a filter will be an instance method of this component,
             // which is a bit bogus; there should be general filters that can be
             // used anywhere.
-            var filterExpression = "objj_msgSend(self, filterName + ':', value)";
-            var value;
+            var filterExpression = "objj_msgSend(self, filterName + ':', _value)";
+            var _value;
             try {
-                value = eval(filterExpression);
+                _value = eval(filterExpression);
             } catch(e) {
                 [WMLog error:"Failed to filter " + binding['_NAME'] + " because " + e];
-                value = "";
+                _value = "";
             }
         }
-        return value;
+        return _value;
     },
 
     NUMBER: function(self, binding, context) {
         var format = [WMUtility evaluateExpression:binding['format'] inComponent:self context:context];
-        var value;
+        var _value;
         try {
-            value = PRINTF.sprintf(format, [WMUtility evaluateExpression:binding['value'] inComponent:self context:context]);
+            _value = PRINTF.sprintf(format, [WMUtility evaluateExpression:binding['value'] inComponent:self context:context]);
         } catch (e) {
             [WMLog warning:"eval error: " + e + " while trying to evaluate " + binding['_NAME'] + " (" + binding['value'] + ")"];
         }
-        return value || "0";
+        return _value || 0;
     },
     DATE: function(self, binding, context) {
-        var value;
+        var _value;
         try {
-            value = [WMUtility dateStringForUnixTime: [WMUtility evaluateExpression:binding['value'] inComponent:self context:context]];
+            _value = [WMUtility dateStringForUnixTime: [WMUtility evaluateExpression:binding['value'] inComponent:self context:context]];
         } catch (e) {
             [WMLog warning:"eval error: " + e + " while trying to evaluate " + binding['_NAME'] + " (" + binding['value'] + ")"];
         }
-        return value;
+        return _value;
     },
     LOOP: function(self, binding, context) {
-        var value;
+        var _value;
         try {
-            value = [WMUtility evaluateExpression:binding['list'] inComponent:self context:context];
+            _value = [WMUtility evaluateExpression:binding['list'] inComponent:self context:context];
         } catch (e) {
             [WMLog warning:"eval error: " + e + " while trying to evaluate " + binding['_NAME'] + " (" + binding['value'] + ")"];
             return [];
         }
-        if (![WMArray isArray:value]) {
-            [WMLog warning:"Attempt to set LOOP with SCALAR " + value + ", failing gracefully"];
-            if (value != null) {
-                value = [value];
+        if (![WMArray isArray:_value]) {
+            [WMLog warning:"Coercing scalar to LOOP " + _value];
+            if (_value != null) {
+                _value = [_value];
             } else {
-                value = [];
+                _value = [];
             }
         }
-        return value;
+        return _value;
     },
     BOOLEAN: function(self, binding, context) {
-        var value;
+        var _value;
         try {
-            value = [WMUtility evaluateExpression:binding['value'] inComponent:self context:context]? 1:0;
+            _value = [WMUtility evaluateExpression:binding['value'] inComponent:self context:context]? 1:0;
             if (binding['negate']) {
-                value = !value;
+                _value = !_value;
             }
         } catch (e) {
             [WMLog warning:"eval error: " + e + " while trying to evaluate " + binding['_NAME'] + " (" + binding['value'] + ")"];
         }
-        return value;
+        return _value;
     },
     CONTENT: function(self, binding, context) {
         return COMPONENT_CONTENT_MARKER;
@@ -194,13 +194,13 @@ var BINDING_DISPATCH_TABLE = {
     COMPONENT: function(self, binding, context) {
         [WMLog page:">>> " + binding['type'] + " : " + binding['_NAME'] + " : " + [self context]];
         [WMLog incrementPageStructureDepth];
-        var value = [self componentResponseForBinding:binding];
+        var _value = [self componentResponseForBinding:binding];
         [WMLog decrementPageStructureDepth];
         [WMLog page:"<<< " + binding['type'] + " : " + binding['_NAME'] + " : " + [self context]];
-        if (!value) {
+        if (!_value) {
             [WMLog warning:"error trying to evaluate binding " + binding['_NAME'] + " (" + binding['value'] + ")"];
         }
-        return value;
+        return _value;
     },
 };
 
@@ -411,10 +411,11 @@ var BINDING_DISPATCH_TABLE = {
         // FIXME: try to be a bit smarter about detecting this
         // eg. handle these content element nodes with polymorphism!
         if (contentElement && typeof contentElement != "string") {
-            var value;
+            var _value;
             if (contentElement['BINDING_TYPE'] == "BINDING") {
                 if (contentElement['IS_END_TAG']) {
                     i += 1;
+                    continue;
                 }
 
                 var binding = [self bindingForKey:contentElement['BINDING_NAME']] ||
@@ -436,7 +437,7 @@ var BINDING_DISPATCH_TABLE = {
                 //
                 binding['__private'] = binding['__private'] || {};
                 binding['__private']['ATTRIBUTES'] = contentElement['ATTRIBUTE_HASH'] || {};
-                value = [self evaluateBinding:binding inContext:context];
+                _value = [self evaluateBinding:binding inContext:context];
                 delete binding['__private']['ATTRIBUTES'];
                 // add it to the list of components to flush on an
                 // iteration, if it's inside a loop
@@ -451,14 +452,15 @@ var BINDING_DISPATCH_TABLE = {
                 }
                 if ([self bindingIsComponent:binding] || binding['type'] == "REGION" || binding['type'] == "SUBCOMPONENT_REGION") {
                     if (contentElement['END_TAG_INDEX']) {
-                        if (value.match(COMPONENT_CONTENT_MARKER_RE)) {
-                            var bits = _p_2_split(COMPONENT_CONTENT_MARKER_RE, value);
+                        if (_value.match(COMPONENT_CONTENT_MARKER_RE)) {
+                            var bits = _p_2_split(COMPONENT_CONTENT_MARKER_RE, _value);
                             var openTagReplacement = bits[0];
                             var closeTagReplacement = bits[1];
-                            value = openTagReplacement;
+                            _value = openTagReplacement;
                             pregeneratedContent[contentElement['END_TAG_INDEX']] = closeTagReplacement;
+                            [WMLog debug:"value is " + _value + " end tag is " + closeTagReplacement];
                         } else {
-                            [response appendContentString:value];
+                            [response appendContentString:_value];
                             i = contentElement['END_TAG_INDEX'] + 1;
                             continue;
                         }
@@ -469,7 +471,7 @@ var BINDING_DISPATCH_TABLE = {
                         // the component tree.  here, the including component evaluates the
                         // attributes for the included component.
                         //
-                        var tagAttributes = contentElement['ATTRIBUTES'];
+                        var tagAttributes = contentElement['ATTRIBUTES'] || "";
                         // process it using craig's cleverness, but first set the parent up
                         // so the hierarchy is preserved - this is a temporary hack
                         //
@@ -482,11 +484,11 @@ var BINDING_DISPATCH_TABLE = {
                         //WM::Log::debug("Tag attribute string is $tagAttributes for binding $binding->{NAME}");
 
                         //WMLog debug:binding['_NAME'] + " " + value];
-                        value = value.replace(TAG_ATTRIBUTE_MARKER_RE, tagAttributes);
+                        _value = _value.replace(TAG_ATTRIBUTE_MARKER_RE, tagAttributes);
                     }
                 }
                 //} // __LEGACY__
-                [response appendContentString:value];
+                [response appendContentString:_value];
                 i++;
                 continue;
             } else if (contentElement['BINDING_TYPE'] == "BINDING_IF" ||
@@ -622,7 +624,7 @@ var BINDING_DISPATCH_TABLE = {
                 if (indexKey) {
                     [self setValue:loopIndex forKey:indexKey];
                 }
-                loops[loopName]['index'] += 1;
+                loops[loopName]['index'] = loops[loopName]['index'] + 1;
                 i++;
                 continue;
             } else if (contentElement['BINDING_TYPE'] == "KEY_PATH") {
@@ -837,8 +839,8 @@ var BINDING_DISPATCH_TABLE = {
     var component = [self pageWithName:componentName];
     if (!component) { return nil }
     for (var key in attributes) {
-        var value = [WMUtility evaluateExpression:attributes[key] inComponent:self context:[self context]]
-        [component setValue:value forKey:key];
+        var _value = [WMUtility evaluateExpression:attributes[key] inComponent:self context:[self context]]
+        [component setValue:_value forKey:key];
     }
     return component;
 }
@@ -950,8 +952,9 @@ var BINDING_DISPATCH_TABLE = {
     // set the bindings
     var bs = bindings || {};
     for (var key in bs) {
-        var value = [WMUtility evaluateExpression:bindings[key] inComponent:self context:[self context]];
-        [component setValue:value forKey:key];
+        var _value = [WMUtility evaluateExpression:bindings[key] inComponent:self context:[self context]];
+        //[WMLog debug:"Pushing binding " + key + " with value " + _value];
+        [component setValue:_value forKey:key];
     }
 }
 
@@ -970,11 +973,11 @@ var BINDING_DISPATCH_TABLE = {
         // TODO get rid of this?
         if (![component shouldAllowOutboundValueForBindingNamed:key]) { continue }
         if (![WMUtility expressionIsKeyPath:bs[key]]) { continue }
-        var value = [component valueForKeyPath:key];
+        var _value = [component valueForKeyPath:key];
         //WM::Log::debug("Pull: ".$[self componentNameRelativeToSiteClassifier()."  ($binding->{bindings}->{$key})"
         //    ." <-- ".$component->componentNameRelativeToSiteClassifier()." ($key, $value)");
         //
-        [self setValue:value forKeyPath:bs[key]];
+        [self setValue:_value forKeyPath:bs[key]];
     }
 }
 
@@ -1105,8 +1108,8 @@ var BINDING_DISPATCH_TABLE = {
     return _hasRegions;
 }
 
-- (void) setHasRegions:(Boolean)value {
-    _hasRegions = value;
+- (void) setHasRegions:(Boolean)_value {
+    _hasRegions = _value;
 }
 
 - (Boolean) hasRegionsForKey:(id)key {
@@ -1141,16 +1144,16 @@ var BINDING_DISPATCH_TABLE = {
     return [_regionCache[subcomponentName] regionsForKey:key];
 }
 
-- (void) setRegionsForKey:(id)key {
+- (void) setRegions:(id)regions forKey:(id)key {
     _regions[key] = regions;
 }
 
 - (id) nextRegionForKey:(id)key {
     var regionsForKey = [self regionsForKey:key];
     if (regionsForKey.length > _regionCounters[key]) {
-        var value = regionsForKey[_regionCounters[key]];
+        var _value = regionsForKey[_regionCounters[key]];
         _regionCounters[key] += 1;
-        return value;
+        return _value;
     }
     return nil; // we return null if we've gone off the end + ..
 }
@@ -1165,7 +1168,7 @@ var BINDING_DISPATCH_TABLE = {
 - (void) parseRegionsFromResponse:(id)response {
     //[WMLog debug:"Regions found in component " + self];
     var content = [response content];
-    var rre = new RegExp('<REGION NAME="([^"]*)">(.*?)<\/REGION>');
+    var rre = new RegExp('<REGION NAME="([^"]*)">(.*?)<\/REGION>', 'gi');
     var match;
     while (match = content.match(rre)) {
         var all = match[0];
@@ -1174,16 +1177,16 @@ var BINDING_DISPATCH_TABLE = {
         var regions = [self regionsForKey:regionName];
         regions.push(region);
         [self setRegions:regions forKey:regionName];
-        content.replace(/<REGION[^>]*>/, "<!-- region -->");
-        content.replace(/<\/REGION[^>]*>/, "<!-- /region -->");
+        content = content.replace(/<REGION[^>]*>/, "<!-- region -->");
+        content = content.replace(/<\/REGION[^>]*>/, "<!-- /region -->");
     }
 
     // strip regions and reset content
     [response setContent:content];
 }
 
-- (void) setParentBindingName:(id)value {
-    _parentBindingName = value;
+- (void) setParentBindingName:(id)_value {
+    _parentBindingName = _value;
 }
 
 - (id) parentBindingName {
@@ -1230,8 +1233,8 @@ var BINDING_DISPATCH_TABLE = {
     return _parent;
 }
 
-- (void) setParent:(id)value {
-    _parent = value;
+- (void) setParent:(id)_value {
+    _parent = _value;
 }
 
 // Override this if there are bindings you do not wish synchronized:
@@ -1243,32 +1246,32 @@ var BINDING_DISPATCH_TABLE = {
     return _synchronizesBindingsWithParent;
 }
 
-- (void) setSynchronizesBindingsWithParent:(Boolean)value {
-    _synchronizesBindingsWithParent = value;
+- (void) setSynchronizesBindingsWithParent:(Boolean)_value {
+    _synchronizesBindingsWithParent = _value;
 }
 
 - (Boolean) synchronizesBindingsWithChildren {
     return _synchronizesBindingsWithChildren;
 }
 
-- (void) setSynchronizesBindingsWithChildren:(Boolean)value {
-    _synchronizesBindingsWithChildren = value;
+- (void) setSynchronizesBindingsWithChildren:(Boolean)_value {
+    _synchronizesBindingsWithChildren = _value;
 }
 
 - (id) _loopIndices {
     return _loopIndices;
 }
 
-- (void) _setLoopIndices:(id)value {
-    _loopIndices = value;
+- (void) _setLoopIndices:(id)_value {
+    _loopIndices = _value;
 }
 
 - (id) pageContextNumber {
     return _pageContextNumber;
 }
 
-- (void) setPageContextNumber:(id)value {
-    _pageContextNumber = value;
+- (void) setPageContextNumber:(id)_value {
+    _pageContextNumber = _value;
 }
 
 - (void) setPageContextNumberRoot:(id)root {
@@ -1478,8 +1481,8 @@ var BINDING_DISPATCH_TABLE = {
     return _hierarchy;
 }
 
-- (void) setHierarchy:(id)value {
-    _hierarchy = value;
+- (void) setHierarchy:(id)_value {
+    _hierarchy = _value;
 }
 
 // - componentNameSpace {
@@ -1517,7 +1520,7 @@ var BINDING_DISPATCH_TABLE = {
 }
 
 - (WMRenderState) _renderState { return _renderState }
-- (void) _setRenderState:(WMRenderState)value { _renderState = value }
+- (void) _setRenderState:(WMRenderState)_value { _renderState = _value }
 
 // If you override this and return true, then bindings of the form
 // <binding:foo_bar /> will try to access key "foo_bar" on the
@@ -1528,7 +1531,7 @@ var BINDING_DISPATCH_TABLE = {
 }
 
 - (id) tagAttributes { return _tagAttributes }
-- (void) setTagAttributes:(id)value { _tagAttributes = value }
+- (void) setTagAttributes:(id)_value { _tagAttributes = _value }
 
 - (id) tagAttributeForKey:(id)key {
     if (!_tagAttributes) { return nil }
@@ -1538,17 +1541,17 @@ var BINDING_DISPATCH_TABLE = {
 }
 
 - (id) _evaluateKeyPathsInTagAttributes:(id)tagAttribute onComponent:(id)component {
-    if (!tagAttribute || !component) { return nil }
+    if (!tagAttribute || !component) { return "" }
     var count = 0;
     var match;
     var ekpre = new RegExp("\$\{([^}]+)\}");
     while (match = tagAttribute.match(ekpre)) {
         var keyValuePath = match[1];
-        var value = [component valueForKeyPath:keyValuePath] || [component valueForKeyPath:'parent.' + keyValuePath];
+        var _value = [component valueForKeyPath:keyValuePath] || [component valueForKeyPath:'parent.' + keyValuePath];
         //[WMLog debug:"tagAttributeForKey - Found keyValuePath of " + keyValuePath + " and that returned " + value];
         //[WMLog debug:"parent is " + [component parent]];
         var rr = new RegExp("\$\{" + _p_quotemeta(keyValuePath) + "\}");
-        tagAttribute.replace(rr, value);
+        tagAttribute.replace(rr, _value);
         //Avoiding the infinite loop...just in case
         if (count++ > 100) { break }
     }

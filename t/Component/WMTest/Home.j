@@ -21,6 +21,7 @@
 @import <WM/WMPageResource.j>
 
 @import "Footer.j"
+@import "Bold.j"
 
 @implementation WMTestHome : WMComponent
 {
@@ -68,6 +69,9 @@
             bindings: {
                 someString: '"Guanabana"',
             },
+        },
+        bold: {
+            type: "WMTestBold",
         },
         //system_test: {
         //    type: "URL",

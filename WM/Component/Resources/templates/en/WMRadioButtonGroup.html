@@ -14,13 +14,4 @@
 		<binding:buttons><input type="radio" name="<binding:name />" value="<binding:value />" <binding_if:is_selected> CHECKED</binding_if:is_selected> %_TAG_ATTRIBUTES_% /></binding:buttons> <binding:labels><binding:display_string></binding:labels><binding_if:is_vertical_layout><br></binding_if:is_vertical_layout>
 	</binding_loop:list>
 </binding_if:should_render_in_table>
-<script type="text/javascript">
-	jQuery(function () {
-		console.log('Setting up radio button group: <binding:unique_id>');
-		var c = new IFRadioButtonGroup("<binding:unique_id>", "<binding:parent_binding_name>", "<binding:name>");
-		c.setIsRequired(<binding:is_required>);
-		<binding_if:has_required_message>
-			c.setErrorMessageForKey("<binding:required_message />", "IS_REQUIRED");
-		</binding_if:has_required_message>
-	});
-</script>
+</span>

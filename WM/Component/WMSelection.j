@@ -67,8 +67,8 @@ var UTIL = require("util");
 	return list;
 }
 
-- (void) setList:(id)value {
-	_list = value;
+- (void) setList:(id)v {
+	_list = v;
 }
 
 - (id) displayStringForItem:(id)item {

@@ -88,4 +88,10 @@ var application = [WMApplication applicationInstanceWithName:"WMTest"];
     [self assertTrue:o.match(/Vamos/) message:"Nested subcomponent rendered in correct language"];
 }
 
+- (void) testWrappingComponents {
+    var component = [WMTestHome new];
+    var o = [component render];
+    [self assertTrue:o.match(new RegExp("<b>This should be bold</b>")) message:"Wrapping component worked"];
+}
+
 @end

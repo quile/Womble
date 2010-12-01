@@ -42,6 +42,7 @@ var UTIL = require("util");
 	id allowsNoSelection @accessors;
 	id shouldIgnoreCase @accessors;
 	id shouldIgnoreAccents @accessors;
+    id anItem @accessors;
 }
 
 - (id) requiredPageResources {

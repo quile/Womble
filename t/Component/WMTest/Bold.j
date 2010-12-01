@@ -16,28 +16,17 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-@import "WMTextField.j"
 
-var UTIL = require("util");
+@import <WM/WMComponent.j>
 
-@implementation WMText : WMTextField
-{
-	id rows @accessors;
-	id columns @accessors;
-}
+@implementation WMTestBold : WMComponent
 
 - (id) Bindings {
-    var _bindings = [super Bindings];
-	return UTIL.update(_bindings, {
-        rows: {
-            type: "NUMBER",
-            value: "rows",
+    return {
+        content: {
+            type: "CONTENT",
         },
-        columns: {
-            type: "NUMBER",
-            value: "columns",
-        },
-    });
+    };
 }
 
 @end

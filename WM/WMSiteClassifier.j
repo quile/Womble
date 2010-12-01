@@ -572,7 +572,7 @@ sub locationAsString {
 	var bindingClass = binding.value || binding.type;
 	// Locate the component and the template
 	var cn = [WMUtility evaluateExpression:bindingClass inComponent:self context:context] || bindingClass;
-	[WMLog debug:"component name is " + bindingClass + " / " + binding.toSource()];
+	//[WMLog debug:"component name is " + bindingClass + " / " + binding.toSource()];
 
     if (![WMLog assert:cn message:"Component path exists for binding " + binding._NAME]) { return nil }
 

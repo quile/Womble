@@ -1,12 +1,1 @@
-<span id="<binding:unique_id>"><binding:selection %_TAG_ATTRIBUTES_%>
-<script type="text/javascript">
-jQuery(function () {
-	console.log('Setting up scrolling list: <binding:unique_id />');
-	var c = new IFScrollingList("<binding:unique_id />", "<binding:parent_binding_name />", "<binding:name />");
-	c.setIsRequired(<binding:is_required />);
-	<binding_if:has_required_message>
-		c.setErrorMessageForKey("<binding:required_message />", "IS_REQUIRED");
-	</binding_if:has_required_message>
-});
-</script>
-</span>
+<span id="<binding:unique_id>"><binding:selection %_TAG_ATTRIBUTES_% /></span>

@@ -1,12 +1,4 @@
 <form id="<binding:unique_id>" name="<binding:form_name>" method="<binding:method>" title="<binding:parent_binding_name>" <binding_if:has_enc_type>enctype="<binding:enc_type>" </binding_if:has_enc_type>action="<binding_if:has_url><binding:url><binding_else:has_url><binding_if:has_server><binding_if:has_protocol><binding:protocol>://</binding_if:has_protocol><binding:server></binding_if:has_server><binding:action><binding_if:has_anchor>#<binding:anchor></binding_if:has_anchor></binding_if:has_url>"  <binding:tag_attributes>>
-<script type="text/javascript">
-	IF.setupFn['<binding:unique_id>'] = function(controller) {
-	<binding_if:can_only_be_submitted_once>controller.setCanOnlyBeSubmittedOnce(1);</binding_if:can_only_be_submitted_once>
-	<binding_if:has_validation_error_messages><binding_loop:validation_error_messages>
-		controller.setErrorMessageForKey(<binding:a_validation_error_message_text />, <binding:a_validation_error_message_key />);
-	</binding_loop:validation_error_messages></binding_if:has_validation_error_messages>
-	};
-</script>
 <binding_if:has_query_dictionary><binding_loop:query_dictionary><binding:hidden_key_value>
 	</binding_loop:query_dictionary></binding_if:has_query_dictionary>
 	<binding:content>

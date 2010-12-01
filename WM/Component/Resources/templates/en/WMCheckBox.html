@@ -1,9 +1,1 @@
 <input type="checkbox" name="<binding:name />" value="1" id="<binding:unique_id />" title="<binding:parent_binding>" <binding_if:is_checked>checked="checked"</binding_if:is_checked> <binding:tag_attributes> /><span id="<binding:unique_id>-error" class="error" style="display:none;"></span>
-<script type="text/javascript">
-IF.setupFn['<binding:unique_id>'] = function (controller) {
-	controller.setIsRequired(<binding:is_required>);
-	<binding:has_required_message>
-		controller.setRequiredErrorMessage("<binding:required_message>");
-	</binding:has_required_message>
-};
-</script>

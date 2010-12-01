@@ -57,6 +57,8 @@ var application = [WMApplication applicationInstanceWithName:"WMTest"];
 - (void) testTextField {
     var component = [WMTestForm new];
     var content = [component render];
+    [self assertTrue:content.match('banana="mango"')];
+    [self assertTrue:content.match('rows="5"')];
     [WMLog debug:content];
 }
 
