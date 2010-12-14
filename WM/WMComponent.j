@@ -41,7 +41,7 @@ var COMPONENT_CONTENT_MARKER = '%_COMPONENT_CONTENT_%';
 var TAG_ATTRIBUTE_MARKER     = '%_TAG_ATTRIBUTES_%';
 var REGION_TAG_MARKER         = '<REGION NAME="%s">';
 var COMPONENT_CONTENT_MARKER_RE = new RegExp(COMPONENT_CONTENT_MARKER);
-var TAG_ATTRIBUTE_MARKER_RE     = new RegExp(TAG_ATTRIBUTE_MARKER);
+var TAG_ATTRIBUTE_MARKER_RE     = new RegExp(TAG_ATTRIBUTE_MARKER, "g");
 var REGION_TAG_MARKER_RE        = new RegExp(REGION_TAG_MARKER);
 
 // WARNING: This MUST be maintained or the bindings
@@ -942,7 +942,7 @@ var BINDING_DISPATCH_TABLE = {
 - (void) pushValuesToComponent:(id)component {
     var binding = [self bindingForKey:[component parentBindingName]];
     if (!binding) {
-        [WMLog debug:"parent binding name " + [component parentBindingName] + " returned no binding"];
+        //[WMLog debug:"parent binding name " + [component parentBindingName] + " returned no binding"];
         return;
     }
     [self pushValuesToComponent:component usingBindings:binding['bindings']];
@@ -951,6 +951,7 @@ var BINDING_DISPATCH_TABLE = {
 - (void) pushValuesToComponent:(id)component usingBindings:(id)bindings {
     // set the bindings
     var bs = bindings || {};
+    [WMLog debug:"Preparing to push bindings to child"];
     for (var key in bs) {
         var _value = [WMUtility evaluateExpression:bindings[key] inComponent:self context:[self context]];
         //[WMLog debug:"Pushing binding " + key + " with value " + _value];
@@ -1246,32 +1247,32 @@ var BINDING_DISPATCH_TABLE = {
     return _synchronizesBindingsWithParent;
 }
 
-- (void) setSynchronizesBindingsWithParent:(Boolean)_value {
-    _synchronizesBindingsWithParent = _value;
+- (void) setSynchronizesBindingsWithParent:(Boolean)_sync{
+    _synchronizesBindingsWithParent = _sync;
 }
 
 - (Boolean) synchronizesBindingsWithChildren {
     return _synchronizesBindingsWithChildren;
 }
 
-- (void) setSynchronizesBindingsWithChildren:(Boolean)_value {
-    _synchronizesBindingsWithChildren = _value;
+- (void) setSynchronizesBindingsWithChildren:(Boolean)_sync {
+    _synchronizesBindingsWithChildren = _sync;
 }
 
 - (id) _loopIndices {
     return _loopIndices;
 }
 
-- (void) _setLoopIndices:(id)_value {
-    _loopIndices = _value;
+- (void) _setLoopIndices:(id)_v {
+    _loopIndices = _v;
 }
 
 - (id) pageContextNumber {
     return _pageContextNumber;
 }
 
-- (void) setPageContextNumber:(id)_value {
-    _pageContextNumber = _value;
+- (void) setPageContextNumber:(id)_v {
+    _pageContextNumber = _v;
 }
 
 - (void) setPageContextNumberRoot:(id)root {
@@ -1481,8 +1482,8 @@ var BINDING_DISPATCH_TABLE = {
     return _hierarchy;
 }
 
-- (void) setHierarchy:(id)_value {
-    _hierarchy = _value;
+- (void) setHierarchy:(id)_v {
+    _hierarchy = _v;
 }
 
 // - componentNameSpace {

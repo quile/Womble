@@ -95,7 +95,7 @@
             bindings: {
                 list: [
                     { value: '', displayString: 'None', },
-                    { value: 'A', displayString: 'Albenix, Isaac', },
+                    { value: 'A', displayString: 'Albeniz, Isaac', },
                     { value: 'F', displayString: 'Falla, Manuel de', },
                     { value: 'G', displayString: 'Granados, Enrique', },
                     { value: 'S', displayString: 'Sor, Fernando', },

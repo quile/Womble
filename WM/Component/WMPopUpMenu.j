@@ -177,15 +177,15 @@ var UTIL = require("util");
 	var _bindings = [super Bindings];
 	return UTIL.update(_bindings, {
 		selection: {
-			type: "Selection",
+			type: "WMSelection",
 			bindings: {
-				LIST: 'list',
-				VALUE: 'value',
-				DISPLAY_STRING: 'displayString',
-				SELECTED_VALUES: objj('[WMArray arrayFromObject:[self selection]]'),
-				NAME: 'name',
-				shouldIgnoreCase: 'shouldIgnoreCase',
-				shouldIgnoreAccents: 'shouldIgnoreAccents',
+				list: keypath('list'),
+				value: keypath('value'),
+				displayString: keypath('displayString'),
+				selectedValues: objj('[WMArray arrayFromObject:[self selection]]'),
+				NAME: keypath('name'),
+				shouldIgnoreCase: keypath('shouldIgnoreCase'),
+				shouldIgnoreAccents: keypath('shouldIgnoreAccents'),
 			},
 		},
 		is_required: {

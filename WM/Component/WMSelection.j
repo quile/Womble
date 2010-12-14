@@ -25,6 +25,9 @@ var UTIL = require("util");
 @implementation WMSelection : WMComponent {
 {
 	id _list;
+    id _v @accessors(property=value);
+    id _displayString @accessors(property=displayString);
+    id _selectedValues @accessors(property=selectedValues);
 	id listType @accessors;
 	id values @accessors;
 	id labels @accessors;
@@ -38,7 +41,7 @@ var UTIL = require("util");
 
 - (id) init {
 	size = 1;
-	return self;
+	return [super init];
 }
 
 - (id) takeValuesFromRequest:(id)context {
@@ -48,23 +51,23 @@ var UTIL = require("util");
 }
 
 - (id) list {
-	var list;
+	var l;
 	if ([self listType] == "RAW") {
-		list = [self rawList];
+		l = [self rawList];
 	} else {
-		list = _list || [];
+		l = _list || [];
 	}
 	if ([self allowsNoSelection]) {
 		if ([self value] && [self displayString]) {
 			var entry = {};
 			entry[[self value]] = [self anyValue];
 			entry[[self displayString]] = [self anyString];
-			list.unshift(entry);
+			l.unshift(entry);
 		} else {
-			list.unshift({});
+			l.unshift({});
 		}
 	}
-	return list;
+	return l;
 }
 
 - (void) setList:(id)v {
@@ -72,32 +75,13 @@ var UTIL = require("util");
 }
 
 - (id) displayStringForItem:(id)item {
-	if (item && item.isa && [item respondsToSelector:@SEL("valueForKey")]) {
-		return [item valueForKey:[self displayString]];
-	}
-	if (_p_isHash(item)) {
-		if ([self displayString] in item) {
-			return item[[self displayString]];
-		} else {
-			return nil;
-		}
-	}
-	return item;
+    if (typeof item === "string") { return item }
+	return __valueForKey_onObject(self, [self displayString], item);
 }
 
 - (id) valueForItem:(id)item {
-	var val;
-	if (item && item.isa && [item respondsToSelector:@SEL("valueForKey")]) {
-		return [item valueForKey:[self value]];
-	}
-	if (_p_isHash(item)) {
-		if ([self value] in item) {
-			return item[[self value]];
-		} else {
-			return nil;
-		}
-	}
-	return item;
+    if (typeof item === "string") { return item }
+	return __valueForKey_onObject(self, [self value], item);
 }
 
 - (id) itemIsSelected:(id)item {

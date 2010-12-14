@@ -46,6 +46,7 @@ var UTIL = require("util");
 - (id) init {
 	[super init];
 	anyValue = "";
+    size = 10;
 	return self;
 }
 
@@ -79,17 +80,17 @@ var UTIL = require("util");
 	var _bindings = [super Bindings];
 	return UTIL.update(_bindings, {
 		selection: {
-			type: "Selection",
+			type: "WMSelection",
 			bindings: {
-				list: 'list',
-				value: 'value',
-				displayString: 'displayString',
+				list: keypath('list'),
+				value: keypath('value'),
+				displayString: keypath('displayString'),
 				selectedValues: objj('[WMArray arrayFromObject:[self selection]]'),
-				name: 'name',
-				size: 'size',
-				isMultiple: 'isMultiple',
-				anyString: 'anyString',
-				anyValue: 'anyValue',
+				name: keypath('name'),
+				size: keypath('size'),
+				isMultiple: keypath('isMultiple'),
+				anyString: keypath('anyString'),
+				anyValue: keypath('anyValue'),
 			},
 		}
 	});

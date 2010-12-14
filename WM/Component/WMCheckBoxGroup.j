@@ -76,34 +76,13 @@ var UTIL = require("util");
 }
 
 - (id) displayStringForItem:(id)item {
-	return _p_valueForKey(item, [self displayString]);
-	//if (item && item.isa && [item respondsToSelector:@SEL("valueForKey:")]) {
-	//	return [item valueForKey:[self displayString]];
-	//}
-	//if (_p_isHash(item)) {
-	//	if ([self displayString] in item) {
-	//		return item[[self displayString]];
-	//	} else {
-	//		return nil;
-	//	}
-	//}
-	//return item;
+    if (typeof item === "string") { return item }
+	return __valueForKey_onObject(self, [self displayString], item);
 }
 
 - (id) valueForItem:(id)item {
-	return _p_valueForKey(item, [self value]);
-	//var v;
-	//if (UNIVERSAL::can(item, "valueForKey")) {
-	//	return [item valueForKey:self->value()];
-	//}
-	//if (IFDictionary.isHash(item)) {
-	//	if (exists(item[[self value]])) {
-	//		return item[[self value]];
-	//	} else {
-	//		return null;
-	//	}
-	//}
-	//return item;
+    if (typeof item === "string") { return item }
+	return __valueForKey_onObject(self, [self value], item);
 }
 
 - name {
@@ -126,15 +105,15 @@ var UTIL = require("util");
 		},
 		value: {
 			type: "STRING",
-			value: objj('[self valueForItem:[self anItem]]'),
+			value: keypath('valueForItem(anItem)'),
 		},
 		is_selected: {
 			type: "BOOLEAN",
-			value: objj('[self itemIsSelected:[self anItem]]'),
+			value: keypath('itemIsSelected(anItem)'),
 		},
 		display_string: {
 			type: "STRING",
-			value: objj('[self displayStringForItem:[self anItem]]'),
+			value: keypath('displayStringForItem(anItem)'),
 		},
 		should_enable_client_side_scripting: {
 			type: "BOOLEAN",

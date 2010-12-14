@@ -2,6 +2,7 @@
 <binding_if:should_render_in_table>
 <table>
 	<!-- TODO: implement isVerticalLayout here for table too -->
+    <!-- TODO: use a radio button component... ?! -->
 	<binding_loop:list>
 		<tr><td>
 		<input type="radio" name="<binding:name />" value="<binding:value />" <binding_if:is_selected> CHECKED</binding_if:is_selected> %_TAG_ATTRIBUTES_% />

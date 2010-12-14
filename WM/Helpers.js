@@ -120,9 +120,9 @@ _p_isHash = function(a) {
         } else {
             return false;
         }
-    } else {
-        return false;
-    }
+    }// else {
+    //    return false;
+    //}
     return typeof a == "object";
 }
 
