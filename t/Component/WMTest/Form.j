@@ -34,8 +34,21 @@
 
 // testing page resources
 - (id) requiredPageResoures {
-    return [ ]
+    return []
 }
+
+- (id) init {
+    radioButtonGroup = "D";
+    checkBoxGroup = ["F", "S"];
+    textFieldValue = "Spohr, Ludwig";
+    textValue = "Dussek, Jan Ladislav";
+    hiddenFieldValue = "Hummel, Johann Nepomuk";
+    popUpMenu = "G";
+    scrollingList = "V";
+    selection = ["B"];
+    return [super init];
+}
+
 
 - (CPDictionary) Bindings {
     return {
@@ -127,7 +140,7 @@
                     { value: 'C', displayString: 'Cui, Cesar', },
                     { value: 'G', displayString: 'Glinka, Mikhail', },
                 ],
-                selection: 'scrollingList',
+                selectedValues: 'selection',
                 value: raw('value'),
                 displayString: raw('displayString'),
             },
