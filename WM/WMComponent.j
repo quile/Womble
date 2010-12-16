@@ -1352,7 +1352,7 @@ var BINDING_DISPATCH_TABLE = {
 //}
 //
 
-- performParentAction:(id)actionName inContext:(id)context {
+- (id) performParentAction:(id)actionName inContext:(id)context {
     if (![self parent]) {
         [WMLog warning:"Attempt to perform parent action failed - parent is null"];
         return nil;

@@ -38,6 +38,7 @@
 }
 
 - (id) init {
+    // initial values to make sure they're populated correctly
     radioButtonGroup = "D";
     checkBoxGroup = ["F", "S"];
     textFieldValue = "Spohr, Ludwig";

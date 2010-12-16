@@ -116,14 +116,15 @@ var START_TIME = 0;
     return MESSAGE_TYPES[aType];
 }
 
-+ startLoggingTransaction {
++ startLoggingTransaction:(WMRequest)r {
+    // FIXME:kd - use request to record start and stop times to be threadsafe
     START_TIME = [CPDate date];
     [WMLog clearMessageBuffer];
     [WMLog addMessage:
         [WMLogMessage newWithType:CODE_INFO andMessage:"======================================="]];
 }
 
-+ endLoggingTransaction {
++ endLoggingTransaction:(WMRequest)r {
     var elapsedTime = [CPDate timeIntervalSinceDate:date];
     [WMLog addMessage:
         [WMLogMessage newWithType:CODE_INFO addMessage:"Total elapsed time: " + elapsedTime + " seconds"]];

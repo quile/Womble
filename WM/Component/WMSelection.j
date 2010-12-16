@@ -158,7 +158,7 @@ var UTIL = require("util");
 	var l = [];
 	for (var i=0; i<values.length; i++) {
 		var value = values[i];
-		l.push({ VALUE: value, LABEL: lables[value] });
+		l.push({ VALUE: value, LABEL: labels[value] });
 	}
 	return l;
 }
