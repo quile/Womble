@@ -522,9 +522,10 @@ var NULL_SESSION_ID = "x";
 
 - (WMApplication) application {
     if (!_application) {
-        _application = [WMApplication applicationInstanceWithName:[[self request] applicationName]];
+        var applicationName = [[self request] applicationName];
+        _application = [WMApplication applicationInstanceWithName:applicationName];
         if (!_application) {
-            throw [CPException raise:"CPException" reason:"Application cannot be determined from context"];
+            [CPException raise:"CPException" reason:"Application " + applicationName + " cannot be determined from context"];
         }
     }
     return _application;

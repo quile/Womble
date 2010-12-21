@@ -24,6 +24,7 @@
 @import "Request/WMOfflineRequest.j"
 @import "WMContext.j"
 @import "WMTemplate.j"
+@import "WMException.j"
 @import "Bindings.js"
 
 //@import "I18N.j"
@@ -357,7 +358,7 @@ var BINDING_DISPATCH_TABLE = {
     // _context gets set the context that was passed in so
     // that it's available during rendering for other methods.
     if (context) {
-        _context = context;
+        [self setContext:context];
     }
 
     // add any page resources that the component is requesting:
@@ -376,9 +377,9 @@ var BINDING_DISPATCH_TABLE = {
 
     if (!template) {
         // what to do here?
-        _context = nil;
+        [self setContext:nil];
         [self _setRenderState:nil];
-        throw [CPException raise:"CPException" reason:"Couldn't find template for response"];
+        throw [[WMInternalServerError alloc] initWithName:"WMInternalServerError" reason:"Couldn't find template for response"];
     }
 
     var pregeneratedContent = {};
@@ -653,7 +654,7 @@ var BINDING_DISPATCH_TABLE = {
     // Trying to allow components to reset their values
     [self resetValues];
     [self _setRenderState:nil];
-    _context = nil;
+    [self setContext:nil];
     return;
 }
 
@@ -1028,7 +1029,7 @@ var BINDING_DISPATCH_TABLE = {
     if (!directActionName) { return }
 
     // expose the context to action handlers
-    _context = context;
+    [self setContext:context];
 
     // only invoke a method if it's predefined
     var methodName;
@@ -1656,7 +1657,7 @@ var BINDING_DISPATCH_TABLE = {
         [request setApplicationName:[[self application] name]];
         context = [WMContext contextForRequest:request];
     }
-    _context = context;
+    [self setContext:context];
     var response = parameters['response'] || [self response];
     [self appendToResponse:response inContext:context];
     return [response content];

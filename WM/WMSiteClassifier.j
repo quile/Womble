@@ -17,6 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+@import <Foundation/CPBundle.j>
 @import <WM/WMObjectContext.j>
 @import <WM/WMQualifier.j>
 @import <WM/Entity/WMTransientEntity.j>
@@ -238,11 +239,18 @@ sub locationAsString {
 
 - (id) pathForResource:(id)n forClass:(id)c inApplication:(id)a {
 	var bundles = [[self class], c, a, objj_getClass("WMApplication")];
+    [WMLog debug:"Bundles " + bundles];
     var seen = {};
     for (var i=0; i<bundles.length; i++) {
         var bundleClass = bundles[i];
+        [WMLog debug:"Checking bundle class " + bundleClass];
         if (seen[bundleClass]) { continue }
-        var bundle = [CPBundle bundleForClass:bundleClass];
+        var bundle;
+        try {
+            bundle = [CPBundle bundleForClass:bundleClass];
+        } catch (exception) {
+            [WMLog error:exception];
+        }
         if (bundle) {
             var resourcePath = [bundle pathForResource:n];
             resourcePath = resourcePath.replace(/^file:/, "");
@@ -250,6 +258,8 @@ sub locationAsString {
             if (FILE.exists(resourcePath)) {
                 return resourcePath;
             }
+        } else {
+            [WMLog debug:"Couldn't find bundle for " + bundleClass];
         }
         seen[bundleClass] = true;
 	}

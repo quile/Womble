@@ -30,6 +30,12 @@ var REQUEST = require("jack/request");
     id __formDictionary;
 }
 
++ (id) newFromRequest:(id)r {
+    // TODO:kd - test r and init with the right kind of request
+    var request = [[super new] initWithJackRequest:r];
+    return request;
+}
+
 - (id) initWithEnv:(id)env {
     var jr = new REQUEST.Request(env);
     [self initWithJackRequest:jr];
@@ -45,7 +51,7 @@ var REQUEST = require("jack/request");
     if (_applicationName) { return _applicationName }
     // TODO: where do we get the app name?  in mod_perl, it was
     // set automatically by mod_perl when the request was being routed.
-    //return ENV['WM_APPLICATION_NAME'] || 'WM';
+    return _request.env['womble.application.name'] || 'WM';
 }
 
 - (void) setApplicationName:(id)name {

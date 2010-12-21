@@ -47,28 +47,11 @@ var JSON = require('json');
     WMSiteClassifier _defaultSite;
 }
 
-+ _new:(id)ns {
++ (id) _new:(id)ns {
     return [[super alloc] initWithNamespace:ns];
 }
 
-- (id) initWithNamespace:(id)ns {
-    namespace = ns;
-    _modules = [WMDictionary new];
-
-    if (typeof self != "WMApplication") {
-        /* load config */
-        var config = [self configuration];
-        [self init];
-        [self start];
-    }
-    return self;
-}
-
-- start {
-    [self initialiseI18N];
-}
-
-+ contextClassName {
++ (id) contextClassName {
     return "WMContext";
 }
 
@@ -92,11 +75,28 @@ var JSON = require('json');
     return null;
 }
 
+- (void) start {
+    [self initialiseI18N];
+}
+
 /* This is kind of arbitrary; override it in your app to determine whether or not the app
    is running in "production".
 */
 - environmentIsProduction {
     return ([self configurationValueForKey:"ENVIRONMENT"] == "PROD");
+}
+
+- (id) initWithNamespace:(id)ns {
+    namespace = ns;
+    _modules = [WMDictionary new];
+
+    if (typeof self != "WMApplication") {
+        /* load config */
+        var config = [self configuration];
+        [self init];
+        [self start];
+    }
+    return self;
 }
 
 + applicationInstanceWithName:(id)applicationNameForPath {
@@ -129,20 +129,20 @@ var JSON = require('json');
 }
 
 /* This doesn't apply any ordering to what's returned. */
-+ allApplications {
++ (id) allApplications {
     return [_applications values];
 }
 
 /* some shortcuts */
-+ systemConfiguration {
++ (id) systemConfiguration {
     return [[WMApplication applicationInstanceWithName:"WM"] configuration];
 }
 
-+ systemConfigurationValueForKey:(id)key {
++ (id) systemConfigurationValueForKey:(id)key {
     return [[WMApplication systemConfiguration] objectForKey:key];
 }
 
-+ configurationValueForKey:(id)key inApplication:(id)applicationNameForPath {
++ (id) configurationValueForKey:(id)key inApplication:(id)applicationNameForPath {
     var application = [WMApplication applicationInstanceWithName:applicationNameForPath];
     if (!application) {
         [WMLog error:"Couldn't locate application instance named " + applicationNameForPath];
@@ -154,22 +154,22 @@ var JSON = require('json');
 /* These are primarily designed to support offline apps that
    load the framework outside of apache, and some legacy code
 */
-+ defaultApplication {
++ (id) defaultApplication {
     return [self applicationInstanceWithName:_defaultApplicationName];
 }
 
-+ defaultApplicationName {
++ (id) defaultApplicationName {
     return _defaultApplicationName;
 }
 
 /*instance methods */
 
 /* The app's name is its namespace. */
-- name {
+- (id) name {
     return namespace;
 }
 
-- configurationValueForKey:(id)key {
+- (id) configurationValueForKey:(id)key {
     /* configuration will definitely return at least an empty dictionary */
     if ([self hasConfigurationValueForKey:key]) {
         return [[self configuration] objectForKey:key];
@@ -177,12 +177,12 @@ var JSON = require('json');
     return [WMApplication systemConfigurationValueForKey:key];
 }
 
-- hasConfigurationValueForKey:(id)key {
+- (id) hasConfigurationValueForKey:(id)key {
     var keys = [[self configuration] allKeys];
     return [keys containsObject:key];
 }
 
-- configuration {
+- (id) configuration {
     if (!configuration) {
         //[WMLog debug:"Loading config for namespace " + namespace];
         var configurationClassName = FILE.path("./conf/" + [WMApplication configurationClassForNamespace:namespace]);
@@ -197,15 +197,15 @@ var JSON = require('json');
     return configuration;
 }
 
-+ configurationClassForNamespace:(id)namespace {
++ (id) configurationClassForNamespace:(id)namespace {
     return namespace + ".conf";
 }
 
-- errorPageForError:(id)error inContext:(id)context {
+- (id) errorPageForError:(id)error inContext:(id)context {
     return "<b>" + error + "</b>";
 }
 
-- redirectPageForUrl:(id)url inContext:(id)context {
+- (id) redirectPageForUrl:(id)url inContext:(id)context {
     return "<b>" + url + "</b>";
 }
 
@@ -215,7 +215,7 @@ var JSON = require('json');
    template *without* using the rendering framework, which
    could have caused the yacking in the first place.
 */
-+ _returnTemplateContent:(id)fullPathToTemplate {
++ (id) _returnTemplateContent:(id)fullPathToTemplate {
     [WMLog debug:"Trying to load " + fullPathToTemplate];
     var template = FILE.open(fullPathToTemplate, "r");
     if (template) {
@@ -225,7 +225,7 @@ var JSON = require('json');
     return;
 }
 
-+ safelyLoadTemplateWithNameInContext:(id)context {
++ (id) safelyLoadTemplateWithNameInContext:(id)context {
     if (!template) { return };
     var templateRoot = [self configurationValueForKey:"TEMPLATE_ROOT"];
     var language = context ? [context language] : [self configurationValueForKey:"DEFAULT_LANGUAGE"];
@@ -247,7 +247,7 @@ var JSON = require('json');
     return "";
 }
 
-- cleanUpTransactionInContext:(id)context {
+- (id) cleanUpTransactionInContext:(id)context {
     /* override this in your subclass to perform post-transaction cleanup */
 }
 
@@ -255,7 +255,7 @@ var JSON = require('json');
    contain any ..'s:
 */
 
-+ pathIsSafe:(id)path {
++ (id) pathIsSafe:(id)path {
     var re = /\.\./;
     if (re.test(path)) {
         return false;
@@ -276,7 +276,7 @@ var JSON = require('json');
    expensive require() operation on every request.
 */
 
-+ siteClassifierWithName:(id)n {
++ (id) siteClassifierWithName:(id)n {
     var namespace = [self siteClassifierNamespace];
     var className = [self siteClassifierClassName];
     [WMLog debug:"SC info: " + namespace + " / " + className + " looking for " + n];
@@ -292,7 +292,7 @@ var JSON = require('json');
     return nil;
 }
 
-- defaultSiteClassifier {
+- (id) defaultSiteClassifier {
     if (!_defaultSite) {
         [WMLog debug:"Loading default site classifier"];
         var c = [self class];
@@ -305,25 +305,25 @@ var JSON = require('json');
 /* This will allow an application to interact with its modules */
 
 /* You need to override this in your application */
-- defaultModule {
+- (id) defaultModule {
     [WMLog error:"defaultModule method has not been overridden"];
     return null;
 }
 
-- modules {
+- (id) modules {
     return [_modules allValues];
 }
 
-- moduleWithName:(id)name {
+- (id) moduleWithName:(id)name {
     return [_modules objectForKey:name];
 }
 
-- registerModule:(id)module {
+- (void) registerModule:(id)module {
     [WMLog debug:" `--> registering module " + [module name]];
     [_modules setObject:module forKey:[module name]];
 }
 
-- moduleInContext:(id)context forComponentNamed:(id)componentName {
+- (id) moduleInContext:(id)context forComponentNamed:(id)componentName {
     //for (module in _modules) {
     //    if ([module isOwnerInContext:context ofComponentNamed:componentName]) {
      //       return module;
@@ -333,11 +333,11 @@ var JSON = require('json');
     return [self defaultModule];
 }
 
-- serverName {
+- (id) serverName {
     return [self configurationValueForKey:'SERVER_NAME'];
 }
 
-- initialiseI18N {
+- (id) initialiseI18N {
     /*
     [WMLog info:"Loading I18N modules"];
     var i18nDirectory = [self configurationValueForKey:"APP_ROOT"] + "/" + namespace + "/I18N"; # TODO make this configurable
@@ -354,7 +354,7 @@ var JSON = require('json');
 }
 
 /* override this if you want to change the key */
-- sessionIdKey {
+- (id) sessionIdKey {
     if (!_sessionIdKey) {
         _sessionIdKey = [[self name] lowercaseString]  + "-sid";
     }
@@ -364,7 +364,7 @@ var JSON = require('json');
 /* grab an instance of the mailer here.  You can use it to send mail, but you need to be sure that you
    have all the right bits set in your application's configuration.
 */
-- mailer {
+- (id) mailer {
     /* defer loading of the mailer until now to make it easier for all the classes to load and initialise first. */
     //eval "use WMMailer;";
     //return self._mailer ||= [WMMailer new]->initWithApplication(self);
@@ -398,7 +398,7 @@ var JSON = require('json');
 }
 */
 
-- run {
+- (id) run {
     [self subclassResponsibility];
 }
 

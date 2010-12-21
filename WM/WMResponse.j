@@ -22,13 +22,17 @@
 
 @implementation WMResponse : WMObject
 {
-    id _contentList;
+    id _contentList @accessors(property=contentList);
     WMRenderState _renderState;
+    id _status @accessors(property=status);
+    id _headers @accessors(property=headers);
 }
 
 - init {
     _contentList = ['',];
     _renderState = nil;
+    _status = 200;
+    _headers = {};
     [self setContent:""];
     return self;
 }
@@ -45,6 +49,10 @@
     return _contentList.join("");
 }
 
+- (id) body {
+    return [self contentList];
+}
+
 - (WMRenderState) renderState {
     if (!_renderState) {
         _renderState = [WMRenderState new];
@@ -54,12 +62,7 @@
 
 - (void) setRenderState:(WMRenderState)rs { _renderState = rs; }
 
-/* we'll use these to flush content out as it's generated */
-- (void) setContentIsBuffered:(Boolean)foo { _contentIsBuffered = foo; }
-- (Boolean) contentIsBuffered { return _contentIsBuffered; }
-
-// TODO:kd - Turn these into real response headers
-- (id) contentType    { return _contentType }
-- (void) setContentType:(id)ct { _contentType = ct }
+- (id) contentType    { return _headers['Content-type'] }
+- (void) setContentType:(id)ct { _headers['Content-type'] = ct }
 
 @end

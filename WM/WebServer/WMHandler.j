@@ -22,6 +22,7 @@
 @import <WM/WMContext.j>
 @import <WM/WMRequest.j>
 @import <WM/WMLog.j>
+@import <WM/WMException.j>
 
 var logMask;
 //var _componentNamespace;
@@ -39,8 +40,8 @@ var SESSION_STATUS_MESSAGES_KEY = "__statusMessages";
 //	return _componentNamespace;
 //}
 
-+ (WMContext) contextForRequest:(id)r {
-	var context = [WMContext contextForRequest:r];
++ (WMContext) contextForRequest:(id)request {
+	var context = [WMContext contextForRequest:request];
     if (!context) { return nil }
 
 	// reinflate any saved status messages
@@ -63,7 +64,7 @@ var SESSION_STATUS_MESSAGES_KEY = "__statusMessages";
 + (WMComponent) targetComponentForContext:(id)context {
 	var targetComponentName = [context targetComponentName];
 	var siteClassifier      = [context siteClassifier];
-	return [siteClassifier componentForNameAndContext:context];
+	return [siteClassifier componentForName:targetComponentName andContext:context];
 }
 
 // + (WMResponse) responseForComponentInContext:(id)context {
@@ -78,7 +79,7 @@ var SESSION_STATUS_MESSAGES_KEY = "__statusMessages";
 	// passed in here; the problem is that there is legacy code that
 	// expects to be able to find the context in self.context, and it
 	// won't be set unless we push it in here:
-	component._context = context;
+    [component setContext:context];
 	[component takeValuesFromRequest:context];
 	[WMLog info:"<<<<<<<<<<<<<<<< takeValuesFromRequest"];
 }
@@ -86,11 +87,11 @@ var SESSION_STATUS_MESSAGES_KEY = "__statusMessages";
 + (id) actionResultFromComponent:(WMComponent)component inContext:(id)context {
 	[WMLog info:">>>>>>>>>>>>>>>> direct action [" + [context directAction] + "]"];
 	var result = [component invokeDirectActionNamed:[context directAction] inContext:context];
-	[WMLog info:"<<<<<<<<<<<<<<<< direct action"];
+	[WMLog info:"<<<<<<<<<<<<<<<< direct action returned " + result];
 	return result;
 }
 
-+ (id) allowComponent:(WMComponent)component toAppendToResponseInContext:(id)context {
++ (id) allowComponent:(WMComponent)component toAppendToResponse:(id)response inContext:(id)context {
 	[WMLog info:">>>>>>>>>>>>> appendToResponse() [ " + component + "]"];
 	var result = [component appendToResponse:response inContext:context];
 
@@ -104,26 +105,26 @@ var SESSION_STATUS_MESSAGES_KEY = "__statusMessages";
 }
 
 + (id) handler:(id)lowLevelRequest {
-	var context;
+	var context, request, response;
 	var ERROR_CODE, ERROR_MSG;
 
 	[WMLog debug:"=====================> Main handler invoked"];
 
 	try {
 		// generate a context for this request
-		context = [self contextForRequest:[WMRequest new:lowLevelRequest]];
+        request = [WMRequest newFromRequest:lowLevelRequest];
+		context = [self contextForRequest:request];
+        [WMLog debug:"Inflated context: " + context];
 		if (!context) {
-			ERROR_MSG = "Malformed URL: Failed to instantiate a context for request " + [r uri];
-			ERROR_CODE = NOT_FOUND;
-			return;
+            //[WMBadRequest raise:"WMBadRequest" reason:"Malformed URL: Failed to instantiate a context for request " + [request uri]];
+            throw [[WMBadRequest alloc] initWithName:"WMBadRequest" reason:"Malformed URL: Failed to instantiate a context for request " + [request uri]];
 		}
 
 		// figure out what app and instance this is
 		var application = [context application];
 		if (!application) {
-			ERROR_MSG = "No application object found for request " + [r uri];
-			ERROR_CODE = NOT_FOUND;
-			return;
+            //[WMInternalServerError raise:"WMInternalServerError" reason:"No application object found for request " + [request uri]];
+            throw [[WMInternalServerError alloc] initWithName:"WMInternalServerError" reason:"No application object found for request " + [request uri]];
 		}
 
 		// Initialise the logging subsystem for this transaction
@@ -131,18 +132,15 @@ var SESSION_STATUS_MESSAGES_KEY = "__statusMessages";
 
         // Set the language for this transaction so the I18N methods
         // use the right strings.
-        [WMI18N setLanguage:[context language]];
+        //[WMI18N setLanguage:[context language]];
 
 		// figure out which component we're going to be running with
 		var component = [self targetComponentForContext:context];
 		if (!component) {
-			ERROR_MSG = "No component object found for request " + [r uri];
-			ERROR_CODE = NOT_FOUND;
-			return;
+            //[WMInternalServerError raise:"WMInternalServerError" reason:"No component object found for request " + [request uri]];
+            throw [[WMInternalServerError alloc] initWithName:"WMInternalServerError" reason:"No component object found for request " + [request uri]];
 		}
 		[WMLog info:" - " + [context urlWithQueryString]];
-
-		var response;
 
 		// just before append to response begins, push the CURRENT request's
 		// sid into the query dictionary in case any component (like AsynchronousComponent)
@@ -172,7 +170,7 @@ var SESSION_STATUS_MESSAGES_KEY = "__statusMessages";
 				return [self redirectBrowserToAddress:actionResult inContext:context];
 			}
 		} else {
-		    response = [self responseForComponent:component inContext:context];
+		    response = [component response];
 		}
 
 		// now we have component and response, no matter what the results of
@@ -184,15 +182,19 @@ var SESSION_STATUS_MESSAGES_KEY = "__statusMessages";
 		    }
 		}
 
-		// This sends the generated response back to the client:
-		[self returnResponse:response inContext:context];
-
 		if (logMask) {
 			[WMLog endLoggingTransaction];
-			[WMLog dumpLogForRequest:r usingLogMask:logMask];
+			[WMLog dumpLogForRequest:request usingLogMask:logMask];
 		}
+
+        // This sends the generated response back to the client:
+		return [self returnResponse:response inContext:context];
 	} catch (exception) {
+        if (![exception isKindOfClass:WMException]) {
+            exception = [[WMException alloc] initWithName:"WMException" reason:exception];
+        }
         [WMLog error:exception];
+        return exception;
     }
 
 	if (ERROR_CODE) {
@@ -207,7 +209,7 @@ var SESSION_STATUS_MESSAGES_KEY = "__statusMessages";
 	//	}
 	//	WMLog clearMessageBuffer();
 	//} else {
-	return OK;
+    return response;
 	//}
 }
 
@@ -215,7 +217,6 @@ var SESSION_STATUS_MESSAGES_KEY = "__statusMessages";
     if (![[context session] isNullSession]) {
         [[context session] save];
     }
-	//[context setTransactionValue:context forKey:"context"]; # push itself into the pnotes
 	[WMLog clearMessageBuffer]; // just make sure it's empty
 }
 
@@ -273,9 +274,9 @@ EOH
 	return OK;
 }
 
-+ (void) returnResponseInContext:(id)context {
++ (void) returnResponse:(id)response inContext:(id)context {
 	[self didRenderInContext:context];
-
+    return response;
     /*
 	var r = [context request];
 	var contentType = [response contentType] || [context contentType];

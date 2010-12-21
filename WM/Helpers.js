@@ -198,4 +198,4 @@ _p_keyNameFromNiceName = function(niceName) {
 
 // eval(_p_setTrace) lets you execute javascript in the current context
 // of wherever your eval is.  Useful for checking values of vars and stuff.
-_p_setTrace = "var oj=require('objective-j');var R=require('readline');while(true){try{system.stdout.write('if> ').flush();var line=R.readline();if (line=='q'){break;}var r=eval(line);if (r!==undefined)print(r);}catch(e){print(e);}}";
+_p_setTrace = "var oj=require('objective-j');var R=require('readline');while(true){try{system.stdout.write('wm> ').flush();var line=R.readline();if (line=='q'){break;}var r=eval(line);if (r!==undefined)print(r);}catch(e){print(e);}}";

@@ -19,6 +19,7 @@
 
 @import <WM/WMComponent.j>
 @import <WM/WMPageResource.j>
+@import <WM/WMComponents.j>
 
 @implementation WMTestForm : WMComponent
 {
