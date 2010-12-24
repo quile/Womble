@@ -32,7 +32,10 @@
     _contentList = ['',];
     _renderState = nil;
     _status = 200;
-    _headers = {};
+    // sensible default, I think... you can reset it easily yourself.
+    _headers = {
+        "Content-type": "text/html; charset=utf-8"
+    };
     [self setContent:""];
     return self;
 }

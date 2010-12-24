@@ -43,33 +43,32 @@ var UTIL = require("util");
 }
 
 - (id) itemIsSelected:(id)item {
-	var v;
-
-	if (item && item['isa'] && [item respondsToSelector:@SEL('valueForKey:')]) {
-		v = [item valueForKey:[self value]];
+	var val;
+	if (item && item.isa && [item respondsToSelector:@SEL("valueForKey:")]) {
+		val = [item valueForKey:[self value]];
 	} else if (_p_isHash(item) && [self value] in item) {
-		v = item[[self value]];
+		val = item[[self value]];
 	} else {
-		v = item;
+		val = item;
 	}
 
-	if (v == "") { return false }
+	if (val == "") { return false }
 	if (!_p_isArray([self selection])) { return false }
-	for (var i=0; i<[[self selection] count]; i++) {
+
+	for (var i=0; i<[self selection].length; i++) {
 		var selectedValue = [self selection][i];
+
 		if (typeof selectedValue != "object") {
-			if (selectedValue == value) { return true }
-			if (selectedValue  && selectedValue.match(/^[0-9\.]+$/) &&
-				v && v.match(/^[0-9\.]+$/) &&
-				selectedValue == v) {
+			if (selectedValue == val) { return true }
+			if (selectedValue.match(/^[0-9\.]+$/) && value.match(/^[0-9\.]+$/) && selectedValue == value) {
 				return true;
 			}
 			continue;
 		}
 		if (selectedValue && selectedValue.isa && [selectedValue respondsToSelector:@SEL("valueForKey:")]) {
-			if ([selectedValue valueForKey:[self value]] == value) { return true }
+			return [selectedValue valueForKey:[self value]] == val; //[self value:[selectedValue valueForKey:[self value]] isEqualTo:val];
 		} else {
-			if ([self value] in selectedValue && selectedValue[[self value]]) { return true }
+			return selectedValue[[self value]] == val; //[self value:selectedValue[[self value]] isEqualTo:val];
 		}
 	}
 	return false;

@@ -47,7 +47,7 @@ var UTIL = require("util");
 
 - (id) requiredPageResources {
 	return [
-        [WMPageResource javascript:"/wm-static/javascript/IF/PopUpMenu + js"],
+        [WMPageResource javascript:"/wm-static/javascript/WM/PopUpMenu.js"],
 	];
 }
 
@@ -56,7 +56,7 @@ var UTIL = require("util");
 	if ([self objectInflatorMethod] && [self parent]) {
 		[self setSelection:	[[self parent] invokeMethodWithArguments:[self objectInflatorMethod], [context formValuesForKey:[self name]]]];
 	} else {
-		[self setSelection:[contextxi formValueForKey:[self name]]];
+		[self setSelection:[context formValueForKey:[self name]]];
 	}
 	[WMLog debug:"Selection for " + [self name] + "/" + [self renderContextNumber] + "/" + name + " is " + selection];
 

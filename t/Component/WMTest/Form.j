@@ -46,7 +46,7 @@
     textValue = "Dussek, Jan Ladislav";
     hiddenFieldValue = "Hummel, Johann Nepomuk";
     popUpMenu = "G";
-    scrollingList = "V";
+    scrollingList = ["H", "V"];
     selection = ["B"];
     return [super init];
 }
@@ -78,9 +78,9 @@
                 list: [
                     { value: '', displayString: 'None', },
                     { value: 'D', displayString: 'Debussy, Claude', },
-                    { value: 'F', displayString: 'Fauré, Gabriel', },
+                    { value: 'F', displayString: 'Faur√©, Gabriel', },
                     { value: 'R', displayString: 'Ravel, Maurice', },
-                    { value: 'S', displayString: 'Saint-Saëns, Camille', },
+                    { value: 'S', displayString: 'Saint-Sa√´ns, Camille', },
                 ],
                 selection: 'checkBoxGroup',
                 value: raw('value'),
@@ -125,7 +125,10 @@
             bindings: {
                 list: [
                     { value: '', displayString: 'None', },
-                    { value: 'F', displayString: 'Franck, César', },
+                    { value: 'F', displayString: 'Franck, C√©sar', },
+                    { value: 'H', displayString: 'Haydn, Franz Joseph', },
+                    { value: 'R', displayString: 'Reicha, Antonin', },
+                    { value: 'S', displayString: 'Sor, Fernando', },
                     { value: 'V', displayString: 'Vieuxtemps, Henri', },
                 ],
                 selection: 'scrollingList',

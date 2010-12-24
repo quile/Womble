@@ -86,7 +86,7 @@ var UTIL = require("util");
 
 - (id) itemIsSelected:(id)item {
 	var val;
-	if (item && item.isa && [item respondsToSelector:@SEL("valueForKey")]) {
+	if (item && item.isa && [item respondsToSelector:@SEL("valueForKey:")]) {
 		val = [item valueForKey:[self value]];
 	} else if (_p_isHash(item) && [self value] in item) {
 		val = item[[self value]];
@@ -110,7 +110,7 @@ var UTIL = require("util");
 			}
 			continue;
 		}
-		if (selectedValue && selectedValue.isa && [selectedValue respondsToSelector:@SEL("valueForKey")]) {
+		if (selectedValue && selectedValue.isa && [selectedValue respondsToSelector:@SEL("valueForKey:")]) {
 			return [self value:[selectedValue valueForKey:[self value]] isEqualTo:val];
 		} else {
 			return [self value:selectedValue[[self value]] isEqualTo:val];

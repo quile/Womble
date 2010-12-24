@@ -72,7 +72,7 @@ var QS = require("querystring");
 	if (action) { return action }
 
 	var componentName = targetComponentName;
-	if (componentName == "") {
+	if (!componentName || componentName == "") {
 		componentName = [[self rootComponent] componentNameRelativeToSiteClassifier];
 		if ([self parent]) {
 			var pageContextNumber = [[self parent] pageContextNumber];
@@ -86,7 +86,7 @@ var QS = require("querystring");
 	[al setUrlRoot:[self urlRoot]];
 	[al setSiteClassifierName:[self siteClassifierName]];
 	[al setLanguage:[self language]];
-	[al setTargetComponentName:[self targetComponentName]];
+	[al setTargetComponentName:componentName];
 	[al setDirectAction:[self directAction]];
 
 	var application = [self context] ? [[self context] application] : [WMApplication defaultApplication];
