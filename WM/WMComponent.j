@@ -361,9 +361,10 @@ var BINDING_DISPATCH_TABLE = {
         [self setContext:context];
     }
 
-    // add any page resources that the component is requesting:
     var renderState = [response renderState];
     [self _setRenderState:renderState];
+
+    // add any page resources that the component is requesting:
     [renderState addPageResources:[self requiredPageResources]];
 
     if (context && [context session]) {
@@ -769,9 +770,9 @@ var BINDING_DISPATCH_TABLE = {
     var bindingType = [self bindingIsComponent:binding] ? "COMPONENT" : binding['type'];
     var dispatch = BINDING_DISPATCH_TABLE[bindingType];
     //[WMLog debug:"evaluateBinding: " + bindingType + " binding is " + binding.toSource()];
-    [WMLog debug:"  ----------> start dispatching (" + binding['_NAME']+ ")"];
+    //[WMLog debug:"  ----------> start dispatching (" + binding['_NAME']+ ")"];
     var rv = dispatch(self, binding, context);
-    [WMLog debug:"  <---------- end dispatching (" + binding['_NAME']+ ")"];
+    //[WMLog debug:"  <---------- end dispatching (" + binding['_NAME']+ ")"];
     return rv;
 }
 
@@ -1696,3 +1697,5 @@ var BINDING_DISPATCH_TABLE = {
 }
 
 @end
+
+@import "Category/WMPageResourceHandling.j"

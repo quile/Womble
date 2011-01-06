@@ -38,7 +38,6 @@ var application = [WMApplication applicationInstanceWithName:"WMTest"];
 
 @implementation WMFormTest : OJTestCase
 
-/*
 - (void) testInstantiation {
     var component = [WMForm new];
     [self assertNotNull:component message:"instantiated ok"];
@@ -52,14 +51,13 @@ var application = [WMApplication applicationInstanceWithName:"WMTest"];
     var content = [component render];
     [self assertTrue:content.match("http://www.zig.zag/WMTest/root/fr/FooBar/default")];
 }
-*/
 
 - (void) testTextField {
     var component = [WMTestForm new];
     var content = [component render];
     [self assertTrue:content.match('banana="mango"')];
     [self assertTrue:content.match('rows="5"')];
-    [WMLog debug:content];
+    //[WMLog debug:content];
 }
 
 @end

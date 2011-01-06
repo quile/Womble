@@ -53,7 +53,7 @@
 }
 
 - (id) body {
-    return [self contentList];
+    return [self content];
 }
 
 - (WMRenderState) renderState {

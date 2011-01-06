@@ -49,10 +49,8 @@ var JS_PAGE_RESOURCE_TAG = "<%_JS_PAGE_RESOURCES_%>";
 // the appendToResponse() methods of the different subclasses of WMComponent.
 
 - (void) addPageResourcesToResponse:(id)response inContext:(id)context {
-
 	// cheezy hack
 	if ([self isRootComponent]) {
-//		my $content = $self->_contentWithPageResourcesFromRawContent($response->content());
 		var content = [self _contentWithPageResourcesFromResponse:response];
 		[response setContent:content];
 	}
