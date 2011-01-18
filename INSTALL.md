@@ -50,3 +50,19 @@ all the tests pass.  There is a fair amount of log spewage;  even the ones that
 say <ERROR> are actually OK: it's a test of the logging module.
 
     jake test
+    
+==========================
+
+Tip: Set up an alias in your .bash_profile so you can just type
+
+    Womble
+
+and it will set up all your paths, etc:
+
+    function Womble() {
+        export PS1="<Womble \w>\$ "
+        export WOMBLE=${HOME}/LocalProjects/Womble
+        export PATH=$PATH:${WOMBLE}/local/narwhal/bin:${WOMBLE}/bin
+        export OBJJ_INCLUDE_PATHS=${WOMBLE}/Womble:${WOMBLE}/Womble/WM:${WOMBLE}/t
+        cd ${WOMBLE}
+    }
