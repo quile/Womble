@@ -31,13 +31,13 @@ and install required packages:
     tusk install objective-j
     tusk install jack
     tusk install cappuccino
-    tusk install jdbc-sqlite3
-    tusk install jdbc-sqlite
     tusk install sqlite-jdbc
+    tusk install mysql-jdbc
     tusk install ojunit
 
 Now check out Womble:
 
+    cd ${WOMBLE}
     git clone git@github.com:quile/Womble.git
 
 and set up the environment:
@@ -49,8 +49,15 @@ Now you should be able to run the tests.  I get a few deprecation errors now, bu
 all the tests pass.  There is a fair amount of log spewage;  even the ones that
 say <ERROR> are actually OK: it's a test of the logging module.
 
+    cd ${WOMBLE}/Womble
     jake test
     
+Don't try this unless you're crazy: this will start up the web server on
+port 8080, too:
+
+    jackup
+
+
 ==========================
 
 Tip: Set up an alias in your .bash_profile so you can just type
