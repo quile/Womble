@@ -26,19 +26,19 @@ var _application;
 */
 
 + sessionClassName {
-  return "WMTestEntitySession";
+  return "WMTestSession";
 }
 
 + requestContextClassName {
-  return "WMTestEntityRequestContext";
+  return "WMTestRequestContext";
 }
 
 + siteClassifierClassName {
-  return "WMTestEntitySiteClassifier";
+  return "WMTestSiteClassifier";
 }
 
 + siteClassifierNamespace {
-    return "WMTestEntitySiteClassifier";
+    return "WMTestSiteClassifier";
 }
 
 + defaultModelClassName {

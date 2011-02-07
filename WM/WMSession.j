@@ -13,6 +13,12 @@
     id _externalId @accessors(property=externalId);
 }
 
++ (id) initWithApplication:(id)application {
+    var self = [super init];
+    _application = application;
+    return self;
+}
+
 - (id) application {
     if (_application) {
         return _application;
@@ -61,8 +67,8 @@
 // TODO - fix this API!  This is a lame way to do it;
 // it's either yea or nay like this, whereas it should
 // be fine-grained.
-+ userCanViewAdminPages {
-    return 0;
++ (Boolean) userCanViewAdminPages {
+    return false;
 }
 
 // NOTE: These are a NOP for DB-based sessions unless you implement

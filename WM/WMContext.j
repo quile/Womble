@@ -1,20 +1,26 @@
 /* --------------------------------------------------------------------
  * WM - Web Framework and ORM heavily influenced by WebObjects & EOF
- * (C) kd 2010
+ * The MIT License
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * Copyright (c) 2010 kd
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 
 // FIXME: the API for this class is bent, mostly because it evolved
@@ -65,7 +71,7 @@ var NULL_SESSION_ID = "x";
 // Nothing else should be used to create them.
 //
 //  request is a descendant of WMRequest
-+ contextForRequest:(id)request {
++ (id) contextForRequest:(id)request {
     // grab the application instance:
     var application = [WMApplication applicationInstanceWithName:[request applicationName]];
     var cl = [self class];
@@ -111,16 +117,16 @@ var NULL_SESSION_ID = "x";
     return context;
 }
 
-+ applicationName {
++ (id) applicationName {
     return [WMApplication defaultApplicationName];
 }
 // ...except this, used for off-line generation of
 // contexts
-+ emptyContext {
++ (id) emptyContext {
     return [self emptyContextForApplicationWithName:[self applicationName]];
 }
 
-+ emptyContextForApplicationWithName:(id)appName {
++ (id) emptyContextForApplicationWithName:(id)appName {
     var emptyContext =  [self new];
     [emptyContext setRequest:[WMRequest new]];
     [[emptyContext request] setApplicationName:appName];
@@ -129,7 +135,7 @@ var NULL_SESSION_ID = "x";
 }
 
 //  lang will match fr and fr_ca style languages
-- inflateContextFromRequest {
+- (id) inflateContextFromRequest {
     var uri = [[self request] uri];
 
     [WMLog debug:"Parsing URI: " + uri];
@@ -219,14 +225,13 @@ var NULL_SESSION_ID = "x";
     _request = value;
 }
 
-- newSession {
+- (id) newSession {
     var sessionClassName = [[[self application] class] sessionClassName];
     if (!sessionClassName) {
         throw [CPException raise:"CPException" reason:"No session class name found in application"];
     }
     var sc = objj_getClass(sessionClassName);
-    var session = [sc new];
-    [session setApplication:[self application]];
+    var session = [[sc alloc] initWithApplication:[self application]];
     return session;
 }
 

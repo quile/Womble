@@ -6,8 +6,8 @@ Wombling: "Making good use of bad rubbish"
 
 > Feel free to help out!  There's a lot of work to be done...
 
-This code is under heavy development as of right now,
-November 2, 2010.  It is being ported at a fairly rapid rate
+This code is under active development as of right now,
+January 19th, 2011.  It is being ported at a fairly rapid rate
 from a Perl framework that is stable.  This port can
 not be considered stable in any way at all.  However,
 hopefully this will change soon.
@@ -38,7 +38,7 @@ What is WM?
 -----------
 
 WM is based on the web framework and ORM previously
-in use at Idealist.org.  The original framework was
+in use at my employer.  The original framework was
 developed in-house but heavily influenced by WebObjects
 and EOF.  Porting it to Objective-J seemed fitting
 and convenient; it also fills a gap in providing
@@ -94,7 +94,7 @@ useful tools around at the time in Perl; there was certainly
 no ORM even close to the power of EOF (there still isn't
 but there are some that will do the job).  There was
 no decent component-based web framework, and people
-were still using (and actively encouraging) total rubbish
+were still using (and actively encouraging) total shite
 toolkits like HTML::Mason.
 
 So over the next year or so, the seeds of this code were
@@ -116,12 +116,10 @@ coding-to-necessity is that we actually launch code; we
 can't afford not to.
 
 The perl version of this framework is not (yet) open source,
-but will be soon, as it is being EOL'ed within the next
-few months and being replaced by a more current Python-based
-system.  This obj-j port of the framework is entirely my work;
-none of this code has been used in any
-way whatsoever by my employer. However, I am very thankful
-to them for their generous support.
+but will be soon, as it has been EOL'ed replaced by a 
+more current Python-based system.  This obj-j port of 
+the framework is entirely my work; none of this code has 
+been used in any way whatsoever by my employer.
 
 
 
